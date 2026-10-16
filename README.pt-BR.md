@@ -133,15 +133,25 @@ Inglês, português e espanhol. O Barometer segue o idioma do Mac; dá para esco
 
 ## Para quem quer mexer
 
-| Arquivo | O que tem |
+Um pacote Swift: a `BarometerKit` tem o app inteiro, uma pasta por assunto; o executável `Barometer` só dá a partida;
+os testes usam a biblioteca direto.
+
+| Pasta (`Sources/BarometerKit/`) | O que tem |
 |---|---|
-| `barra.swift` | O app: ícone da barra, janela do painel, ações, portas, memória e processos, sensores |
-| `painel.swift` | O desenho do painel, em SwiftUI |
-| `aparencia.swift` | Aparência: fundos, vidro líquido, paletas, animações |
-| `cpu.swift`, `gpu-disco.swift`, `bateria.swift` | Núcleos e frequência, GPU e disco, bateria |
-| `limpeza.swift` | Limpeza e o modelo do Mac |
-| `idioma.swift` | Os idiomas |
-| `instalar.sh` | Compila com o `swiftc` e monta o `.app` |
+| `App/` | O comando do app, dividido por tarefa: leituras, ícone da barra, painel, ações, limpeza, ajustes, fotos |
+| `Leitores/` | As leituras: memória e processos, CPU (IOReport), GPU, disco, bateria, histórico, limpeza, modelo do Mac |
+| `Portas/` | As portas: a varredura do `lsof`, os projetos e quem o × encerra |
+| `Sistema/` | Sensores, ferramentas, diário, abrir ao ligar, preferências |
+| `Painel/` | O painel em SwiftUI: estado, abas, editor; `Cartoes/` (cartões) e `Pecas/` (peças pequenas reaproveitadas) |
+| `Aparencia/` | Fundos, vidro líquido, paletas, animações, a aba Aparência |
+| `BarraDeMenus/` | O desenho do ícone da barra |
+| `Idioma/` | Os idiomas e as traduções |
+
+```sh
+swift build          # compilar
+swift test           # rodar os testes
+zsh instalar.sh      # montar ~/Applications/Barometer.app
+```
 
 - `barometer --retrato painel.png` desenha o painel numa imagem e sai (`--aba cpu`, `--editar`, `--idioma pt`,
   `--fundo vidro`, `--paleta neon`). O vidro não se desenha fora da tela: nessas imagens ele é imitado desfocando o

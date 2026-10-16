@@ -6,7 +6,7 @@ um `kill` no grupo errado derruba o terminal, o editor ou a sessão de quem est�
 usando a máquina. Aconteceu durante o desenvolvimento — um `kill -TERM -$PGID`
 de teste matou o próprio shell que rodava o teste.
 
-Ela recorta a `Sonda` do próprio `barra.swift`, sobe cobaias de verdade com
+Ela junta a `Sonda` do próprio app (Sources/BarometerKit/Portas), sobe cobaias de verdade com
 árvore de processos conhecida, e confere o que a `trabalho(de:)` decide.
 
     python3 provas/provar-encerrar.py
@@ -19,14 +19,19 @@ import tempfile
 import time
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-fonte = open(os.path.join(RAIZ, "barra.swift"), encoding="utf-8").read()
-# A Sonda passa os nomes pelo tradutor (`t()`), que mora em idioma.swift.
-idioma = open(os.path.join(RAIZ, "idioma.swift"), encoding="utf-8").read().replace("import Foundation", "")
-try:
-    i = fonte.index("// MARK: - Onde ficam as ferramentas")
-    j = fonte.index("// MARK: - O que se pode ligar e desligar")
-except ValueError:
-    sys.exit("não achei os marcos no barra.swift — o recorte precisa ser refeito")
+KIT = os.path.join(RAIZ, "Sources", "BarometerKit")
+
+
+def ler(*caminho):
+    """Um arquivo do app, sem as linhas de import (o arnês põe as suas)."""
+    texto = open(os.path.join(KIT, *caminho), encoding="utf-8").read()
+    return "\n".join(l for l in texto.split("\n") if not l.startswith("import "))
+
+
+# A Sonda e o que ela usa: as ferramentas, o diário, a porta e o tradutor (`t()`).
+fonte = "\n".join(ler(*c) for c in [("Idioma", "Idioma.swift"), ("Idioma", "Traducao.swift"),
+                                     ("Sistema", "Ferramenta.swift"), ("Sistema", "Diario.swift"),
+                                     ("Portas", "Porta.swift"), ("Portas", "Sonda.swift")])
 
 ARNES = r'''
 // ── o arnês ───────────────────────────────────────────────────────────────
@@ -52,7 +57,7 @@ for m in trab.membros { print("membro \(m.pid) \(m.nome) :: \(m.comando)") }
 
 with tempfile.TemporaryDirectory() as tmp:
     swift = os.path.join(tmp, "arnes.swift")
-    open(swift, "w", encoding="utf-8").write("import AppKit\n\n" + idioma + "\n" + fonte[i:j] + ARNES)
+    open(swift, "w", encoding="utf-8").write("import AppKit\n\n" + fonte + ARNES)
     binario = os.path.join(tmp, "arnes")
     c = subprocess.run(["swiftc", "-O", "-o", binario, swift, "-framework", "AppKit"],
                        capture_output=True, text=True)

@@ -16,14 +16,14 @@ passo() { print -P "%F{cyan}·%f $1" }
 feito() { print -P "%F{green}✓%f $1" }
 
 passo "conferindo as ferramentas"
-command -v swiftc >/dev/null || erro "falta o swiftc — rode: xcode-select --install"
+command -v swift >/dev/null || erro "falta o swift — rode: xcode-select --install"
 [ -x /usr/sbin/lsof ] || erro "não achei o /usr/sbin/lsof"
 feito "ferramentas no lugar"
 
 passo "compilando (leva alguns segundos)"
-TEMP=$(mktemp -d)
-swiftc -O -parse-as-library -o "$TEMP/barometer" "$DIR"/*.swift \
-  -framework AppKit -framework IOKit -framework ServiceManagement -lIOReport
+swift build -c release --package-path "$DIR" 2>&1 | grep -E "error|Compiling|Build complete" || true
+BINARIO="$(swift build -c release --package-path "$DIR" --show-bin-path)/barometer"
+[ -x "$BINARIO" ] || erro "não compilou — rode 'swift build' na pasta para ver o erro"
 
 # Fechar a versão antiga antes de trocar o binário debaixo dela.
 pkill -f "barometer.app/Contents/MacOS/barometer" 2>/dev/null || true
@@ -36,7 +36,7 @@ sleep 1
 mkdir -p "$APPS"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
-cp "$TEMP/barometer" "$APP/Contents/MacOS/"
+cp "$BINARIO" "$APP/Contents/MacOS/barometer"
 mkdir -p "$APP/Contents/Resources"
 cp "$DIR/docs/icon/Barometer.icns" "$APP/Contents/Resources/"
 
@@ -64,7 +64,6 @@ PLIST
 # Sem assinatura o "Abrir no login" (SMAppService) não registra.
 codesign -f -s - "$APP" >/dev/null 2>&1
 codesign -v "$APP" 2>/dev/null || erro "a assinatura não fechou"
-rm -rf "$TEMP"
 feito "aplicativo montado em $APP"
 
 open -a "$APP"

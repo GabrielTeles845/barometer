@@ -4,3 +4,5 @@
 !docs/images/pt/*.png
 /build/
 revisao/
+/.build/
+/.swiftpm/

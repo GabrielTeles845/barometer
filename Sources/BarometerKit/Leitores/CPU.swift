@@ -11,8 +11,6 @@
 import Foundation
 import IOKit
 
-// MARK: - IOReport
-
 @_silgen_name("IOReportCopyChannelsInGroup") private func IOReportCopyChannelsInGroup(_ g: CFString?, _ s: CFString?, _ a: UInt64, _ b: UInt64, _ c: UInt64) -> Unmanaged<CFMutableDictionary>?
 @_silgen_name("IOReportCreateSubscription") private func IOReportCreateSubscription(_ a: UnsafeMutableRawPointer?, _ ch: CFMutableDictionary, _ sub: UnsafeMutablePointer<Unmanaged<CFMutableDictionary>?>, _ x: UInt64, _ d: CFTypeRef?) -> OpaquePointer?
 @_silgen_name("IOReportCreateSamples") private func IOReportCreateSamples(_ s: OpaquePointer, _ ch: CFMutableDictionary, _ d: CFTypeRef?) -> Unmanaged<CFDictionary>?
@@ -22,9 +20,6 @@ import IOKit
 @_silgen_name("IOReportStateGetCount") private func IOReportStateGetCount(_ c: CFDictionary) -> Int32
 @_silgen_name("IOReportStateGetNameForIndex") private func IOReportStateGetNameForIndex(_ c: CFDictionary, _ i: Int32) -> Unmanaged<CFString>?
 @_silgen_name("IOReportStateGetResidency") private func IOReportStateGetResidency(_ c: CFDictionary, _ i: Int32) -> Int64
-
-// MARK: - Os núcleos
-
 struct Nucleo {
     let eficiencia: Bool
     let uso: Double
