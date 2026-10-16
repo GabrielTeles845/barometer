@@ -32,6 +32,9 @@ final class Barra: NSObject, NSApplicationDelegate {
     var vigiaDaAba: AnyCancellable?
     /// O macOS trocou entre claro e escuro: no modo automático, o painel acompanha.
     var vigiaDoTema: NSKeyValueObservation?
+    /// Quando cada app foi usado pela última vez (para sugerir o que está parado).
+    let usoDosApps = UsoDosApps()
+    var sugestoesEm = Date.distantPast
     var limpezaMedidaEm = Date.distantPast
     let leitorDeDisco = LeitorDeDisco()
     let leitorDeBateria = LeitorDeBateria()

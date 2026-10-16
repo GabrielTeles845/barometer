@@ -21,6 +21,8 @@ final class Estado: ObservableObject {
     /// "MacBook Pro · M3 Pro · 18 GB · macOS 27.0.1", embaixo do título do Geral.
     @Published var sobreMac: String?
     @Published var limpeza: [ItemDeLimpeza] = []
+    /// O que dá para fechar (aba Limpeza): apps parados e servidores ligados há muito tempo.
+    @Published var sugestoes: [Sugestao] = []
     @Published var medindoLimpeza = false
     /// Quanto a última limpeza liberou, para o aviso no topo da aba.
     @Published var liberado: Double?

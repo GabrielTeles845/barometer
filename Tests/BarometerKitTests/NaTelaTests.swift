@@ -7,12 +7,17 @@ import Testing
 struct NaTelaTests {
     let padrao = ItemGeral.padrao
 
-    @Test("Aparência e Limpeza não leem nada")
-    func abasSemLeitura() {
-        for aba in [Aba.aparencia, .limpeza] {
-            for l in Leitura.allCases {
-                #expect(!NaTela.mostra(l, aba: aba, editando: false, geral: padrao), "\(aba) leu \(l)")
-            }
+    @Test("Aparência não lê nada")
+    func aparenciaNaoLe() {
+        for l in Leitura.allCases {
+            #expect(!NaTela.mostra(l, aba: .aparencia, editando: false, geral: padrao), "Aparência leu \(l)")
+        }
+    }
+
+    @Test("Limpeza lê só as sugestões do que fechar")
+    func limpezaSoSugestoes() {
+        for l in Leitura.allCases {
+            #expect(NaTela.mostra(l, aba: .limpeza, editando: false, geral: padrao) == (l == .sugestoes), "Limpeza e \(l)")
         }
     }
 

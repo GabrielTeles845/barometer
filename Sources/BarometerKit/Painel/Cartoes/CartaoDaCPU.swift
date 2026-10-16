@@ -68,12 +68,7 @@ struct CartaoDaCPU: View {
         .fixedSize()
     }
 
-    private func tempo(desde d: Date) -> String {
-        let m = Int(Date().timeIntervalSince(d) / 60)
-        if m < 60 { return "\(m) min" }
-        if m < 60 * 24 { return "\(m / 60) h" }
-        return "\(m / 1440) d \(m / 60 % 24) h"
-    }
+    private func tempo(desde d: Date) -> String { Medida.duracao(Date().timeIntervalSince(d)) }
 
     private var textoTermico: String {
         switch cpu.termico {

@@ -43,7 +43,9 @@ extension Barra {
 
     /// As portas (`lsof`, um processo novo a cada vez): com o painel fechado, só se o número delas está na barra;
     /// com ele aberto, só se a tela mostra as portas.
-    var precisaDasPortas: Bool { painelAberto ? naTela(.portas) || estado.naBarra.contains(.portas) : estado.naBarra.contains(.portas) }
+    var precisaDasPortas: Bool {
+        painelAberto ? naTela(.portas) || naTela(.sugestoes) || estado.naBarra.contains(.portas) : estado.naBarra.contains(.portas)
+    }
 
     /// Com o painel aberto, a cada 2 s: só o que está na tela. Núcleos, GPU, disco e bateria ao vivo (a velocidade
     /// do disco é a dos últimos 2 s), e a lista de quem mais gasta (um `ps` só para as duas listas). A saúde
@@ -53,6 +55,7 @@ extension Barra {
         if naTela(.gpu) { estado.gpu = LeitorDeGPU.ler() }
         if naTela(.disco) { estado.disco = leitorDeDisco.ler() }
         if naTela(.bateria) { estado.bateria = leitorDeBateria.ler(comOficial: true) }
+        if naTela(.sugestoes) { lerSugestoes() }
         guard naTela(.processos) else { return }
         fila.async { [weak self] in
             guard let self else { return }
@@ -67,6 +70,22 @@ extension Barra {
                 self.estado.gastos = porMemoria
                 self.estado.gastosCPU = porCPU
             }
+        }
+    }
+
+    /// Apps parados e servidores antigos. Mudam devagar: no máximo a cada 30 s, com a aba Limpeza aberta.
+    func lerSugestoes() {
+        guard Date().timeIntervalSince(sugestoesEm) > 30 else { return }
+        sugestoesEm = Date()
+        let abertos = usoDosApps.abertos()
+        let portas = self.portas
+        fila.async { [weak self] in
+            let agora = Date()
+            // A lista inteira de apps (não só os 8 do painel): app parado pode não estar entre os que mais gastam.
+            let gastos = Maquina.quemMaisGasta(200).memoria
+            let lista = Sugestoes.apps(abertos, gastos: gastos, agora: agora)
+                + Sugestoes.servidores(portas, inicio: Maquina.inicio, agora: agora)
+            DispatchQueue.main.async { self?.estado.sugestoes = lista }
         }
     }
 

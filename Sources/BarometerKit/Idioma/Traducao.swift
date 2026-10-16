@@ -145,6 +145,8 @@ enum Traducao {
         "As barrinhas e os ícones com as cores do painel.": ("The bars and icons in the panel's colors.",
                                                              "Las barritas y los iconos con los colores del panel."),
         // Estilos, modo e boas-vindas
+        "Dá para fechar": ("You could close", "Puedes cerrar"),
+        "Nada parado há mais de 1 hora.": ("Nothing idle for over an hour.", "Nada inactivo hace más de 1 hora."),
         "PROCESSOS NA LISTA": ("PROCESSES IN THE LIST", "PROCESOS EN LA LISTA"),
         "Clássico": ("Classic", "Clásico"),
         "As cores de sempre.": ("The usual colors.", "Los colores de siempre."),
@@ -194,6 +196,7 @@ enum Traducao {
     static let padroes: [Padrao] = [
         ("%1 livres", "%1 free", "%1 libres"), ("de %1", "of %1", "de %1"), ("%1% usado", "%1% used", "%1% usado"),
         ("máx %1", "max %1", "máx %1"), ("últimos %1 min", "last %1 min", "últimos %1 min"), ("últimas %1 h", "last %1 h", "últimas %1 h"),
+        ("parado há %1", "idle for %1", "inactivo hace %1"), ("aberto há %1", "running for %1", "abierto hace %1"),
         ("%1 núcleos", "%1 cores", "%1 núcleos"), ("memória %1", "memory %1", "memoria %1"), ("%1 mil", "%1k", "%1 mil"),
         ("%1 mi", "%1M", "%1 M"),
         ("carregador de %1 W", "%1 W charger", "cargador de %1 W"), ("o Mac está gastando %1 W", "the Mac is drawing %1 W", "el Mac está consumiendo %1 W"),

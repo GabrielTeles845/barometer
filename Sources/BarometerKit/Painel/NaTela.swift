@@ -5,7 +5,7 @@ import Foundation
 
 /// O que pode ser lido com o painel aberto.
 enum Leitura: CaseIterable {
-    case cpu, gpu, disco, bateria, processos, portas
+    case cpu, gpu, disco, bateria, processos, portas, sugestoes
 }
 
 enum NaTela {
@@ -23,6 +23,7 @@ enum NaTela {
             case .bateria: return ligados.contains("bateria")
             case .processos: return ligados.contains("processos")
             case .portas: return ligados.contains("portas")
+            case .sugestoes: return false
             }
         case .cpu: return leitura == .cpu || leitura == .processos
         case .memoria: return leitura == .processos
@@ -30,7 +31,8 @@ enum NaTela {
         case .disco: return leitura == .disco
         case .bateria: return leitura == .bateria
         case .portas: return leitura == .portas
-        case .limpeza, .aparencia: return false
+        case .limpeza: return leitura == .sugestoes
+        case .aparencia: return false
         }
     }
 }

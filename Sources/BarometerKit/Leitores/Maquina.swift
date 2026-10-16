@@ -50,6 +50,14 @@ enum Maquina {
     private static var ticksAntes: (UInt32, UInt32, UInt32, UInt32)?
 
     /// CPU de todos os núcleos juntos desde a leitura anterior (0 a 1).
+    /// Quando o processo começou, direto do kernel (sem `ps`). Processo que já morreu ou de outro usuário: nil.
+    static func inicio(_ pid: Int32) -> Date? {
+        var info = proc_bsdinfo()
+        let tamanho = Int32(MemoryLayout<proc_bsdinfo>.size)
+        guard proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, tamanho) == tamanho else { return nil }
+        return Date(timeIntervalSince1970: Double(info.pbi_start_tvsec) + Double(info.pbi_start_tvusec) / 1_000_000)
+    }
+
     static func cpu() -> Double? {
         var info = host_cpu_load_info()
         var count = mach_msg_type_number_t(MemoryLayout<host_cpu_load_info>.stride / MemoryLayout<integer_t>.stride)

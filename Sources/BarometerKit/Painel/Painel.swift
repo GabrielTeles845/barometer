@@ -114,6 +114,7 @@ struct Painel: View {
         case .portas:
             Portas(estado: estado, acoes: acoes)
         case .limpeza:
+            CartaoDeSugestoes(estado: estado, acoes: acoes)
             CartaoDaLimpeza(estado: estado, acoes: acoes)
         case .aparencia:
             AbaDeAparencia(estado: estado)

@@ -30,7 +30,7 @@ enum Aba: String, CaseIterable {
         case .gpu: return "cube.transparent"
         case .disco: return "internaldrive"
         case .bateria: return "battery.75percent"
-        case .portas: return "point.3.connected.trianglepath.dotted"
+        case .portas: return "server.rack"
         case .limpeza: return "trash"
         case .aparencia: return "paintpalette"
         }
@@ -77,7 +77,7 @@ enum ItemDaBarra: String, CaseIterable, Codable {
         case .chip: return "thermometer.medium"
         case .bateria: return "battery.75percent"
         case .disco: return "internaldrive"
-        case .portas: return "point.3.connected.trianglepath.dotted"
+        case .portas: return "server.rack"
         }
     }
 
