@@ -22,11 +22,11 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 with tempfile.TemporaryDirectory() as tmp:
     # O arnês é o próprio app (`--arnes-encerrar`): a decisão e o sinal são o código de verdade do botão.
-    c = subprocess.run(["swift", "build", "--package-path", RAIZ], capture_output=True, text=True)
+    c = subprocess.run(["swift", "build", "--package-path", RAIZ], capture_output=True, text=True, timeout=120)
     if c.returncode:
         sys.exit("não compilou:\n" + (c.stdout + c.stderr)[-3000:])
     pasta = subprocess.run(["swift", "build", "--package-path", RAIZ, "--show-bin-path"],
-                           capture_output=True, text=True).stdout.strip()
+                           capture_output=True, text=True, timeout=120).stdout.strip()
     binario = os.path.join(pasta, "barometer")
 
     PORTA = "3399"          # alta e improvável, para não brigar com nada seu
@@ -34,14 +34,14 @@ with tempfile.TemporaryDirectory() as tmp:
 
     def ouvinte():
         r = subprocess.run(["/usr/sbin/lsof", "-nP", f"-iTCP:{PORTA}", "-sTCP:LISTEN"],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, timeout=120)
         for linha in r.stdout.splitlines():
             if "LISTEN" in linha:
                 return int(linha.split()[1])
         return None
 
     def decidir(pid):
-        r = subprocess.run([binario, "--arnes-encerrar", str(pid)], capture_output=True, text=True)
+        r = subprocess.run([binario, "--arnes-encerrar", str(pid)], capture_output=True, text=True, timeout=120)
         plano, membros = None, []
         for linha in r.stdout.splitlines():
             if linha.startswith("plano="):
@@ -177,7 +177,7 @@ with tempfile.TemporaryDirectory() as tmp:
         # Agora pelo caminho do botão.
         alvo3 = ouvinte()
         r = subprocess.run([binario, "--arnes-encerrar", str(alvo3), "--matar"],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, timeout=120)
         provar("o arnês mandou o sinal pelo código do app",
                "sinal=TERM" in r.stdout, r.stdout[:200])
         livre = False

@@ -33,7 +33,8 @@ jobs:
         run: swift test
 
       - name: Prova do × (sobe processos de verdade e confere quem morre)
-        run: python3 provas/provar-encerrar.py
+        timeout-minutes: 4
+        run: python3 -u provas/provar-encerrar.py
 
       - name: Compilar como o instalador
         run: swift build -c release
