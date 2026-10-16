@@ -18,10 +18,10 @@ extension Barra {
         do {
             if Login.ligado {
                 try Login.desligar()
-                UserDefaults.standard.set(true, forKey: "desligouLogin")
+                Pref.desligouLogin = true
             } else {
                 try Login.ligar()
-                UserDefaults.standard.set(false, forKey: "desligouLogin")
+                Pref.desligouLogin = false
             }
             estado.abrirAoLigar = Login.ligado
         } catch {
@@ -35,7 +35,7 @@ extension Barra {
     /// ao entrar na conta e que só abre o app. Liga sozinho na primeira vez; quem
     /// desligar no menu continua desligado.
     func abrirNoLoginNaPrimeiraVez() {
-        guard !UserDefaults.standard.bool(forKey: "desligouLogin"), !Login.ligado else { return }
+        guard !Pref.desligouLogin, !Login.ligado else { return }
         do { try Login.ligar(); Diario.anotar("abrir ao ligar o Mac: ligado") }
         catch { Diario.anotar("abrir ao ligar o Mac: falhou: \(error.localizedDescription)") }
     }
@@ -178,7 +178,7 @@ extension Barra {
             }
             if self.sonda.aindaDono(pid: p.pid, porta: p.numero) {
                 Diario.anotar("não soltou em 4s; mandando KILL")
-                self.sinalizar(p, t, SIGKILL)
+                _ = self.sinalizar(p, t, SIGKILL)
                 Thread.sleep(forTimeInterval: 0.5)
             }
             let ainda = self.sonda.ocupada(p.numero)
@@ -255,7 +255,7 @@ extension Barra {
             alerta.informativeText = t("Como o Cmd+Q: ele fecha as janelas e pergunta se houver algo sem salvar. Usa \(Maquina.gb(g.bytes)) agora.")
             alerta.addButton(withTitle: t("Fechar"))
             alerta.addButton(withTitle: t("Cancelar"))
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
                 NSApp.activate(ignoringOtherApps: true)
                 guard alerta.runModal() == .alertFirstButtonReturn else { return }
                 let apps = NSWorkspace.shared.runningApplications.filter { $0.bundleURL?.path == caminho }

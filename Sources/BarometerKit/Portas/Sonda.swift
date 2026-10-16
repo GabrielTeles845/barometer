@@ -57,7 +57,7 @@ final class Sonda {
     /// intervalos, porque lista de intervalo sempre esquece a porta esquisita que
     /// você usou naquele dia — e porque acima de 10000 mora só porta efêmera,
     /// que o sistema sorteia e ninguém digita no navegador.
-    private static func interessa(_ p: Porta) -> Bool {
+    static func interessa(_ p: Porta) -> Bool {
         !ehRuido(p.comando) && p.numero < 10000
     }
 
@@ -70,16 +70,7 @@ final class Sonda {
         guard let lsof = Ferramenta.lsof else { return ([], []) }
         let saida = rodar(lsof, ["-nP", "+c", "0", "-iTCP", "-sTCP:LISTEN"])
 
-        var achadas: [Int: Porta] = [:]   // por número: IPv4 e IPv6 são a mesma porta
-        for linha in saida.split(separator: "\n") {
-            guard let p = interpretar(String(linha)) else { continue }
-            // `*:3000` e `127.0.0.1:3000` do mesmo processo são uma porta só.
-            // Fica a de escopo mais largo, que é a que realmente responde.
-            if let antes = achadas[p.numero], antes.endereco == "*" { continue }
-            achadas[p.numero] = p
-        }
-
-        var lista = Array(achadas.values)
+        var lista = Sonda.portas(daSaidaDoLsof: saida)
         var ocultas: [(numero: Int, nome: String)] = []
         if !tudo {
             // As escondidas não são enriquecidas (um `ps` por porta de sistema
@@ -106,11 +97,23 @@ final class Sonda {
         return (lista.sorted { $0.numero < $1.numero }, ocultas)
     }
 
+    /// As portas da saída do `lsof`, uma por número: IPv4 e IPv6 são a mesma porta, e `*:3000` e
+    /// `127.0.0.1:3000` do mesmo processo também. Fica a de escopo mais largo, que é a que realmente responde.
+    static func portas(daSaidaDoLsof saida: String) -> [Porta] {
+        var achadas: [Int: Porta] = [:]
+        for linha in saida.split(separator: "\n") {
+            guard let p = interpretar(String(linha)) else { continue }
+            if let antes = achadas[p.numero], antes.endereco == "*" { continue }
+            achadas[p.numero] = p
+        }
+        return achadas.values.sorted { $0.numero < $1.numero }
+    }
+
     /// Uma linha do `lsof` em modo normal. Colunas: COMMAND PID USER FD TYPE
     /// DEVICE SIZE/OFF NODE NAME (LISTEN). Cortar por espaço é seguro porque o
     /// `lsof` escapa o espaço do nome do processo como `\x20` — "Code Helper"
     /// chega como um único pedaço.
-    private func interpretar(_ linha: String) -> Porta? {
+    static func interpretar(_ linha: String) -> Porta? {
         guard linha.hasSuffix("(LISTEN)") else { return nil }
         let campos = linha.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
         guard campos.count >= 10, let pid = Int32(campos[1]) else { return nil }
@@ -145,7 +148,7 @@ final class Sonda {
         } else if let ps = Ferramenta.ps {
             let bruto = rodar(ps, ["-p", String(p.pid), "-o", "command="])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            let curto = resumir(bruto, nomeDoProcesso: p.comando)
+            let curto = Sonda.resumir(bruto, nomeDoProcesso: p.comando)
             detalheDe[p.pid] = curto
             p.detalhe = curto
         }
@@ -180,10 +183,9 @@ final class Sonda {
     /// Sobe da pasta até achar a raiz do projeto: o `name` do package.json, ou o
     /// nome da pasta que tem `.git`, `Cargo.toml`, `go.mod` ou `pyproject.toml`.
     /// Para no diretório pessoal: acima dele não há projeto de ninguém.
-    func projeto(de pasta: String) -> String? {
+    func projeto(de pasta: String, casa: String = NSHomeDirectory()) -> String? {
         if let pronto = projetoDe[pasta] { return pronto.isEmpty ? nil : pronto }
         let fm = FileManager.default
-        let casa = NSHomeDirectory()
         var atual = pasta
         var achado = ""
         while atual.count > 1, atual != casa, atual.hasPrefix(casa) || atual == pasta {
@@ -213,7 +215,7 @@ final class Sonda {
     /// importa está sempre nas primeiras palavras, e o caminho absoluto do
     /// binário é ruído. `/usr/bin/node /caminho/longo/next start` viraria
     /// `node next start`.
-    private func resumir(_ bruto: String, nomeDoProcesso: String) -> String {
+    static func resumir(_ bruto: String, nomeDoProcesso: String) -> String {
         guard !bruto.isEmpty else { return nomeDoProcesso }
         // O Next, o Vite e companhia reescrevem o próprio título do processo
         // para algo já pronto — `next-server (v14.2.24)`. Quando vem assim, não

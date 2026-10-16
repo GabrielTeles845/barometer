@@ -22,7 +22,7 @@ struct Portas: View {
                         }
                         Spacer(minLength: 4)
                         if p.doDocker {
-                            Text(t("docker")).font(.system(size: 9, weight: .medium)).foregroundStyle(Tinta.memoria)
+                            Text(verbatim: "docker").font(.system(size: 9, weight: .medium)).foregroundStyle(Tinta.memoria)
                                 .padding(.horizontal, 5).padding(.vertical, 1)
                                 .background(Capsule().fill(Tinta.memoria.opacity(0.14)))
                         }

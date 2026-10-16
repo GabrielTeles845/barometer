@@ -43,7 +43,7 @@ final class Barra: NSObject, NSApplicationDelegate {
     /// O app se chamava "Portas na Barra": as escolhas de lá (favoritas, ordem do Geral, filtro) vêm junto uma vez,
     /// e o "abrir ao ligar o Mac" antigo dá lugar ao novo.
     func trazerDoNomeAntigo() {
-        let novo = UserDefaults.standard
+        let novo = Pref.armazem
         guard !novo.bool(forKey: "trouxeDoNomeAntigo") else { return }
         novo.set(true, forKey: "trouxeDoNomeAntigo")
         if let antigo = UserDefaults(suiteName: "com.gabrielteles.portas-na-barra") {

@@ -13,6 +13,8 @@ let package = Package(
     targets: [
         .target(
             name: "BarometerKit",
+            // O app ainda segue as regras de concorrência do Swift 5 (a passagem para o 6 é um trabalho à parte).
+            swiftSettings: [.swiftLanguageMode(.v5)],
             linkerSettings: [
                 .linkedFramework("AppKit"),
                 .linkedFramework("IOKit"),
@@ -21,8 +23,8 @@ let package = Package(
                 .linkedLibrary("IOReport"),
             ]
         ),
-        .executableTarget(name: "Barometer", dependencies: ["BarometerKit"]),
+        .executableTarget(name: "Barometer", dependencies: ["BarometerKit"], swiftSettings: [.swiftLanguageMode(.v5)]),
         .testTarget(name: "BarometerKitTests", dependencies: ["BarometerKit"]),
-    ],
-    swiftLanguageModes: [.v5]
+        // Os testes ficam no modo 6: no modo 5, estas ferramentas não acham as macros do Swift Testing.
+    ]
 )

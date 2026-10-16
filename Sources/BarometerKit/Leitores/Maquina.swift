@@ -122,10 +122,15 @@ enum Maquina {
         do { try p.run() } catch { return ([], []) }
         let dados = cano.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
-        let eu = getuid()
+        return agrupar(String(data: dados, encoding: .utf8) ?? "", eu: getuid(), quantos: quantos)
+    }
+
+    /// A saída do `ps -axo rss=,pcpu=,pid=,uid=,comm=` agrupada: cada aplicativo vira uma linha só (o Chrome com
+    /// os seus trinta ajudantes), processo solto fica sozinho. Devolve os maiores por memória e por CPU.
+    static func agrupar(_ saida: String, eu: uid_t, quantos: Int = 8) -> (memoria: [Gasto], cpu: [Gasto]) {
         struct Soma { var bytes: Double; var n: Int; var pid: Int32; var maior: Double; var app: String?; var meu: Bool; var cpu: Double }
         var grupos: [String: Soma] = [:]
-        for linha in (String(data: dados, encoding: .utf8) ?? "").split(separator: "\n") {
+        for linha in saida.split(separator: "\n") {
             let partes = linha.split(separator: " ", maxSplits: 4, omittingEmptySubsequences: true)
             guard partes.count == 5, let kb = Double(partes[0]), let pcpu = Double(partes[1].replacingOccurrences(of: ",", with: ".")),
                   let pid = Int32(partes[2]), let uid = UInt32(partes[3]) else { continue }

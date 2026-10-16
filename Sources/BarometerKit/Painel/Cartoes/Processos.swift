@@ -65,7 +65,7 @@ struct Processos: View {
 
     private func detalhe(_ g: Maquina.Gasto) -> String {
         if g.pid == ProcessInfo.processInfo.processIdentifier || g.nome == "Barometer" { return "este app" }
-        if let o = Maquina.doSistema[g.nome].map(t) { return g.meu ? o : t("sistema · ") + o }
+        if let o = Maquina.doSistema[g.nome].map(t) { return g.meu ? o : t("sistema") + " · " + o }
         if !g.meu { return "sistema" }
         if g.processos > 1 { return "\(g.processos) proc." }
         return g.projeto ?? ""

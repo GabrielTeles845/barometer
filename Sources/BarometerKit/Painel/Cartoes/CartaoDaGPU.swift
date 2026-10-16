@@ -9,7 +9,7 @@ struct CartaoDaGPU: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
-                Text(t("GPU")).font(.system(size: 9.5, weight: .bold)).foregroundStyle(Tinta.gpu)
+                Text(verbatim: "GPU").font(.system(size: 9.5, weight: .bold)).foregroundStyle(Tinta.gpu)
                 Text([gpu.modelo, gpu.nucleos.map { "\($0) núcleos" }].compactMap { $0 }.joined(separator: " · "))
                     .font(.system(size: 9.5)).foregroundStyle(Tinta.fraco)
                 Spacer()

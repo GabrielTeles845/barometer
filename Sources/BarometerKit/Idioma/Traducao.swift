@@ -2,6 +2,23 @@ import Foundation
 
 enum Traducao {
     /// Português → (inglês, espanhol).
+    /// A frase em inglês ou espanhol, ou nil quando não há tradução. Primeiro a frase exata; depois os padrões
+    /// com número no meio ("%1 livres"), que levam o mesmo pedaço para o mesmo lugar da tradução.
+    static func traduzir(_ frase: String, para idioma: Idioma) -> String? {
+        if let par = exatas[frase] { return idioma == .en ? par.0 : par.1 }
+        for p in padroes {
+            let alcance = NSRange(frase.startIndex..., in: frase)
+            guard let achado = p.regex.firstMatch(in: frase, range: alcance) else { continue }
+            var saida = idioma == .en ? p.en : p.es
+            for i in (1..<achado.numberOfRanges).reversed() {
+                guard let r = Range(achado.range(at: i), in: frase) else { continue }
+                saida = saida.replacingOccurrences(of: "%\(i)", with: String(frase[r]))
+            }
+            return saida
+        }
+        return nil
+    }
+
     static let exatas: [String: (String, String)] = [
         // Abas e cartões
         "Geral": ("Overview", "General"), "Memória": ("Memory", "Memoria"), "Disco": ("Disk", "Disco"),

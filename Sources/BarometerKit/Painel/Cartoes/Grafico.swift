@@ -101,26 +101,9 @@ struct Grafico: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: horas(pontos)) { v in
+            AxisMarks(values: EixoDoTempo.marcas(de: pontos.first?.quando, ate: pontos.last?.quando)) { v in
                 AxisValueLabel(format: .dateTime.hour().minute()).font(.system(size: 9)).foregroundStyle(Tinta.fraco)
             }
         }
-    }
-
-    /// As horas embaixo do gráfico, em minutos redondos e nunca repetidas: o passo cresce com o intervalo
-    /// (1, 2, 5, 10… minutos) para caberem até 4. Com menos de 2 minutos de leitura, nenhuma.
-    private func horas(_ pontos: [Historico.Ponto]) -> [Date] {
-        guard let inicio = pontos.first?.quando, let fim = pontos.last?.quando else { return [] }
-        let minutos = fim.timeIntervalSince(inicio) / 60
-        guard minutos >= 2 else { return [] }
-        let passo = [1.0, 2, 5, 10, 15, 30, 60, 120].first { minutos / $0 <= 4 } ?? 120
-        let segundos = passo * 60
-        var marca = (inicio.timeIntervalSince1970 / segundos).rounded(.up) * segundos
-        var marcas: [Date] = []
-        while marca <= fim.timeIntervalSince1970 {
-            marcas.append(Date(timeIntervalSince1970: marca))
-            marca += segundos
-        }
-        return marcas
     }
 }

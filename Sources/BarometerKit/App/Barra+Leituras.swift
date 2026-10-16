@@ -34,42 +34,26 @@ extension Barra {
         desenharIcone()
     }
 
-    /// O que a tela aberta mostra agora: a aba, ou os cartões ligados do Geral. Só isso é lido enquanto o
-    /// painel está aberto; o resto espera a pessoa ir até lá.
-    func naTela(_ coisa: String) -> Bool {
-        switch estado.abaAtual {
-        case .geral:
-            if estado.editandoGeral { return false }
-            let ligados = Set(estado.geral.filter(\.ligado).map(\.id))
-            switch coisa {
-            case "gpu": return ligados.contains("gpu") || ligados.contains("aneis")
-            default: return ligados.contains(coisa)
-            }
-        case .cpu: return coisa == "cpu" || coisa == "processos"
-        case .memoria: return coisa == "processos"
-        case .gpu: return coisa == "gpu"
-        case .disco: return coisa == "disco"
-        case .bateria: return coisa == "bateria"
-        case .portas: return coisa == "portas"
-        case .limpeza, .aparencia: return false
-        }
+    /// O que a tela aberta mostra agora (ver `NaTela`).
+    func naTela(_ leitura: Leitura) -> Bool {
+        NaTela.mostra(leitura, aba: estado.abaAtual, editando: estado.editandoGeral, geral: estado.geral)
     }
 
     var painelAberto: Bool { janela?.isVisible == true }
 
     /// As portas (`lsof`, um processo novo a cada vez): com o painel fechado, só se o número delas está na barra;
     /// com ele aberto, só se a tela mostra as portas.
-    var precisaDasPortas: Bool { painelAberto ? naTela("portas") || estado.naBarra.contains(.portas) : estado.naBarra.contains(.portas) }
+    var precisaDasPortas: Bool { painelAberto ? naTela(.portas) || estado.naBarra.contains(.portas) : estado.naBarra.contains(.portas) }
 
     /// Com o painel aberto, a cada 2 s: só o que está na tela. Núcleos, GPU, disco e bateria ao vivo (a velocidade
     /// do disco é a dos últimos 2 s), e a lista de quem mais gasta (um `ps` só para as duas listas). A saúde
     /// oficial da bateria (system_profiler) só com a bateria na tela.
     func lerGastos() {
-        if naTela("cpu") { estado.cpuDetalhada = leitorDeCPU.ler() }
-        if naTela("gpu") { estado.gpu = LeitorDeGPU.ler() }
-        if naTela("disco") { estado.disco = leitorDeDisco.ler() }
-        if naTela("bateria") { estado.bateria = leitorDeBateria.ler(comOficial: true) }
-        guard naTela("processos") else { return }
+        if naTela(.cpu) { estado.cpuDetalhada = leitorDeCPU.ler() }
+        if naTela(.gpu) { estado.gpu = LeitorDeGPU.ler() }
+        if naTela(.disco) { estado.disco = leitorDeDisco.ler() }
+        if naTela(.bateria) { estado.bateria = leitorDeBateria.ler(comOficial: true) }
+        guard naTela(.processos) else { return }
         fila.async { [weak self] in
             guard let self else { return }
             var (porMemoria, porCPU) = Maquina.quemMaisGasta()
