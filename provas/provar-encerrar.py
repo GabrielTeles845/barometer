@@ -6,7 +6,7 @@ um `kill` no grupo errado derruba o terminal, o editor ou a sessão de quem est�
 usando a máquina. Aconteceu durante o desenvolvimento — um `kill -TERM -$PGID`
 de teste matou o próprio shell que rodava o teste.
 
-Ela junta a `Sonda` do próprio app (Sources/BarometerKit/Portas), sobe cobaias de verdade com
+Ela usa o próprio app compilado (`barometer --arnes-encerrar <pid>`), sobe cobaias de verdade com
 árvore de processos conhecida, e confere o que a `trabalho(de:)` decide.
 
     python3 provas/provar-encerrar.py
@@ -19,50 +19,15 @@ import tempfile
 import time
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-KIT = os.path.join(RAIZ, "Sources", "BarometerKit")
-
-
-def ler(*caminho):
-    """Um arquivo do app, sem as linhas de import (o arnês põe as suas)."""
-    texto = open(os.path.join(KIT, *caminho), encoding="utf-8").read()
-    return "\n".join(l for l in texto.split("\n") if not l.startswith("import "))
-
-
-# A Sonda e o que ela usa: as ferramentas, o diário, a porta e o tradutor (`t()`).
-fonte = "\n".join(ler(*c) for c in [("Idioma", "Idioma.swift"), ("Idioma", "Traducao.swift"),
-                                     ("Sistema", "Ferramenta.swift"), ("Sistema", "Diario.swift"),
-                                     ("Portas", "Porta.swift"), ("Portas", "Sonda.swift")])
-
-ARNES = r'''
-// ── o arnês ───────────────────────────────────────────────────────────────
-// Recebe um PID e imprime o que a `trabalho(de:)` decidiu, numa linha por
-// membro, para o Python conferir.
-let sonda = Sonda()
-guard CommandLine.arguments.count > 1, let alvo = Int32(CommandLine.arguments[1]) else {
-    print("uso: arnes <pid>"); exit(2)
-}
-guard let trab = sonda.trabalho(de: alvo) else { print("plano=nenhum"); exit(0) }
-// Com `--matar`, executa o encerramento pelo MESMO caminho do botão: a decisão
-// e o sinal são os da Sonda, não uma reimplementação do teste.
-if CommandLine.arguments.contains("--matar") {
-    sonda.sinalizar(trab.plano, trab.membros, SIGTERM)
-    print("sinal=TERM")
-}
-switch trab.plano {
-case .grupo(let g): print("plano=grupo \(g)")
-case .processos:    print("plano=processos")
-}
-for m in trab.membros { print("membro \(m.pid) \(m.nome) :: \(m.comando)") }
-'''
 
 with tempfile.TemporaryDirectory() as tmp:
-    swift = os.path.join(tmp, "arnes.swift")
-    open(swift, "w", encoding="utf-8").write("import AppKit\n\n" + fonte + ARNES)
-    binario = os.path.join(tmp, "arnes")
-    c = subprocess.run(["swiftc", "-O", "-o", binario, swift, "-framework", "AppKit"],
-                       capture_output=True, text=True)
+    # O arnês é o próprio app (`--arnes-encerrar`): a decisão e o sinal são o código de verdade do botão.
+    c = subprocess.run(["swift", "build", "--package-path", RAIZ], capture_output=True, text=True)
     if c.returncode:
-        sys.exit("não compilou:\n" + c.stderr[:2000])
+        sys.exit("não compilou:\n" + (c.stdout + c.stderr)[-3000:])
+    pasta = subprocess.run(["swift", "build", "--package-path", RAIZ, "--show-bin-path"],
+                           capture_output=True, text=True).stdout.strip()
+    binario = os.path.join(pasta, "barometer")
 
     PORTA = "3399"          # alta e improvável, para não brigar com nada seu
     falhas = 0
@@ -76,7 +41,7 @@ with tempfile.TemporaryDirectory() as tmp:
         return None
 
     def decidir(pid):
-        r = subprocess.run([binario, str(pid)], capture_output=True, text=True)
+        r = subprocess.run([binario, "--arnes-encerrar", str(pid)], capture_output=True, text=True)
         plano, membros = None, []
         for linha in r.stdout.splitlines():
             if linha.startswith("plano="):
@@ -211,7 +176,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
         # Agora pelo caminho do botão.
         alvo3 = ouvinte()
-        r = subprocess.run([binario, str(alvo3), "--matar"],
+        r = subprocess.run([binario, "--arnes-encerrar", str(alvo3), "--matar"],
                            capture_output=True, text=True)
         provar("o arnês mandou o sinal pelo código do app",
                "sinal=TERM" in r.stdout, r.stdout[:200])
