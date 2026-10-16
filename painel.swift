@@ -896,7 +896,7 @@ struct CartaoDaMemoria: View {
                     Spacer()
                     HStack(spacing: 5) {
                         Circle().fill(Tinta.pressao(estado.pressao)).frame(width: 6, height: 6)
-                        Text(estado.pressao >= 4 ? "no limite" : estado.pressao >= 2 ? "apertada" : "folgada")
+                        Text(t(estado.pressao >= 4 ? "no limite" : estado.pressao >= 2 ? "apertada" : "folgada"))
                             .font(.system(size: 11)).foregroundStyle(Tinta.apagado)
                     }
                 }

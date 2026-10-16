@@ -37,6 +37,8 @@ mkdir -p "$APPS"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
 cp "$TEMP/barometer" "$APP/Contents/MacOS/"
+mkdir -p "$APP/Contents/Resources"
+cp "$DIR/docs/icon/Barometer.icns" "$APP/Contents/Resources/"
 
 # LSUIElement: aplicativo só de barra — sem ícone no Dock e sem janela.
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -47,6 +49,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleName</key><string>Barometer</string>
   <key>CFBundleDisplayName</key><string>Barometer</string>
   <key>CFBundleExecutable</key><string>barometer</string>
+  <key>CFBundleIconFile</key><string>Barometer</string>
   <key>CFBundleIdentifier</key><string>com.gabrielteles.barometer</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>
