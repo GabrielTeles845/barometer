@@ -32,7 +32,7 @@ estão abertas. Clicou, abre o painel. Cada área tem a sua aba.
 
 ### Geral
 
-O resumo que você monta. Vem com os anéis de CPU, memória, GPU e temperatura do chip, o gráfico das últimas 6 horas,
+O resumo que você monta, embaixo do modelo do Mac, do chip, da memória e da versão do macOS. Vem com os anéis de CPU, memória, GPU e temperatura do chip, o gráfico das últimas 6 horas,
 o disco, a bateria, a memória por partes, o que mais está gastando e as portas. Em **Editar**, cada cartão tem um
 interruptor e você arrasta para mudar a ordem, como na Central de Controle do iPhone.
 
@@ -123,6 +123,23 @@ podem virar favoritas, e aí aparecem como livres quando ninguém está nelas.
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### Limpeza
+
+O que pode sair sem perder nada seu: cache dos apps, do npm, do Bun e do pnpm, dados derivados do Xcode, cache dos
+simuladores e registros antigos, cada um com o tamanho e o que acontece depois de limpar. **Limpar tudo** num clique,
+ou um por um. A Lixeira tem o próprio botão e a própria confirmação, porque não tem volta. Documentos, downloads e
+fotos nunca entram.
+
+</td>
+<td valign="top">
+
+<img src="docs/images/pt/limpeza.png" alt="A aba Limpeza: cache dos apps, do npm e do Bun, registros e a Lixeira, cada um com o tamanho">
+
+</td>
+</tr>
 </table>
 
 ## Idiomas
@@ -205,6 +222,7 @@ Nada é estimado: cada número sai de onde o próprio macOS lê.
 | `cpu.swift` | Núcleos e frequência (IOReport) |
 | `gpu-disco.swift` | GPU e disco |
 | `bateria.swift` | Bateria |
+| `limpeza.swift` | Limpeza e o modelo do Mac |
 | `idioma.swift` | Os idiomas |
 | `instalar.sh` | Compila com o `swiftc` e monta o `.app` |
 

@@ -32,7 +32,7 @@ ports are listening. Click it and the panel opens. Every area has its own tab.
 
 ### Overview
 
-The summary you build yourself. Out of the box: CPU, memory, GPU and chip temperature rings, a 6-hour chart, the
+The summary you build yourself, under your Mac's model, chip, memory and macOS version. Out of the box: CPU, memory, GPU and chip temperature rings, a 6-hour chart, the
 disk, the battery, the memory breakdown, top processes and the open ports. Hit **Edit** to switch each card on or
 off and drag them into any order, like Control Center on the iPhone.
 
@@ -123,6 +123,23 @@ all the time can become favorites, and then they show up as free when nothing is
 
 </td>
 </tr>
+<tr>
+<td valign="top">
+
+### Cleanup
+
+What can go without losing anything of yours: app caches, npm, Bun and pnpm caches, Xcode DerivedData, simulator
+caches and old logs, each one with its size and what happens after you clean it. **Clean everything** in one click,
+or one by one. The Trash has its own button and its own confirmation, because there's no undo. Documents, downloads
+and photos are never touched.
+
+</td>
+<td valign="top">
+
+<img src="docs/images/cleanup.png" alt="The Cleanup tab: app caches, npm and Bun caches, logs and the Trash, each with its size">
+
+</td>
+</tr>
 </table>
 
 ## Languages
@@ -208,6 +225,7 @@ Nothing is estimated: each number comes from where macOS itself reads it.
 | `cpu.swift` | Cores and frequency (IOReport) |
 | `gpu-disco.swift` | GPU and disk |
 | `bateria.swift` | Battery |
+| `limpeza.swift` | Cleanup and the Mac's model |
 | `idioma.swift` | Languages |
 | `instalar.sh` | Compiles with `swiftc` and builds the `.app` |
 

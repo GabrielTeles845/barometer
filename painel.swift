@@ -29,6 +29,12 @@ final class Estado: ObservableObject {
     @Published var gpu: GPU?
     @Published var disco: Disco?
     @Published var bateria: Bateria?
+    /// "MacBook Pro · M3 Pro · 18 GB · macOS 27.0.1", embaixo do título do Geral.
+    @Published var sobreMac: String?
+    @Published var limpeza: [ItemDeLimpeza] = []
+    @Published var medindoLimpeza = false
+    /// Quanto a última limpeza liberou, para o aviso no topo da aba.
+    @Published var liberado: Double?
     @Published var abaAtual: Aba = .geral
     @Published var editandoGeral = false
     /// Desenhando o painel como imagem (`--retrato`): o que não se desenha fora da tela fica de fora.
@@ -52,7 +58,7 @@ final class Estado: ObservableObject {
 }
 
 enum Aba: String, CaseIterable {
-    case geral, cpu, memoria, gpu, disco, bateria, portas
+    case geral, cpu, memoria, gpu, disco, bateria, portas, limpeza
 
     var titulo: String { t(tituloEmPortugues) }
 
@@ -65,6 +71,7 @@ enum Aba: String, CaseIterable {
         case .disco: return "Disco"
         case .bateria: return "Bateria"
         case .portas: return "Portas"
+        case .limpeza: return "Limpeza"
         }
     }
 
@@ -77,6 +84,7 @@ enum Aba: String, CaseIterable {
         case .disco: return "internaldrive"
         case .bateria: return "battery.75percent"
         case .portas: return "point.3.connected.trianglepath.dotted"
+        case .limpeza: return "trash"
         }
     }
 }
@@ -91,14 +99,14 @@ struct ItemGeral: Identifiable, Codable, Equatable {
     static let nomes: [String: String] = [
         "aneis": "Visão rápida", "grafico": "Histórico", "disco": "Disco", "bateria": "Bateria",
         "memoria": "Memória por partes", "cpu": "Núcleos da CPU", "gpu": "GPU", "temperaturas": "Temperaturas",
-        "processos": "O que mais usa", "portas": "Portas",
+        "processos": "O que mais usa", "portas": "Portas", "limpeza": "Limpeza",
     ]
     /// A ordem e o que vem ligado na primeira vez.
     static let padrao: [ItemGeral] = [
         .init(id: "aneis", ligado: true), .init(id: "grafico", ligado: true), .init(id: "disco", ligado: true),
         .init(id: "bateria", ligado: true), .init(id: "memoria", ligado: true), .init(id: "processos", ligado: true),
         .init(id: "portas", ligado: true), .init(id: "cpu", ligado: false), .init(id: "gpu", ligado: false),
-        .init(id: "temperaturas", ligado: false),
+        .init(id: "temperaturas", ligado: false), .init(id: "limpeza", ligado: false),
     ]
 }
 
@@ -125,6 +133,8 @@ struct Acoes {
     var ajustes: () -> Void = {}
     var sair: () -> Void = {}
     var redimensionar: (CGSize) -> Void = { _ in }
+    var limpar: (String) -> Void = { _ in }
+    var limparTudo: () -> Void = {}
 }
 
 // MARK: - Cores
@@ -182,8 +192,13 @@ struct Painel: View {
 
     private var cabecalho: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(estado.abaAtual == .geral ? t("Este Mac") : estado.abaAtual.titulo)
-                .font(.system(size: 15, weight: .semibold)).foregroundStyle(Tinta.texto)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(estado.abaAtual == .geral ? t("Este Mac") : estado.abaAtual.titulo)
+                    .font(.system(size: 15, weight: .semibold)).foregroundStyle(Tinta.texto)
+                if estado.abaAtual == .geral, let sobre = estado.sobreMac {
+                    Text(sobre).font(.system(size: 10.5)).foregroundStyle(Tinta.fraco).fixedSize()
+                }
+            }
             Spacer()
             if estado.abaAtual == .geral {
                 Button {
@@ -229,6 +244,8 @@ struct Painel: View {
             }
         case .portas:
             Portas(estado: estado, acoes: acoes)
+        case .limpeza:
+            CartaoDaLimpeza(estado: estado, acoes: acoes)
         }
     }
 
@@ -244,6 +261,7 @@ struct Painel: View {
         case "temperaturas": CartaoDeTemperaturas(t: estado.temperatura)
         case "processos": Processos(estado: estado, fechar: acoes.fechar)
         case "portas": Portas(estado: estado, acoes: acoes)
+        case "limpeza": ResumoDaLimpeza(estado: estado)
         default: EmptyView()
         }
     }
@@ -833,6 +851,98 @@ struct Ladrilho: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(9)
         .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.035)))
+    }
+}
+
+// MARK: - Limpeza
+
+struct CartaoDaLimpeza: View {
+    @ObservedObject var estado: Estado
+    let acoes: Acoes
+
+    var body: some View {
+        let total = estado.limpeza.filter { !$0.ehLixeira }.compactMap(\.bytes).reduce(0, +)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                if estado.medindoLimpeza && estado.limpeza.allSatisfy({ $0.bytes == nil }) {
+                    Text(t("Medindo…")).font(.system(size: 13)).foregroundStyle(Tinta.apagado)
+                } else {
+                    Text(Maquina.gb(total)).font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
+                        .foregroundStyle(Tinta.texto).contentTransition(.numericText())
+                    Text(t("podem sair sem perder nada seu")).font(.system(size: 11)).foregroundStyle(Tinta.apagado)
+                }
+                Spacer()
+            }
+            if let l = estado.liberado {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(Tinta.porta)
+                    Text(t("Liberou \(Maquina.gb(l)).")).font(.system(size: 11, weight: .medium)).foregroundStyle(Tinta.texto)
+                }
+                .transition(.opacity)
+            }
+            VStack(spacing: 4) {
+                ForEach(estado.limpeza) { item in
+                    HStack(alignment: .center, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(t(item.nome)).font(.system(size: 12, weight: .medium)).foregroundStyle(Tinta.texto)
+                            Text(t(item.explicacao)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 6)
+                        Text(item.bytes.map(Maquina.gb) ?? (estado.medindoLimpeza ? "…" : "–"))
+                            .font(.system(size: 11, weight: .medium)).monospacedDigit().foregroundStyle(Tinta.apagado)
+                            .contentTransition(.numericText())
+                        Button { acoes.limpar(item.id) } label: {
+                            Text(t(item.ehLixeira ? "Esvaziar" : "Limpar")).font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(item.ehLixeira ? Tinta.calor : Tinta.texto)
+                                .padding(.horizontal, 9).padding(.vertical, 4)
+                                .background(Capsule().fill(Color.white.opacity(0.08)))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled((item.bytes ?? 1) == 0)
+                        .opacity((item.bytes ?? 1) == 0 ? 0.35 : 1)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.035)))
+                }
+            }
+            Button(action: acoes.limparTudo) {
+                Text(t("Limpar tudo (menos a Lixeira)")).font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Tinta.fundo)
+                    .frame(maxWidth: .infinity).frame(height: 30)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.texto))
+            }
+            .buttonStyle(.plain)
+            .disabled(total == 0)
+            .opacity(total == 0 ? 0.4 : 1)
+            Text(t("Documentos, downloads e fotos nunca entram aqui. Cada limpeza pede confirmação."))
+                .font(.system(size: 10)).foregroundStyle(Tinta.fraco).fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.cartao))
+        .animation(.snappy, value: estado.liberado)
+    }
+}
+
+/// A limpeza numa linha, para o Geral: quanto dá para liberar, e um toque leva para a aba.
+struct ResumoDaLimpeza: View {
+    @ObservedObject var estado: Estado
+
+    var body: some View {
+        let total = estado.limpeza.filter { !$0.ehLixeira }.compactMap(\.bytes).reduce(0, +)
+        Button { estado.abaAtual = .limpeza } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "trash").font(.system(size: 12)).foregroundStyle(Tinta.comprimida)
+                Text(total > 0 ? t("\(Maquina.gb(total)) para limpar") : t("Limpeza"))
+                    .font(.system(size: 12, weight: .medium)).foregroundStyle(Tinta.texto)
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 10, weight: .semibold)).foregroundStyle(Tinta.fraco)
+            }
+            .padding(10)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.cartao))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -9,6 +9,7 @@
 import AppKit
 import IOKit
 import SwiftUI
+import Combine
 import ServiceManagement
 
 // MARK: - Sensores de temperatura
@@ -982,6 +983,8 @@ final class Barra: NSObject, NSApplicationDelegate {
     private var aberto: Timer?
     private var leituras = 0
     private lazy var leitorDeCPU = LeitorDeCPU()
+    private var vigiaDaAba: AnyCancellable?
+    private var limpezaMedidaEm = Date.distantPast
     private let leitorDeDisco = LeitorDeDisco()
     private let leitorDeBateria = LeitorDeBateria()
     private var gpusDoMinuto: [Double] = []
@@ -1017,6 +1020,11 @@ final class Barra: NSObject, NSApplicationDelegate {
             return
         }
         trazerDoNomeAntigo()
+        SobreEsteMac.ler { [weak self] in self?.estado.sobreMac = $0 }
+        // A aba de Limpeza mede as pastas ao abrir (pode levar uns segundos; nunca com ela fechada).
+        vigiaDaAba = estado.$abaAtual.sink { [weak self] aba in
+            if aba == .limpeza { DispatchQueue.main.async { self?.medirLimpeza() } }
+        }
         item.button?.target = self
         item.button?.action = #selector(alternar)
         estado.favoritas = Pref.favoritas
@@ -1151,6 +1159,11 @@ final class Barra: NSObject, NSApplicationDelegate {
         a.sair = { NSApp.terminate(nil) }
         a.ajustes = { [weak self] in self?.mostrarAjustes() }
         a.redimensionar = { [weak self] tamanho in self?.redimensionar(tamanho) }
+        a.limpar = { [weak self] id in self?.confirmarLimpeza(ids: [id]) }
+        a.limparTudo = { [weak self] in
+            guard let self else { return }
+            self.confirmarLimpeza(ids: self.estado.limpeza.filter { !$0.ehLixeira && ($0.bytes ?? 0) > 0 }.map(\.id))
+        }
         return a
     }
 
@@ -1277,6 +1290,14 @@ final class Barra: NSObject, NSApplicationDelegate {
         }
         estado.bateria = leitorDeBateria.ler(comOficial: false)
         estado.apareceu = true
+        var sobre: String?
+        SobreEsteMac.ler { sobre = $0 }
+        let limiteSobre = Date().addingTimeInterval(4)
+        while sobre == nil, Date() < limiteSobre { RunLoop.current.run(until: Date().addingTimeInterval(0.1)) }
+        estado.sobreMac = sobre
+        if estado.abaAtual == .limpeza || estado.geral.contains(where: { $0.id == "limpeza" && $0.ligado }) {
+            estado.limpeza = Limpeza.itens().map { var i = $0; i.bytes = Limpeza.tamanho($0.pasta); return i }
+        }
         if let i = CommandLine.arguments.firstIndex(of: "--acender"), i + 1 < CommandLine.arguments.count {
             estado.sobre = CommandLine.arguments[i + 1]
         }
@@ -1320,6 +1341,68 @@ final class Barra: NSObject, NSApplicationDelegate {
             try? png.write(to: URL(fileURLWithPath: (arquivo as NSString).deletingPathExtension + "-icone.png"))
         }
         NSApp.terminate(nil)
+    }
+
+    // MARK: Limpeza
+
+    /// Mede cada pasta fora da thread principal e vai mostrando conforme termina. Se mediu há menos de 2 minutos,
+    /// não mede de novo.
+    private func medirLimpeza(forcar: Bool = false) {
+        guard forcar || Date().timeIntervalSince(limpezaMedidaEm) > 120 || estado.limpeza.isEmpty else { return }
+        limpezaMedidaEm = Date()
+        let itens = Limpeza.itens()
+        let antigos = Dictionary(estado.limpeza.map { ($0.id, $0.bytes) }, uniquingKeysWith: { a, _ in a })
+        estado.limpeza = itens.map { var i = $0; i.bytes = antigos[$0.id] ?? nil; return i }
+        estado.medindoLimpeza = true
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            for item in itens {
+                let bytes = Limpeza.tamanho(item.pasta)
+                DispatchQueue.main.async {
+                    guard let self, let i = self.estado.limpeza.firstIndex(where: { $0.id == item.id }) else { return }
+                    self.estado.limpeza[i].bytes = bytes
+                }
+            }
+            DispatchQueue.main.async { self?.estado.medindoLimpeza = false }
+        }
+    }
+
+    private func confirmarLimpeza(ids: [String]) {
+        let itens = estado.limpeza.filter { ids.contains($0.id) }
+        guard !itens.isEmpty else { return }
+        fecharPainel()
+        let total = itens.compactMap(\.bytes).reduce(0, +)
+        let alerta = NSAlert()
+        if itens.count == 1, let item = itens.first {
+            if item.ehLixeira {
+                alerta.messageText = t("Esvaziar a Lixeira?")
+                alerta.informativeText = t("Os arquivos da Lixeira são apagados de vez. Não tem como recuperar depois.")
+                alerta.addButton(withTitle: t("Esvaziar"))
+            } else {
+                alerta.messageText = t("Limpar \(t(item.nome))?")
+                alerta.informativeText = t("Vão sair \(Maquina.gb(item.bytes ?? 0)). \(t(item.explicacao))")
+                alerta.addButton(withTitle: t("Limpar"))
+            }
+        } else {
+            alerta.messageText = t("Limpar tudo, \(Maquina.gb(total))?")
+            alerta.informativeText = t("Saem os caches dos apps e dos gerenciadores de pacote, os dados do Xcode e os registros. A Lixeira fica.")
+            alerta.addButton(withTitle: t("Limpar"))
+        }
+        alerta.addButton(withTitle: t("Cancelar"))
+        alerta.buttons.first?.hasDestructiveAction = true
+        DispatchQueue.main.async { [weak self] in
+            NSApp.activate(ignoringOtherApps: true)
+            guard alerta.runModal() == .alertFirstButtonReturn else { return }
+            Diario.anotar("limpeza: " + itens.map(\.id).joined(separator: ", "))
+            DispatchQueue.global(qos: .utility).async {
+                let liberado = itens.map(Limpeza.limpar).reduce(0, +)
+                DispatchQueue.main.async {
+                    Diario.anotar("limpeza liberou \(Int(liberado / 1_048_576)) MB")
+                    self?.estado.liberado = liberado
+                    self?.medirLimpeza(forcar: true)
+                    self?.amostrar()
+                }
+            }
+        }
     }
 
     // MARK: Ajustes

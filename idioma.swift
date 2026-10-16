@@ -141,6 +141,33 @@ enum Traducao {
         "Central de Controle": ("Control Center", "Centro de control"), "Impressão": ("Printing", "Impresión"),
         "Mac remoto": ("Remote Mac", "Mac remoto"), "Compartilhamento": ("Sharing", "Compartir"), "Compartilhar tela": ("Screen Sharing", "Compartir pantalla"),
         "Bonjour": ("Bonjour", "Bonjour"), "macOS": ("macOS", "macOS"),
+        // Limpeza
+        "Limpeza": ("Cleanup", "Limpieza"), "Medindo…": ("Measuring…", "Midiendo…"),
+        "podem sair sem perder nada seu": ("can go without losing anything of yours", "pueden irse sin perder nada tuyo"),
+        "Limpar": ("Clean", "Limpiar"), "Esvaziar": ("Empty", "Vaciar"),
+        "Limpar tudo (menos a Lixeira)": ("Clean everything (except the Trash)", "Limpiar todo (menos la Papelera)"),
+        "Documentos, downloads e fotos nunca entram aqui. Cada limpeza pede confirmação.":
+            ("Documents, downloads and photos are never touched. Every cleanup asks first.",
+             "Documentos, descargas y fotos nunca entran aquí. Cada limpieza pide confirmación."),
+        "Caches dos apps": ("App caches", "Cachés de las apps"),
+        "Os apps refazem sozinhos; podem abrir um pouco mais devagar na primeira vez.":
+            ("Apps rebuild them on their own; they may open a bit slower the first time.",
+             "Las apps los rehacen solas; pueden abrir un poco más lento la primera vez."),
+        "Cache do npm": ("npm cache", "Caché de npm"), "Cache do Bun": ("Bun cache", "Caché de Bun"), "Cache do pnpm": ("pnpm store", "Caché de pnpm"),
+        "Os pacotes são baixados de novo quando um projeto precisar.": ("Packages download again when a project needs them.",
+                                                                        "Los paquetes se descargan de nuevo cuando un proyecto los necesite."),
+        "Dados derivados do Xcode": ("Xcode DerivedData", "Datos derivados de Xcode"),
+        "O Xcode recompila na próxima vez que abrir cada projeto.": ("Xcode rebuilds the next time you open each project.",
+                                                                      "Xcode recompila la próxima vez que abras cada proyecto."),
+        "Cache dos simuladores": ("Simulator caches", "Caché de los simuladores"),
+        "Os simuladores do Xcode refazem quando abrirem.": ("Xcode simulators rebuild them when they start.", "Los simuladores de Xcode lo rehacen al abrir."),
+        "Registros dos apps": ("App logs", "Registros de las apps"),
+        "Arquivos de log antigos; os apps criam novos.": ("Old log files; apps create new ones.", "Archivos de registro antiguos; las apps crean nuevos."),
+        "Lixeira": ("Trash", "Papelera"), "Esvazia a Lixeira. Não tem volta.": ("Empties the Trash. There's no undo.", "Vacía la Papelera. No se puede deshacer."),
+        "Esvaziar a Lixeira?": ("Empty the Trash?", "¿Vaciar la Papelera?"),
+        "Os arquivos da Lixeira são apagados de vez. Não tem como recuperar depois.":
+            ("Everything in the Trash is deleted for good. There's no getting it back.",
+             "Los archivos de la Papelera se borran para siempre. No se pueden recuperar."),
         // Avisos e caixas
         "Não vou matar este processo": ("I won't kill this process", "No voy a cerrar este proceso"),
         "Acompanhar qual porta?": ("Which port to watch?", "¿Qué puerto seguir?"),
@@ -221,6 +248,13 @@ enum Traducao {
          "No es tuyo (es del sistema o de root). En la Terminal: sudo kill %1"),
         ("Mandei encerrar e ele não saiu. No Terminal: kill -9 %1", "I asked it to quit and it didn't. In Terminal: kill -9 %1",
          "Le pedí que se cerrara y no lo hizo. En la Terminal: kill -9 %1"),
+        ("Liberou %1.", "Freed %1.", "Se liberaron %1."), ("%1 para limpar", "%1 to clean", "%1 para limpiar"),
+        ("Limpar %1?", "Clean %1?", "¿Limpiar %1?"),
+        ("Vão sair %1. %2", "%1 will go. %2", "Se irán %1. %2"),
+        ("Limpar tudo, %1?", "Clean everything, %1?", "¿Limpiar todo, %1?"),
+        ("Saem os caches dos apps e dos gerenciadores de pacote, os dados do Xcode e os registros. A Lixeira fica.",
+         "App and package manager caches, Xcode data and logs will go. The Trash stays.",
+         "Se van las cachés de las apps y de los gestores de paquetes, los datos de Xcode y los registros. La Papelera se queda."),
         ("%1 h %2 min", "%1 h %2 min", "%1 h %2 min"), ("%1 d %2 h", "%1 d %2 h", "%1 d %2 h"),
     ]
     // O mais específico primeiro: "de %1 previstos" tem de casar antes de "de %1".
