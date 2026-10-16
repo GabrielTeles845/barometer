@@ -683,6 +683,16 @@ enum Login {
 }
 
 enum Pref {
+    /// Fundo, cores e animações do painel (aba Aparência).
+    static var aparencia: Aparencia {
+        get {
+            guard let dados = UserDefaults.standard.data(forKey: "aparencia"),
+                  let a = try? JSONDecoder().decode(Aparencia.self, from: dados) else { return Aparencia() }
+            return a
+        }
+        set { UserDefaults.standard.set(try? JSONEncoder().encode(newValue), forKey: "aparencia") }
+    }
+
     /// Os cartões do Geral. Junta com o padrão: cartão novo de uma versão nova aparece no fim, desligado.
     static var geral: [ItemGeral] {
         get {
@@ -849,15 +859,16 @@ enum Maquina {
     /// Um processo a esconder da lista: o do retrato, que desenha o painel e aparece gastando CPU à toa.
     static var escondido: Int32 = -1
 
-    static func quemMaisGasta(_ quantos: Int = 8, porCPU: Bool = false) -> [Gasto] {
-        guard let ps = Ferramenta.ps else { return [] }
+    /// As duas listas (por memória e por CPU) saem de um `ps` só.
+    static func quemMaisGasta(_ quantos: Int = 8) -> (memoria: [Gasto], cpu: [Gasto]) {
+        guard let ps = Ferramenta.ps else { return ([], []) }
         let p = Process()
         p.executableURL = URL(fileURLWithPath: ps)
         p.arguments = ["-axo", "rss=,pcpu=,pid=,uid=,comm="]
         let cano = Pipe()
         p.standardOutput = cano
         p.standardError = FileHandle.nullDevice
-        do { try p.run() } catch { return [] }
+        do { try p.run() } catch { return ([], []) }
         let dados = cano.fileHandleForReading.readDataToEndOfFile()
         p.waitUntilExit()
         let eu = getuid()
@@ -886,12 +897,15 @@ enum Maquina {
             if uid != eu { g.meu = false }
             grupos[chave] = g
         }
-        return grupos.sorted { porCPU ? $0.value.cpu > $1.value.cpu : $0.value.bytes > $1.value.bytes }.prefix(quantos).map {
-            let nome = $0.key.split(separator: "#").first.map(String.init) ?? $0.key
-            let v = $0.value
-            return Gasto(nome: nome, bytes: v.bytes, processos: v.n, pid: v.pid, app: v.app,
-                         meu: v.meu && !intocaveis.contains(nome), cpu: v.cpu)
+        func lista(_ antes: (Soma, Soma) -> Bool) -> [Gasto] {
+            grupos.sorted { antes($0.value, $1.value) }.prefix(quantos).map {
+                let nome = $0.key.split(separator: "#").first.map(String.init) ?? $0.key
+                let v = $0.value
+                return Gasto(nome: nome, bytes: v.bytes, processos: v.n, pid: v.pid, app: v.app,
+                             meu: v.meu && !intocaveis.contains(nome), cpu: v.cpu)
+            }
         }
+        return (lista { $0.bytes > $1.bytes }, lista { $0.cpu > $1.cpu })
     }
 
     static func gb(_ bytes: Double) -> String {
@@ -1032,8 +1046,14 @@ final class Barra: NSObject, NSApplicationDelegate {
         trazerDoNomeAntigo()
         SobreEsteMac.ler { [weak self] in self?.estado.sobreMac = $0 }
         // A aba de Limpeza mede as pastas ao abrir (pode levar uns segundos; nunca com ela fechada).
+        // Trocou de aba com o painel aberto: lê na hora o que a aba nova mostra (o resto parou de ser lido).
         vigiaDaAba = estado.$abaAtual.sink { [weak self] aba in
-            if aba == .limpeza { DispatchQueue.main.async { self?.medirLimpeza() } }
+            DispatchQueue.main.async {
+                guard let self, self.painelAberto else { return }
+                if aba == .limpeza { self.medirLimpeza() }
+                self.lerGastos()
+                if self.precisaDasPortas { self.varrer() }
+            }
         }
         item.button?.target = self
         item.button?.action = #selector(alternar)
@@ -1043,7 +1063,10 @@ final class Barra: NSObject, NSApplicationDelegate {
         estado.aoMudarABarra = { [weak self] in self?.desenharIcone() }
         estado.abrirAoLigar = Login.ligado
 
-        relogio = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in self?.varrer() }
+        relogio = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+            if self?.precisaDasPortas == true { self?.varrer() }
+        }
+        relogio?.tolerance = 1
         varrer()
 
         // Memória, CPU e temperatura a cada 10 s (é o que mexe o ícone); o gráfico guarda uma por minuto,
@@ -1051,8 +1074,13 @@ final class Barra: NSObject, NSApplicationDelegate {
         _ = Maquina.cpu()
         amostrar()
         amostrador = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in self?.amostrar() }
+        amostrador?.tolerance = 2
 
         abrirNoLoginNaPrimeiraVez()
+        // --abrir: já abre o painel (para medir memória e CPU com ele aberto, sem precisar clicar).
+        if CommandLine.arguments.contains("--abrir") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.abrirPainel() }
+        }
         let t = Sensores.ler()
         Diario.anotar("aberto; sensores: chip \(t.chip.map { String(format: "%.1f", $0) } ?? "-"), SSD \(t.ssd.map { String(format: "%.1f", $0) } ?? "-"), bateria \(t.bateria.map { String(format: "%.1f", $0) } ?? "-")")
     }
@@ -1077,7 +1105,9 @@ final class Barra: NSObject, NSApplicationDelegate {
         gpusDoMinuto.append(gpu?.uso ?? 0)
         discosDoMinuto.append(disco.leituraPorSegundo + disco.escritaPorSegundo)
         leituras += 1
-        if leituras % 6 == 1 {
+        // Uma por minuto (a média do minuto). Nos primeiros 5 minutos, uma a cada leitura (10 s): o gráfico já
+        // nasce desenhado, em vez de esperar minutos com o cartão vazio.
+        if leituras % 6 == 1 || leituras <= 30 {
             let media = { (v: [Double], reserva: Double) in v.isEmpty ? reserva : v.reduce(0, +) / Double(v.count) }
             historico.anotar(memoria: m.usada / Maquina.total, cpu: media(cpusDoMinuto, estado.cpu ?? 0), chip: temp.chip,
                              gpu: media(gpusDoMinuto, 0), disco: media(discosDoMinuto, 0))
@@ -1087,20 +1117,45 @@ final class Barra: NSObject, NSApplicationDelegate {
         desenharIcone()
     }
 
-    /// Quem mais gasta: um `ps` só, e só com o painel aberto (a cada 3 s enquanto ele está na tela).
+    /// O que a tela aberta mostra agora: a aba, ou os cartões ligados do Geral. Só isso é lido enquanto o
+    /// painel está aberto; o resto espera a pessoa ir até lá.
+    private func naTela(_ coisa: String) -> Bool {
+        switch estado.abaAtual {
+        case .geral:
+            if estado.editandoGeral { return false }
+            let ligados = Set(estado.geral.filter(\.ligado).map(\.id))
+            switch coisa {
+            case "gpu": return ligados.contains("gpu") || ligados.contains("aneis")
+            default: return ligados.contains(coisa)
+            }
+        case .cpu: return coisa == "cpu" || coisa == "processos"
+        case .memoria: return coisa == "processos"
+        case .gpu: return coisa == "gpu"
+        case .disco: return coisa == "disco"
+        case .bateria: return coisa == "bateria"
+        case .portas: return coisa == "portas"
+        case .limpeza, .aparencia: return false
+        }
+    }
+
+    private var painelAberto: Bool { janela?.isVisible == true }
+
+    /// As portas (`lsof`, um processo novo a cada vez): com o painel fechado, só se o número delas está na barra;
+    /// com ele aberto, só se a tela mostra as portas.
+    private var precisaDasPortas: Bool { painelAberto ? naTela("portas") || estado.naBarra.contains(.portas) : estado.naBarra.contains(.portas) }
+
+    /// Com o painel aberto, a cada 2 s: só o que está na tela. Núcleos, GPU, disco e bateria ao vivo (a velocidade
+    /// do disco é a dos últimos 2 s), e a lista de quem mais gasta (um `ps` só para as duas listas). A saúde
+    /// oficial da bateria (system_profiler) só com a bateria na tela.
     private func lerGastos() {
-        let cpu = leitorDeCPU.ler()
-        estado.cpuDetalhada = cpu
-        // Com o painel aberto, GPU, disco e bateria ao vivo (a velocidade do disco é a dos últimos 2 s). A saúde
-        // oficial da bateria (system_profiler) só com a aba Bateria aberta.
-        estado.gpu = LeitorDeGPU.ler()
-        estado.disco = leitorDeDisco.ler()
-        estado.bateria = leitorDeBateria.ler(comOficial: estado.abaAtual == .bateria
-                                             || estado.geral.contains { $0.id == "bateria" && $0.ligado })
+        if naTela("cpu") { estado.cpuDetalhada = leitorDeCPU.ler() }
+        if naTela("gpu") { estado.gpu = LeitorDeGPU.ler() }
+        if naTela("disco") { estado.disco = leitorDeDisco.ler() }
+        if naTela("bateria") { estado.bateria = leitorDeBateria.ler(comOficial: true) }
+        guard naTela("processos") else { return }
         fila.async { [weak self] in
             guard let self else { return }
-            var porMemoria = Maquina.quemMaisGasta()
-            var porCPU = Maquina.quemMaisGasta(porCPU: true)
+            var (porMemoria, porCPU) = Maquina.quemMaisGasta()
             for i in porMemoria.indices where porMemoria[i].app == nil && porMemoria[i].meu {
                 if let pasta = self.sonda.pastaDoProcesso(porMemoria[i].pid) { porMemoria[i].projeto = self.sonda.projeto(de: pasta) }
             }
@@ -1135,7 +1190,7 @@ final class Barra: NSObject, NSApplicationDelegate {
         guard let botao = item.button else { return }
         botao.title = ""
         botao.imagePosition = .imageOnly
-        botao.image = Icone.barra(pedacosDaBarra())
+        botao.image = Icone.barra(pedacosDaBarra(), colorido: estado.aparencia.iconeColorido)
         var dica = [t("CPU \(Int(((estado.cpu ?? 0) * 100).rounded()))% · memória \(Int(((estado.memoria?.usada ?? 0) / Maquina.total * 100).rounded()))%")]
         if let c = estado.temperatura.chip { dica[0] += " · chip \(Int(c.rounded())) °C" }
         dica += portas.map { "\($0.numero) — \($0.resumo)" }
@@ -1143,28 +1198,28 @@ final class Barra: NSObject, NSApplicationDelegate {
     }
 
     /// Cada item escolhido para a barra: o ícone (ou as barrinhas) e o número.
-    private func pedacosDaBarra() -> [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)] {
+    private func pedacosDaBarra() -> [Icone.Pedaco] {
         let cpu = estado.cpu ?? 0
         let memoria = (estado.memoria?.usada ?? 0) / Maquina.total
         let pct = { (v: Double) in "\(Int((v * 100).rounded()))%" }
-        var pedacos: [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)] = []
+        var pedacos: [Icone.Pedaco] = []
         for item in estado.naBarra {
             switch item {
-            case .barrinhas: pedacos.append((nil, "", (cpu, memoria)))
-            case .cpu: pedacos.append((item.simbolo, pct(cpu), nil))
-            case .memoria: pedacos.append((item.simbolo, pct(memoria), nil))
-            case .gpu: pedacos.append((item.simbolo, pct(estado.gpu?.uso ?? 0), nil))
-            case .chip: pedacos.append((item.simbolo, estado.temperatura.chip.map { "\(Int($0.rounded()))°" } ?? "–", nil))
+            case .barrinhas: pedacos.append(.init(nil, "", (cpu, memoria), cor: nil))
+            case .cpu: pedacos.append(.init(item.simbolo, pct(cpu), nil, cor: item.cor))
+            case .memoria: pedacos.append(.init(item.simbolo, pct(memoria), nil, cor: item.cor))
+            case .gpu: pedacos.append(.init(item.simbolo, pct(estado.gpu?.uso ?? 0), nil, cor: item.cor))
+            case .chip: pedacos.append(.init(item.simbolo, estado.temperatura.chip.map { "\(Int($0.rounded()))°" } ?? "–", nil, cor: item.cor))
             case .bateria:
                 if let b = estado.bateria ?? leitorDeBateria.ler(comOficial: false) as Bateria?, b.existe {
-                    pedacos.append((b.carregando ? "battery.100percent.bolt" : item.simbolo, "\(b.nivel)%", nil))
+                    pedacos.append(.init(b.carregando ? "battery.100percent.bolt" : item.simbolo, "\(b.nivel)%", nil, cor: item.cor))
                 }
-            case .disco: pedacos.append((item.simbolo, estado.disco.map { Medida.espaco($0.livre) } ?? "–", nil))
-            // Sem porta aberta, o número some (o ícone fica, para a barra não pular de lugar).
-            case .portas: pedacos.append((item.simbolo, portas.isEmpty ? "" : String(portas.count), nil))
+            case .disco: pedacos.append(.init(item.simbolo, estado.disco.map { Medida.espaco($0.livre) } ?? "–", nil, cor: item.cor))
+            // Sem porta aberta mostra 0: o ícone sozinho, sem número, ninguém sabe o que é.
+            case .portas: pedacos.append(.init(item.simbolo, String(portas.count), nil, cor: item.cor))
             }
         }
-        if pedacos.isEmpty { pedacos = [(nil, "", (cpu, memoria))] }
+        if pedacos.isEmpty { pedacos = [.init(nil, "", (cpu, memoria), cor: nil)] }
         return pedacos
     }
 
@@ -1205,6 +1260,7 @@ final class Barra: NSObject, NSApplicationDelegate {
 
     private func abrirPainel() {
         guard let botao = item.button, let janelaDoBotao = botao.window else { return }
+        // Ainda fechado aqui: lê o que a aba vai mostrar (as portas sempre, para o número da barra ficar certo).
         varrer()
         lerGastos()
         let vista = NSHostingView(rootView: Painel(estado: estado, acoes: acoes))
@@ -1253,6 +1309,7 @@ final class Barra: NSObject, NSApplicationDelegate {
         }
         // Enquanto está aberto, a lista de quem gasta e as portas se renovam.
         aberto = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in self?.lerGastos() }
+        aberto?.tolerance = 0.5
     }
 
     /// O painel mudou de altura (outra aba, cartão ligado ou desligado): a janela acompanha, presa pelo topo.
@@ -1267,6 +1324,9 @@ final class Barra: NSObject, NSApplicationDelegate {
 
     private func fecharPainel() {
         janela?.orderOut(nil)
+        // Fechado, o desenho inteiro sai da memória (o SwiftUI guarda texto, ícones e gráfico desenhados);
+        // ao abrir de novo ele é refeito a partir do `Estado`, que continua aqui.
+        janela?.contentView = nil
         item.button?.highlight(false)
         if let v = vigiaDeClique { NSEvent.removeMonitor(v); vigiaDeClique = nil }
         if let v = vigiaDeTecla { NSEvent.removeMonitor(v); vigiaDeTecla = nil }
@@ -1288,7 +1348,10 @@ final class Barra: NSObject, NSApplicationDelegate {
         Thread.sleep(forTimeInterval: 1)
         amostrar()
         let agora = Date()
-        if historico.pontos.count < 2 {
+        // --uma-leitura: o gráfico como fica logo depois de o app abrir (sem a curva de exemplo).
+        if CommandLine.arguments.contains("--uma-leitura") {
+            estado.pontos = historico.pontos
+        } else if historico.pontos.count < 2 {
             for i in 0..<240 {
                 let t = Double(i)
                 historico.anotar(memoria: 0.45 + 0.12 * sin(t / 30) + 0.03 * sin(t / 4),
@@ -1304,12 +1367,12 @@ final class Barra: NSObject, NSApplicationDelegate {
             }
         }
         estado.portas = sonda.varrer(tudo: false).lista
-        var gastos = Maquina.quemMaisGasta()
+        var (gastos, gastosCPU) = Maquina.quemMaisGasta()
         for i in gastos.indices where gastos[i].app == nil && gastos[i].meu {
             if let pasta = sonda.pastaDoProcesso(gastos[i].pid) { gastos[i].projeto = sonda.projeto(de: pasta) }
         }
         estado.gastos = gastos
-        estado.gastosCPU = Maquina.quemMaisGasta(porCPU: true)
+        estado.gastosCPU = gastosCPU
         _ = leitorDeCPU.ler()
         Thread.sleep(forTimeInterval: 1)
         estado.cpuDetalhada = leitorDeCPU.ler()
@@ -1318,6 +1381,21 @@ final class Barra: NSObject, NSApplicationDelegate {
         if let i = CommandLine.arguments.firstIndex(of: "--aba"), i + 1 < CommandLine.arguments.count,
            let aba = Aba(rawValue: CommandLine.arguments[i + 1]) { estado.abaAtual = aba }
         if CommandLine.arguments.contains("--editar") { estado.editandoGeral = true }
+        // A foto sai com a aparência padrão, mais o que vier pedido: --fundo vidro --paleta neon --destaque rosa
+        // --transparencia 60 --cantos 22 --mola --colorido.
+        var ap = Aparencia()
+        func argumento(_ nome: String) -> String? {
+            guard let i = CommandLine.arguments.firstIndex(of: nome), i + 1 < CommandLine.arguments.count else { return nil }
+            return CommandLine.arguments[i + 1]
+        }
+        if let f = argumento("--fundo").flatMap(Aparencia.Fundo.init(rawValue:)) { ap.fundo = f }
+        if let p = argumento("--paleta") { ap.paleta = p }
+        if let d = argumento("--destaque") { ap.destaque = d }
+        if let v = argumento("--transparencia").flatMap(Double.init) { ap.coberturaAtual = 1 - v / 100 }
+        if let v = argumento("--cantos").flatMap(Double.init) { ap.cantos = v }
+        if CommandLine.arguments.contains("--mola") { ap.movimento = .mola }
+        if CommandLine.arguments.contains("--colorido") { ap.iconeColorido = true }
+        estado.aparencia = ap
         // A saúde oficial chega em segundo plano (system_profiler): espera por ela, até 3 s.
         _ = leitorDeBateria.ler(comOficial: true)
         let limite = Date().addingTimeInterval(3)
@@ -1342,7 +1420,18 @@ final class Barra: NSObject, NSApplicationDelegate {
             estado.aba = Int(CommandLine.arguments[i + 1]) ?? 0
         }
         estado.favoritas = Pref.favoritas
-        let renderizador = ImageRenderer(content: Painel(estado: estado, acoes: Acoes()).padding(20).background(Color(white: 0.16)))
+        // Fundo que deixa ver atrás: a foto põe o painel sobre o papel de parede, com mais margem para ele aparecer.
+        // --papel faz o mesmo com o sólido, e --altura fixa a altura da foto (os quadros do GIF têm de ter uma só).
+        let deixaVer = ap.fundoReal != .solido || ap.coberturaAtual < 1 || CommandLine.arguments.contains("--papel")
+        let margem: CGFloat = deixaVer ? 48 : 20
+        let altura = argumento("--altura").flatMap(Double.init).map { CGFloat($0) }
+        estado.deslocamentoNaFoto = CGSize(width: margem, height: margem)
+        let renderizador = ImageRenderer(content: Painel(estado: estado, acoes: Acoes()).padding(margem)
+            .frame(height: altura, alignment: .top)
+            .background(alignment: .topLeading) {
+                if deixaVer { PapelDeParede() } else { Color(white: 0.16) }
+            }
+            .clipped())
         renderizador.scale = 2
         // Cor não linear e direto do bitmap: com ícone de app na tela, o renderizador trocava o espaço de cor e o
         // preto saía cinza na imagem (só na imagem; na tela, não).
@@ -1358,19 +1447,26 @@ final class Barra: NSObject, NSApplicationDelegate {
             estado.naBarra = CommandLine.arguments[i + 1].split(separator: ",").compactMap { ItemDaBarra(rawValue: String($0)) }
         }
         portas = estado.portas
-        let icone = Icone.barra(pedacosDaBarra())
+        let colorido = estado.aparencia.iconeColorido
+        let icone = Icone.barra(pedacosDaBarra(), colorido: colorido)
         let largura = icone.size.width * k
         let faixa = NSImage(size: NSSize(width: largura + 60 * k, height: 30 * k))
         faixa.lockFocus()
         NSColor(white: 0.12, alpha: 1).setFill()
         NSRect(x: 0, y: 0, width: largura + 60 * k, height: 30 * k).fill()
-        let branco = NSImage(size: icone.size, flipped: false) { r in
-            icone.draw(in: r)
-            NSColor.white.set()
-            r.fill(using: .sourceAtop)
-            return true
+        let onde = NSRect(x: 30 * k, y: 6 * k, width: largura, height: 18 * k)
+        if colorido {
+            // Colorido: as cores ficam, e o texto sai branco como numa barra escura.
+            NSAppearance(named: .darkAqua)?.performAsCurrentDrawingAppearance { icone.draw(in: onde) }
+        } else {
+            let branco = NSImage(size: icone.size, flipped: false) { r in
+                icone.draw(in: r)
+                NSColor.white.set()
+                r.fill(using: .sourceAtop)
+                return true
+            }
+            branco.draw(in: onde)
         }
-        branco.draw(in: NSRect(x: 30 * k, y: 6 * k, width: largura, height: 18 * k))
         faixa.unlockFocus()
         if let tiff = faixa.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff),
            let png = rep.representation(using: .png, properties: [:]) {

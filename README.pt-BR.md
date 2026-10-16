@@ -1,163 +1,32 @@
 <div align="center">
 
-<img src="docs/images/pt/menubar.png" width="300" alt="O Barometer na barra de menus: duas barrinhas, CPU e memória, e o número de portas abertas">
+<img src="docs/images/icon.png" width="128" alt="Ícone do Barometer">
 
 # Barometer
 
 **O seu Mac em tempo real, na barra de menus.**
 
-Memória, CPU, GPU, disco, bateria e temperatura num painel preto que abre com um clique,
-o que mais está gastando, e as portas abertas com um × para fechar o que ficou ligado à toa.
+Memória, CPU, GPU, disco, bateria e temperatura num painel que abre com um clique.<br>
+O que mais está gastando, e as portas abertas, com um × para fechar o que ficou ligado à toa.
 
-Sem conta, sem internet, sem nada saindo do seu Mac.
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](#instalar)
+[![Chip da Apple](https://img.shields.io/badge/chip%20da%20Apple-M1%20ao%20M3-black)](#limites)
+[![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)](#para-quem-quer-mexer)
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue)](LICENSE)
+[![Idiomas](https://img.shields.io/badge/idiomas-EN%20%C2%B7%20PT%20%C2%B7%20ES-555)](#idiomas)
 
-[English](README.md) · **Português**
+[Instalar](#instalar) · [O que ele faz](#o-que-ele-faz) · [Como usar](#como-usar) · [English](README.md) · **Português**
 
 <br>
 
-<img src="docs/images/pt/overview.png" width="400" alt="O painel Geral: anéis de CPU, memória, GPU e chip, gráfico das últimas horas, disco, bateria, memória por partes, o que mais usa e as portas abertas">
+<img src="docs/images/pt/tour.gif" width="520" alt="Um passeio pelo painel: Geral, CPU, Memória, GPU, Disco, Bateria, Portas, Limpeza, o editor do Geral e a Aparência, e depois o painel em vidro, fosco e vidro claro com outras paletas de cor">
 
 </div>
-
----
-
-## O que ele mostra
-
-O ícone na barra são duas barrinhas que sobem e descem com a CPU e a memória, e o número ao lado é quantas portas
-estão abertas. Clicou, abre o painel. Cada área tem a sua aba.
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### Geral
-
-O resumo que você monta, embaixo do modelo do Mac, do chip, da memória e da versão do macOS. Vem com os anéis de CPU, memória, GPU e temperatura do chip, o gráfico das últimas 6 horas,
-o disco, a bateria, a memória por partes, o que mais está gastando e as portas. Em **Editar**, cada cartão tem um
-interruptor e você arrasta para mudar a ordem, como na Central de Controle do iPhone.
-
-</td>
-<td width="50%" valign="top">
-
-<img src="docs/images/pt/edit.png" alt="Editar o Geral: cada cartão com um interruptor e uma alça para arrastar">
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-<img src="docs/images/pt/cpu.png" alt="A aba CPU: uma barra por núcleo, frequência, gráfico, temperaturas e o que mais usa CPU">
-
-</td>
-<td valign="top">
-
-### CPU
-
-Uma barra por núcleo, separando os de eficiência (E) e os de desempenho (P), com a frequência de cada grupo em GHz.
-Uso do usuário e do sistema, carga média, há quanto tempo o Mac está ligado, aviso quando ele esquenta, as
-temperaturas do chip, do SSD e da bateria, e os processos que mais usam CPU.
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-### Memória
-
-Quanto está em uso, a pressão (folgada, apertada ou no limite, a mesma do Monitor de Atividade) e a memória por
-partes: apps, fixa, comprimida, cache e swap. Embaixo, os que mais usam memória, agrupados por aplicativo: o Chrome
-com os trinta processos dele vira uma linha só.
-
-</td>
-<td valign="top">
-
-<img src="docs/images/pt/memoria.png" alt="A aba Memória: total em uso, pressão, memória por partes e os que mais usam">
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-<img src="docs/images/pt/bateria.png" alt="A aba Bateria: carga, saúde, ciclos, capacidade, temperatura, voltagem e corrente">
-
-</td>
-<td valign="top">
-
-### Bateria
-
-A carga e quanto falta para acabar ou para encher. A **saúde** e a **condição** são as mesmas que o macOS mostra
-nos Ajustes. Também: os **ciclos** (e quantos a bateria foi feita para aguentar), a capacidade atual contra a de
-fábrica, temperatura, voltagem, corrente, quanto o Mac está gastando em watts e qual carregador está ligado.
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-### Disco e GPU
-
-O disco com o espaço livre do jeito que o Finder conta, leitura e escrita ao vivo, e o total lido e escrito desde
-que o Mac ligou. A GPU com o uso, as partes dela (renderer e tiler), a memória que ela está usando e o número de
-núcleos. Os dois com gráfico das últimas horas.
-
-</td>
-<td valign="top">
-
-<img src="docs/images/pt/disco.png" alt="A aba Disco: espaço livre, leitura e escrita, total desde que o Mac ligou e gráfico">
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-<img src="docs/images/pt/portas.png" alt="A aba Portas: cada porta aberta com o comando e o projeto">
-
-</td>
-<td valign="top">
-
-### Portas
-
-O que está ouvindo em cada porta, com o comando e o **nome do projeto** (do `package.json` ou da pasta do git). No
-Docker, o container e o projeto do compose. Clicar abre no navegador; o **×** encerra. As portas que você usa sempre
-podem virar favoritas, e aí aparecem como livres quando ninguém está nelas.
-
-</td>
-</tr>
-<tr>
-<td valign="top">
-
-### Limpeza
-
-O que pode sair sem perder nada seu: cache dos apps, do npm, do Bun e do pnpm, dados derivados do Xcode, cache dos
-simuladores e registros antigos, cada um com o tamanho e o que acontece depois de limpar. **Limpar tudo** num clique,
-ou um por um. A Lixeira tem o próprio botão e a própria confirmação, porque não tem volta. Documentos, downloads e
-fotos nunca entram.
-
-</td>
-<td valign="top">
-
-<img src="docs/images/pt/limpeza.png" alt="A aba Limpeza: cache dos apps, do npm e do Bun, registros e a Lixeira, cada um com o tamanho">
-
-</td>
-</tr>
-</table>
-
-## A barra de menus do seu jeito
-
-Escolha até três coisas para ficar na barra de menus, cada uma com o seu ícone: uso de CPU, memória ou GPU,
-temperatura do chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória. A escolha fica em
-**Editar**, no Geral, ou na engrenagem.
-
-<img src="docs/images/menubar-options.png" width="420" alt="Quatro jeitos de montar a barra: as barrinhas com as portas; CPU, memória e temperatura do chip; memória, GPU e bateria; CPU, disco livre e portas">
-
-## Idiomas
-
-Inglês, português e espanhol. O Barometer segue o idioma do Mac; dá para escolher outro na engrenagem.
 
 ## Instalar
 
 Precisa de um Mac com chip da Apple, macOS 14 ou mais novo, e das ferramentas de linha de comando da Apple
-(`xcode-select --install`, se ainda não tiver). Sem Xcode, sem Homebrew, sem pacote nenhum.
+(`xcode-select --install`). Sem Xcode, sem Homebrew, sem pacote nenhum.
 
 ```sh
 git clone https://github.com/GabrielTeles845/barometer.git
@@ -165,21 +34,73 @@ cd barometer
 zsh instalar.sh
 ```
 
-O instalador compila, monta `~/Applications/Barometer.app` e abre. O ícone aparece na barra de menus, e o app já
-fica marcado para abrir ao ligar o Mac (dá para desligar na engrenagem). Rodar o instalador de novo por cima é seguro.
+O instalador compila, monta `~/Applications/Barometer.app` e abre, já marcado para abrir ao ligar o Mac (dá para
+desligar na engrenagem). Rodar de novo por cima é seguro.
+
+## O que ele faz
+
+**Geral.** O resumo que você monta: anéis de CPU, memória, GPU e temperatura do chip, gráfico das últimas horas,
+disco, bateria, memória por partes, o que mais gasta e as portas. Em **Editar**, cada cartão liga e desliga e muda de
+lugar arrastando.
+
+**CPU.** Uma barra por núcleo, separando os de eficiência e os de desempenho, a frequência de cada grupo, a carga, há
+quanto tempo o Mac está ligado, as temperaturas do chip, do SSD e da bateria, e o que mais usa CPU.
+
+**Memória.** O uso e a pressão (a mesma do Monitor de Atividade), por partes: apps, fixa, comprimida, cache e swap.
+Os que mais usam vêm agrupados por aplicativo: o Chrome com os trinta processos dele vira uma linha só.
+
+**GPU e Disco.** Uso da GPU, renderer, tiler e memória. Espaço livre do jeito que o Finder conta, leitura e escrita
+ao vivo, e o total desde que o Mac ligou. Os dois com gráfico.
+
+**Bateria.** Carga, quanto falta, e a **saúde** e a **condição** iguais às dos Ajustes. Ciclos, capacidade,
+temperatura, voltagem, watts e o carregador ligado.
+
+**Portas.** O que está ouvindo em cada porta, com o comando e o nome do projeto (do `package.json` ou da pasta do
+git); no Docker, o container e o projeto do compose. Clicar abre no navegador, o **×** encerra. As favoritas aparecem
+como livres quando ninguém está nelas.
+
+**Limpeza.** Cache dos apps, do npm, do Bun e do pnpm, dados do Xcode, cache dos simuladores e registros antigos, cada
+um com o tamanho e o que acontece depois. A Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos
+nunca entram.
+
+**Aparência.** Preto sólido, fosco ou **vidro líquido** (macOS 26), com régua de transparência. Seis paletas de cor,
+cor de destaque, três tipos de canto, animação suave, com mola ou nenhuma, e ícone colorido na barra.
+
+**Barra de menus.** Até três coisas lado a lado, cada uma com o seu ícone: uso de CPU, memória ou GPU, temperatura do
+chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.
 
 ## Como usar
 
 - **Clique no ícone** para abrir o painel; clique fora ou aperte Esc para fechar.
-- **As abas** no topo levam a cada área. Passe o mouse para ver o nome.
-- **Editar**, no Geral, escolhe os cartões e a ordem.
+- **Passe o mouse em qualquer ícone** para ver o nome.
+- **Editar**, no Geral, escolhe os cartões, a ordem e o que fica na barra.
 - **O ×** aparece ao passar o mouse sobre um processo ou uma porta:
-  - **aplicativo** fecha como o Cmd+Q (ele salva e pergunta o que precisar); se não fechar em 5 s, oferece forçar;
-  - **processo solto** (um `npm run dev` esquecido, por exemplo) encerra o trabalho inteiro, como o Ctrl+C no
-    terminal, e não só o processo que ouve a porta;
+  - **aplicativo** fecha como o Cmd+Q; se não fechar em 5 s, oferece forçar;
+  - **processo solto** (um `npm run dev` esquecido) encerra o trabalho inteiro, como o Ctrl+C no terminal;
   - **container do Docker** para com `docker stop`;
   - **processos do sistema** não têm ×.
-- **A engrenagem** liga e desliga o abrir ao ligar o Mac, escolhe o que fica na barra, as portas favoritas e o idioma.
+- **A engrenagem** tem o abrir ao ligar o Mac, as portas favoritas e o idioma.
+
+## Leve de verdade
+
+O Barometer só lê o que você está vendo.
+
+- **Painel fechado:** memória, CPU, temperatura, GPU e disco a cada 10 s, por chamadas diretas ao sistema, para o
+  ícone e o gráfico. As portas (`lsof`) só se o número delas está na barra.
+- **Painel aberto:** a cada 2 s, só o que a aba aberta mostra. A aba Aparência não lê nada; a aba Portas não lista
+  processos.
+- **Ao fechar o painel**, tudo o que ele desenhou sai da memória. Com o painel aberto, uns 30 MB.
+- Um `ps` só para as duas listas de processos; a saúde oficial da bateria no máximo a cada 10 minutos, e só com a
+  bateria na tela.
+
+## Seguro de usar
+
+- **Nada sai do seu Mac.** Sem rede, sem conta, sem telemetria.
+- **O × não derruba o que não deve.** Ele sobe a árvore de processos até achar o trabalho e para no primeiro shell:
+  o terminal, o editor e a sessão nunca entram no alvo. O Finder, o Dock e o próprio app não têm ×. Antes de
+  encerrar, ele confere se o processo ainda é o dono da porta. A prova está em `provas/provar-encerrar.py`, que sobe
+  processos de verdade e confere quem morre.
+- Quando não consegue, ele diz por quê, em vez de fingir que fechou.
 
 ## De onde vem cada número
 
@@ -187,56 +108,45 @@ Nada é estimado: cada número sai de onde o próprio macOS lê.
 
 | O quê | De onde |
 |---|---|
-| Memória e pressão | `host_statistics64` e `kern.memorystatus_vm_pressure_level` (as mesmas contas do Monitor de Atividade) |
+| Memória e pressão | `host_statistics64` e `kern.memorystatus_vm_pressure_level` |
 | CPU por núcleo | `host_processor_info`; o tipo de cada núcleo, do `cluster-type` na árvore de dispositivos |
-| Frequência da CPU | IOReport (o tempo em cada estado de desempenho) e a tabela do controlador de energia |
-| Temperaturas | Os sensores do chip, do SSD e da bateria (serviços HID do Apple Silicon) |
+| Frequência da CPU | IOReport e a tabela do controlador de energia |
+| Temperaturas | Sensores do chip, do SSD e da bateria (serviços HID do chip da Apple) |
 | GPU | `IOAccelerator` → `PerformanceStatistics` |
 | Disco | `IOBlockStorageDriver` → `Statistics`; o espaço livre como o Finder conta |
-| Bateria | `AppleSmartBattery` e `IOPowerSources`; a saúde oficial, do `system_profiler` |
-| Portas | `lsof`, a tabela de sockets do kernel; o projeto, subindo da pasta do processo |
+| Bateria | `AppleSmartBattery`, `IOPowerSources`; a saúde oficial, do `system_profiler` |
+| Portas | `lsof`; o projeto, subindo da pasta do processo |
 | Processos | `ps`, agrupados por aplicativo |
-
-## Leve de verdade
-
-- **Painel fechado:** memória, CPU, temperatura, GPU e disco a cada 10 s, por chamadas diretas ao sistema, sem
-  abrir processo novo; as portas a cada 3 s, pelo `lsof`. O gráfico guarda uma leitura por minuto, 6 horas no máximo.
-- **Painel aberto:** os núcleos, a lista de processos e a bateria a cada 2 s, só enquanto ele está na tela.
-- A saúde oficial da bateria roda no máximo a cada 10 minutos, e só com a aba Bateria aberta.
-
-## Seguro de usar
-
-- **Nada sai do seu Mac.** Sem rede, sem conta, sem telemetria.
-- **O × não derruba o que não deve.** Ele sobe a árvore de processos até achar o trabalho e para no primeiro shell:
-  o terminal, o editor e a sessão nunca entram no alvo. O Finder, o Dock, a tela e o próprio app não têm ×. Antes de
-  encerrar, ele confere se aquele processo ainda é o dono da porta (o número do processo pode ter sido reaproveitado).
-  A prova está em `provas/provar-encerrar.py`, que sobe processos de verdade e confere quem morre.
-- Quando não consegue (processo de outro usuário, serviço que reabre sozinho, container que não parou), ele diz por
-  quê, em vez de fingir que fechou.
 
 ## Limites
 
 - **Só Mac com chip da Apple.** As temperaturas e a frequência vêm de interfaces internas da Apple, as mesmas que o
-  Stats e o macmon usam. Funcionam do M1 ao M3 Pro, onde foi testado; um macOS novo pode mudá-las.
-- **A frequência da GPU ficou de fora:** no M3 Pro a contagem da Apple não fecha (15 estados para 13 valores), e
-  mostrar um número ali seria chute.
+  Stats e o macmon usam. Testado do M1 ao M3 Pro; um macOS novo pode mudá-las.
+- **O vidro líquido precisa do macOS 26.** Nos anteriores, as duas opções de vidro aparecem apagadas e o painel fica
+  no fosco.
+- **A frequência da GPU ficou de fora:** no M3 Pro a contagem da Apple não fecha com a tabela de frequências, e um
+  número ali seria chute.
+
+## Idiomas
+
+Inglês, português e espanhol. O Barometer segue o idioma do Mac; dá para escolher outro na engrenagem.
 
 ## Para quem quer mexer
 
 | Arquivo | O que tem |
 |---|---|
-| `barra.swift` | O app: ícone, painel, ações, portas (`Sonda`), memória e processos (`Maquina`), sensores |
-| `painel.swift` | Todo o desenho do painel, em SwiftUI |
-| `cpu.swift` | Núcleos e frequência (IOReport) |
-| `gpu-disco.swift` | GPU e disco |
-| `bateria.swift` | Bateria |
+| `barra.swift` | O app: ícone da barra, janela do painel, ações, portas, memória e processos, sensores |
+| `painel.swift` | O desenho do painel, em SwiftUI |
+| `aparencia.swift` | Aparência: fundos, vidro líquido, paletas, animações |
+| `cpu.swift`, `gpu-disco.swift`, `bateria.swift` | Núcleos e frequência, GPU e disco, bateria |
 | `limpeza.swift` | Limpeza e o modelo do Mac |
 | `idioma.swift` | Os idiomas |
 | `instalar.sh` | Compila com o `swiftc` e monta o `.app` |
 
-- `barometer --retrato painel.png` desenha o painel numa imagem e sai. As fotos deste README saem daí
-  (`--aba bateria`, `--editar`, `--idioma pt`). O gráfico usa uma curva de exemplo quando o app acabou de abrir e
-  ainda não tem horas de leitura.
+- `barometer --retrato painel.png` desenha o painel numa imagem e sai (`--aba cpu`, `--editar`, `--idioma pt`,
+  `--fundo vidro`, `--paleta neon`). O vidro não se desenha fora da tela: nessas imagens ele é imitado desfocando o
+  papel de parede atrás; na tela, é o material do macOS de verdade.
+- `barometer --abrir` já abre com o painel aberto, para medir memória e CPU.
 - O diário fica em `~/Library/Logs/barometer.log`.
 
 ## Créditos

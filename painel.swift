@@ -39,6 +39,8 @@ final class Estado: ObservableObject {
     @Published var editandoGeral = false
     /// Desenhando o painel como imagem (`--retrato`): o que não se desenha fora da tela fica de fora.
     var paraImagem = false
+    /// Na foto de vidro: onde o painel fica sobre o papel de parede, para o desfoque de dentro casar com o de fora.
+    var deslocamentoNaFoto: CGSize = .zero
     /// O cartão que está sendo arrastado no editor do Geral.
     @Published var arrastando: String?
     /// Os cartões do Geral, na ordem escolhida, cada um ligado ou não. Gravados a cada mudança.
@@ -58,10 +60,18 @@ final class Estado: ObservableObject {
     @Published var sobre: String?
     @Published var sobreX: String?
     @Published var aba = 0
+    /// Fundo, transparência, cores, cantos e animações (aba Aparência). Vale na hora e fica gravado.
+    @Published var aparencia: Aparencia = Aparencia.atual {
+        didSet {
+            Aparencia.atual = aparencia
+            if !paraImagem { Pref.aparencia = aparencia }
+            if aparencia.iconeColorido != oldValue.iconeColorido || aparencia.chaveDasCores != oldValue.chaveDasCores { aoMudarABarra?() }
+        }
+    }
 }
 
 enum Aba: String, CaseIterable {
-    case geral, cpu, memoria, gpu, disco, bateria, portas, limpeza
+    case geral, cpu, memoria, gpu, disco, bateria, portas, limpeza, aparencia
 
     var titulo: String { t(tituloEmPortugues) }
 
@@ -75,6 +85,7 @@ enum Aba: String, CaseIterable {
         case .bateria: return "Bateria"
         case .portas: return "Portas"
         case .limpeza: return "Limpeza"
+        case .aparencia: return "Aparência"
         }
     }
 
@@ -88,6 +99,7 @@ enum Aba: String, CaseIterable {
         case .bateria: return "battery.75percent"
         case .portas: return "point.3.connected.trianglepath.dotted"
         case .limpeza: return "trash"
+        case .aparencia: return "paintpalette"
         }
     }
 }
@@ -98,7 +110,7 @@ enum ItemDaBarra: String, CaseIterable, Codable {
 
     var nome: String {
         switch self {
-        case .barrinhas: return t("Barrinhas de CPU e memória")
+        case .barrinhas: return t("CPU + RAM")
         case .cpu: return "CPU"
         case .memoria: return t("Memória")
         case .gpu: return "GPU"
@@ -119,6 +131,20 @@ enum ItemDaBarra: String, CaseIterable, Codable {
         case .bateria: return "battery.75percent"
         case .disco: return "internaldrive"
         case .portas: return "point.3.connected.trianglepath.dotted"
+        }
+    }
+
+    /// A cor no ícone colorido.
+    var cor: Color? {
+        switch self {
+        case .barrinhas: return nil
+        case .cpu: return Tinta.cpu
+        case .memoria: return Tinta.memoria
+        case .gpu: return Tinta.gpu
+        case .chip: return Tinta.calor
+        case .bateria: return Tinta.bateria
+        case .disco: return Tinta.disco
+        case .portas: return Tinta.porta
         }
     }
 
@@ -183,16 +209,20 @@ enum Tinta {
     static let texto = Color.white.opacity(0.92)
     static let apagado = Color.white.opacity(0.5)
     static let fraco = Color.white.opacity(0.3)
-    static let memoria = Color(red: 0.36, green: 0.62, blue: 1.0)
-    static let cpu = Color(red: 1.0, green: 0.62, blue: 0.27)
     static let calor = Color(red: 1.0, green: 0.36, blue: 0.36)
-    static let porta = Color(red: 0.35, green: 0.85, blue: 0.6)
-    static let fixa = Color(red: 0.66, green: 0.5, blue: 1.0)
-    static let eficiencia = Color(red: 0.32, green: 0.83, blue: 0.86)
-    static let gpu = Color(red: 0.78, green: 0.45, blue: 1.0)
-    static let disco = Color(red: 0.4, green: 0.86, blue: 0.62)
-    static let comprimida = Color(red: 1.0, green: 0.82, blue: 0.36)
-    static let bateria = Color(red: 0.42, green: 0.9, blue: 0.45)
+    // As cores das leituras vêm da paleta escolhida na aba Aparência.
+    private static var paleta: Paleta { Aparencia.atual.paletaAtual }
+    static var memoria: Color { paleta.memoria }
+    static var cpu: Color { paleta.cpu }
+    static var porta: Color { paleta.porta }
+    static var fixa: Color { paleta.fixa }
+    static var eficiencia: Color { paleta.eficiencia }
+    static var gpu: Color { paleta.gpu }
+    static var disco: Color { paleta.disco }
+    static var comprimida: Color { paleta.comprimida }
+    static var bateria: Color { paleta.bateria }
+    /// Interruptores, o que está escolhido e os marcadores.
+    static var destaque: Color { Aparencia.atual.corDeDestaque }
 
     static func pressao(_ n: Int) -> Color { n >= 4 ? calor : (n >= 2 ? cpu : porta) }
 }
@@ -206,20 +236,29 @@ struct Painel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             cabecalho
-            BarraDeAbas(estado: estado)
+            BarraDeAbas(estado: estado).zIndex(1)
             VStack(alignment: .leading, spacing: 12) { conteudo }
                 .id(estado.abaAtual.rawValue + (estado.editandoGeral ? "-editando" : ""))
-                .transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 8)), removal: .opacity))
+                .transition(Mexer.entrada)
             rodape
         }
+        // Trocou a paleta ou o destaque: o painel inteiro se redesenha com as cores novas.
+        .id(estado.aparencia.chaveDasCores)
         .padding(14)
         .frame(width: 360)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Tinta.fundo))
-        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Tinta.borda, lineWidth: 1))
-        .animation(.snappy(duration: 0.28), value: estado.abaAtual)
-        .animation(.snappy(duration: 0.28), value: estado.editandoGeral)
-        .animation(.snappy(duration: 0.28), value: estado.geral)
-        .scaleEffect(estado.apareceu ? 1 : 0.96, anchor: .top)
+        .background(FundoDoPainel(ap: estado.aparencia, paraImagem: estado.paraImagem, deslocamento: estado.deslocamentoNaFoto))
+        .overlay {
+            // O vidro líquido já desenha a própria borda de luz.
+            if estado.aparencia.fundoReal == .solido || estado.aparencia.fundoReal == .fosco {
+                RoundedRectangle(cornerRadius: estado.aparencia.cantos, style: .continuous).strokeBorder(Tinta.borda, lineWidth: 1)
+            }
+        }
+        .animation(Mexer.troca, value: estado.abaAtual)
+        .animation(Mexer.troca, value: estado.editandoGeral)
+        .animation(Mexer.troca, value: estado.geral)
+        .animation(Mexer.troca, value: estado.aparencia.cantos)
+        .scaleEffect(estado.apareceu ? 1 : (estado.aparencia.movimento == .mola ? 0.9 : 0.96), anchor: .top)
+        .blur(radius: estado.apareceu || estado.aparencia.movimento != .mola ? 0 : 6)
         .opacity(estado.apareceu ? 1 : 0)
         .background(GeometryReader { g in Color.clear.preference(key: TamanhoDoPainel.self, value: g.size) })
         .onPreferenceChange(TamanhoDoPainel.self) { acoes.redimensionar($0) }
@@ -283,6 +322,8 @@ struct Painel: View {
             Portas(estado: estado, acoes: acoes)
         case .limpeza:
             CartaoDaLimpeza(estado: estado, acoes: acoes)
+        case .aparencia:
+            AbaDeAparencia(estado: estado)
         }
     }
 
@@ -305,12 +346,12 @@ struct Painel: View {
 
     private var rodape: some View {
         HStack(spacing: 4) {
-            Botaozinho(simbolo: "arrow.clockwise", dica: "Atualizar agora", acao: acoes.atualizar)
+            Botaozinho(simbolo: "arrow.clockwise", dica: "Atualizar agora", lado: .topLeading, acao: acoes.atualizar)
             Botaozinho(simbolo: estado.mostrarTudo ? "eye.fill" : "eye", dica: "Mostrar todas as portas", acao: acoes.virarTudo)
             Botaozinho(simbolo: "gauge.with.dots.needle.33percent", dica: "Abrir o Monitor de Atividade", acao: acoes.monitor)
             Botaozinho(simbolo: "doc.on.clipboard", dica: "Copiar a lista de portas", acao: acoes.copiar)
             Spacer()
-            Botaozinho(simbolo: "gearshape", dica: "Ajustes", acao: acoes.ajustes)
+            Botaozinho(simbolo: "gearshape", dica: "Ajustes", lado: .topTrailing, acao: acoes.ajustes)
         }
         .padding(.top, 2)
     }
@@ -321,29 +362,51 @@ struct BarraDeAbas: View {
     @ObservedObject var estado: Estado
 
     var body: some View {
-        HStack(spacing: 2) {
-            ForEach(Aba.allCases, id: \.self) { aba in
-                let escolhida = estado.abaAtual == aba
-                let sobre = estado.sobre == "aba:" + aba.rawValue
-                Button {
-                    estado.abaAtual = aba
-                    if aba != .geral { estado.editandoGeral = false }
-                } label: {
-                    Image(systemName: aba.simbolo).font(.system(size: 12, weight: escolhida ? .semibold : .regular))
-                        .foregroundStyle(escolhida ? Tinta.texto : (sobre ? Tinta.apagado.opacity(1.4) : Tinta.apagado))
-                        .frame(maxWidth: .infinity).frame(height: 26)
-                        .background(RoundedRectangle(cornerRadius: 7).fill(escolhida ? Color.white.opacity(0.11) : (sobre ? Color.white.opacity(0.05) : .clear)))
-                        .contentShape(Rectangle())
+        let abas = Aba.allCases
+        let i = abas.firstIndex(of: estado.abaAtual) ?? 0
+        GeometryReader { g in
+            // Uma pílula só, que desliza até a aba escolhida (com fundo de vidro, ela é de vidro líquido).
+            let largura = (g.size.width - CGFloat(abas.count - 1) * 2) / CGFloat(abas.count)
+            ZStack(alignment: .leading) {
+                pilula.frame(width: largura, height: 26).offset(x: CGFloat(i) * (largura + 2))
+                    .animation(Mexer.leve, value: i)
+                HStack(spacing: 2) {
+                    ForEach(abas, id: \.self) { aba in
+                        let escolhida = estado.abaAtual == aba
+                        let sobre = estado.sobre == "aba:" + aba.rawValue
+                        let lado: Alignment = aba == abas.first ? .bottomLeading : (aba == abas.last ? .bottomTrailing : .bottom)
+                        Button {
+                            estado.abaAtual = aba
+                            if aba != .geral { estado.editandoGeral = false }
+                        } label: {
+                            Image(systemName: aba.simbolo).font(.system(size: 12, weight: escolhida ? .semibold : .regular))
+                                .foregroundStyle(escolhida ? Tinta.texto : (sobre ? Tinta.apagado.opacity(1.4) : Tinta.apagado))
+                                .scaleEffect(sobre && !escolhida && estado.aparencia.movimento == .mola ? 1.12 : 1)
+                                .frame(maxWidth: .infinity).frame(height: 26)
+                                .background(RoundedRectangle(cornerRadius: 7).fill(!escolhida && sobre ? Color.white.opacity(0.05) : .clear))
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .overlay(alignment: lado) { if sobre { Dica(texto: aba.titulo).offset(y: 32) } }
+                        .zIndex(sobre ? 1 : 0)
+                        .onHover { estado.sobre = $0 ? "aba:" + aba.rawValue : (estado.sobre == "aba:" + aba.rawValue ? nil : estado.sobre) }
+                    }
                 }
-                .buttonStyle(.plain)
-                .help(aba.titulo)
-                .onHover { estado.sobre = $0 ? "aba:" + aba.rawValue : (estado.sobre == "aba:" + aba.rawValue ? nil : estado.sobre) }
             }
         }
+        .frame(height: 26)
         .padding(3)
         .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.04)))
-        .animation(.easeOut(duration: 0.15), value: estado.abaAtual)
-        .animation(.easeOut(duration: 0.12), value: estado.sobre)
+        .animation(Mexer.leve, value: estado.sobre)
+    }
+
+    @ViewBuilder private var pilula: some View {
+        let forma = RoundedRectangle(cornerRadius: 7, style: .continuous)
+        if estado.aparencia.fundoReal != .solido, !estado.paraImagem, #available(macOS 26, *) {
+            Color.clear.glassEffect(.regular.interactive(), in: forma)
+        } else {
+            forma.fill(Color.white.opacity(0.11))
+        }
     }
 }
 
@@ -429,12 +492,12 @@ struct SecaoDaBarra: View {
                             Spacer(minLength: 0)
                             if let n = estado.naBarra.firstIndex(of: item) {
                                 Text(verbatim: String(n + 1)).font(.system(size: 9, weight: .bold)).foregroundStyle(Tinta.fundo)
-                                    .frame(width: 15, height: 15).background(Circle().fill(Tinta.porta))
+                                    .frame(width: 15, height: 15).background(Circle().fill(Tinta.destaque))
                             }
                         }
                         .padding(.horizontal, 8).frame(height: 30)
                         .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(escolhido ? 0.1 : 0.035)))
-                        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(escolhido ? Tinta.porta.opacity(0.5) : .clear, lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(escolhido ? Tinta.destaque.opacity(0.5) : .clear, lineWidth: 1))
                         .opacity(cheio ? 0.5 : 1)
                         .contentShape(Rectangle())
                     }
@@ -477,11 +540,11 @@ struct Interruptor: View {
     var body: some View {
         Button(action: virar) {
             ZStack(alignment: ligado ? .trailing : .leading) {
-                Capsule().fill(ligado ? Tinta.porta.opacity(0.85) : Color.white.opacity(0.12))
+                Capsule().fill(ligado ? Tinta.destaque.opacity(0.85) : Color.white.opacity(0.12))
                 Circle().fill(Color.white).padding(2).shadow(color: .black.opacity(0.3), radius: 1, y: 0.5)
             }
             .frame(width: 30, height: 17)
-            .animation(.snappy(duration: 0.2), value: ligado)
+            .animation(Mexer.leve, value: ligado)
         }
         .buttonStyle(.plain)
     }
@@ -537,7 +600,7 @@ struct Anel: View {
                 VStack(spacing: 0) {
                     Text(texto).font(.system(size: tamanho > 60 ? 18 : 13.5, weight: .semibold, design: .rounded)).monospacedDigit()
                         .foregroundStyle(Tinta.texto)
-                        .contentTransition(.numericText())
+                        
                         .animation(.snappy, value: texto)
                     if let detalhe {
                         Text(t(detalhe)).font(.system(size: 8.5, weight: .medium)).monospacedDigit().foregroundStyle(Tinta.fraco)
@@ -587,21 +650,22 @@ struct Grafico: View {
                 Spacer()
                 Text(t(alcance)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
             }
-            if pontos.count < 2 {
-                Text(t("Juntando as primeiras leituras (uma por minuto)."))
-                    .font(.system(size: 11)).foregroundStyle(Tinta.fraco)
-                    .frame(maxWidth: .infinity, minHeight: 96)
-            } else {
-                grafico.frame(height: 96)
-                    .animation(.easeInOut(duration: 0.35), value: aba)
-            }
+            grafico.frame(height: 96)
+                .animation(Mexer.valor(.easeInOut(duration: 0.35)), value: aba)
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.cartao))
     }
 
+    /// Com uma leitura só (o app acabou de abrir), a linha sai reta no valor de agora, até chegar a segunda.
+    private var serie: [Historico.Ponto] {
+        guard pontos.count == 1, let p = pontos.first else { return pontos }
+        return [Historico.Ponto(quando: p.quando.addingTimeInterval(-10), memoria: p.memoria, cpu: p.cpu, chip: p.chip,
+                                gpu: p.gpu, disco: p.disco), p]
+    }
+
     private var alcance: String {
-        guard let primeiro = pontos.first?.quando else { return "últimas 6 h" }
+        guard let primeiro = pontos.first?.quando, pontos.count > 1 else { return "agora" }
         let minutos = Int(Date().timeIntervalSince(primeiro) / 60)
         return minutos < 60 ? "últimos \(max(1, minutos)) min" : "últimas \(min(6, minutos / 60)) h"
     }
@@ -620,6 +684,7 @@ struct Grafico: View {
         let aba = atual
         let cor = titulo[aba].1
         // Disco em MB/s, com o teto do maior pico (no mínimo 10 MB/s, para o ruído não virar montanha).
+        let pontos = serie
         let picoDisco = max(10, (pontos.map(\.disco).max() ?? 0) / 1_048_576 * 1.1)
         let dominio: ClosedRange<Double> = aba == 3 ? 20...100 : (aba == 4 ? 0...picoDisco : 0...100)
         let marcas: [Double] = aba == 3 ? [40, 70, 100] : (aba == 4 ? [0, (picoDisco / 2).rounded(), picoDisco.rounded()] : [0, 50, 100])
@@ -636,6 +701,11 @@ struct Grafico: View {
                         .interpolationMethod(.monotone)
                 }
             }
+            // A leitura mais recente, marcada na ponta da linha.
+            if let ultimo = pontos.last, let v = valor(ultimo) {
+                PointMark(x: .value("hora", ultimo.quando), y: .value("valor", v))
+                    .foregroundStyle(cor).symbolSize(28)
+            }
         }
         .chartYScale(domain: dominio)
         .chartYAxis {
@@ -648,10 +718,27 @@ struct Grafico: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { v in
+            AxisMarks(values: horas(pontos)) { v in
                 AxisValueLabel(format: .dateTime.hour().minute()).font(.system(size: 9)).foregroundStyle(Tinta.fraco)
             }
         }
+    }
+
+    /// As horas embaixo do gráfico, em minutos redondos e nunca repetidas: o passo cresce com o intervalo
+    /// (1, 2, 5, 10… minutos) para caberem até 4. Com menos de 2 minutos de leitura, nenhuma.
+    private func horas(_ pontos: [Historico.Ponto]) -> [Date] {
+        guard let inicio = pontos.first?.quando, let fim = pontos.last?.quando else { return [] }
+        let minutos = fim.timeIntervalSince(inicio) / 60
+        guard minutos >= 2 else { return [] }
+        let passo = [1.0, 2, 5, 10, 15, 30, 60, 120].first { minutos / $0 <= 4 } ?? 120
+        let segundos = passo * 60
+        var marca = (inicio.timeIntervalSince1970 / segundos).rounded(.up) * segundos
+        var marcas: [Date] = []
+        while marca <= fim.timeIntervalSince1970 {
+            marcas.append(Date(timeIntervalSince1970: marca))
+            marca += segundos
+        }
+        return marcas
     }
 }
 
@@ -858,7 +945,7 @@ struct ResumoDaBateria: View {
                     .animation(.easeOut(duration: 0.5), value: b.nivel)
             }
             Text(t("\(b.nivel)%")).font(.system(size: 13, weight: .semibold, design: .rounded)).monospacedDigit().foregroundStyle(Tinta.texto)
-                .contentTransition(.numericText())
+                
             Text(t(b.carregando ? "carregando" : (b.naTomada ? "na tomada" : "na bateria")))
                 .font(.system(size: 11)).foregroundStyle(Tinta.apagado)
             Spacer()
@@ -891,7 +978,7 @@ struct CartaoDaMemoria: View {
             if let m = estado.memoria {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(Maquina.gb(m.usada)).font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
-                        .foregroundStyle(Tinta.texto).contentTransition(.numericText())
+                        .foregroundStyle(Tinta.texto)
                     Text(t("de \(Maquina.gb(Maquina.total)) em uso")).font(.system(size: 12)).foregroundStyle(Tinta.apagado)
                     Spacer()
                     HStack(spacing: 5) {
@@ -920,7 +1007,7 @@ struct Ladrilho: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(t(titulo).uppercased()).font(.system(size: 8.5, weight: .semibold)).tracking(0.5).foregroundStyle(cor.opacity(0.85))
             Text(valor).font(.system(size: 15, weight: .semibold, design: .rounded)).monospacedDigit()
-                .foregroundStyle(Tinta.texto).contentTransition(.numericText())
+                .foregroundStyle(Tinta.texto)
             if let barra {
                 GeometryReader { g in
                     ZStack(alignment: .leading) {
@@ -953,7 +1040,7 @@ struct CartaoDaLimpeza: View {
                     Text(t("Medindo…")).font(.system(size: 13)).foregroundStyle(Tinta.apagado)
                 } else {
                     Text(Maquina.gb(total)).font(.system(size: 24, weight: .semibold, design: .rounded)).monospacedDigit()
-                        .foregroundStyle(Tinta.texto).contentTransition(.numericText())
+                        .foregroundStyle(Tinta.texto)
                     Text(t("podem sair sem perder nada seu")).font(.system(size: 11)).foregroundStyle(Tinta.apagado)
                 }
                 Spacer()
@@ -976,7 +1063,7 @@ struct CartaoDaLimpeza: View {
                         Spacer(minLength: 6)
                         Text(item.bytes.map(Maquina.gb) ?? (estado.medindoLimpeza ? "…" : "–"))
                             .font(.system(size: 11, weight: .medium)).monospacedDigit().foregroundStyle(Tinta.apagado)
-                            .contentTransition(.numericText())
+                            
                         Button { acoes.limpar(item.id) } label: {
                             Text(t(item.ehLixeira ? "Esvaziar" : "Limpar")).font(.system(size: 11, weight: .medium))
                                 .foregroundStyle(item.ehLixeira ? Tinta.calor : Tinta.texto)
@@ -1123,7 +1210,7 @@ struct Processos: View {
                         Text(porCPU ? "\(Int(g.cpu.rounded()))%" : Maquina.gb(g.bytes))
                             .font(.system(size: 11, weight: .medium)).monospacedDigit()
                             .foregroundStyle(Tinta.apagado).frame(width: 52, alignment: .trailing)
-                            .contentTransition(.numericText())
+                            
                     }
                 }
             }
@@ -1235,6 +1322,23 @@ struct CartaoDaCPU: View {
         case .serious: return Tinta.cpu
         default: return Tinta.calor
         }
+    }
+}
+
+/// O nome de um ícone, num balão, ao passar o mouse. A dica nativa do macOS (`.help`) não aparece aqui: o
+/// Barometer vive na barra e quase nunca é o app ativo, e o macOS só mostra dica do app ativo.
+struct Dica: View {
+    let texto: String
+
+    var body: some View {
+        Text(texto).font(.system(size: 11, weight: .medium)).foregroundStyle(Tinta.texto)
+            .fixedSize()
+            .padding(.horizontal, 8).padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color(white: 0.17)))
+            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(Color.white.opacity(0.12), lineWidth: 1))
+            .shadow(color: .black.opacity(0.4), radius: 6, y: 2)
+            .allowsHitTesting(false)
+            .transition(.opacity)
     }
 }
 
@@ -1378,6 +1482,8 @@ struct Linha<Conteudo: View>: View {
 struct Botaozinho: View {
     let simbolo: String
     let dica: String
+    /// De que lado o balão do nome se apoia: o primeiro botão para a direita, a engrenagem para a esquerda.
+    var lado: Alignment = .top
     let acao: () -> Void
     @EnvironmentObject var estado: Estado
     private var sobre: Bool { estado.sobre == "b:" + simbolo }
@@ -1390,7 +1496,8 @@ struct Botaozinho: View {
                 .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Color.white.opacity(0.08) : .clear))
         }
         .buttonStyle(.plain)
-        .help(t(dica))
+        .overlay(alignment: lado) { if sobre { Dica(texto: t(dica)).offset(y: -30) } }
+        .zIndex(sobre ? 1 : 0)
         .onHover { estado.sobre = $0 ? "b:" + simbolo : (estado.sobre == "b:" + simbolo ? nil : estado.sobre) }
     }
 }
@@ -1401,28 +1508,46 @@ struct Botaozinho: View {
 /// portas ao lado. Imagem "modelo" (só a forma): o macOS pinta de branco ou
 /// preto conforme o fundo da barra.
 enum Icone {
-    /// A barra de menus inteira numa imagem só (os ícones e os números), em "modelo": o macOS pinta de branco ou
-    /// preto conforme a barra. Texto em pedaços com imagem anexada não acompanha a cor; uma imagem só acompanha.
-    static func barra(_ pedacos: [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)]) -> NSImage {
+    /// Um item da barra: o ícone (ou as barrinhas), o número e a cor dele no ícone colorido.
+    struct Pedaco {
+        let simbolo: String?
+        let texto: String
+        let barrinhas: (Double, Double)?
+        let cor: Color?
+        init(_ simbolo: String?, _ texto: String, _ barrinhas: (Double, Double)?, cor: Color?) {
+            self.simbolo = simbolo; self.texto = texto; self.barrinhas = barrinhas; self.cor = cor
+        }
+    }
+
+    /// A barra de menus inteira numa imagem só (os ícones e os números). Texto em pedaços com imagem anexada não
+    /// acompanha a cor da barra; uma imagem só acompanha.
+    /// Colorido: os ícones e as barrinhas com as cores da paleta, e o texto na cor da barra (branco ou preto).
+    /// Sem cor, a imagem é "modelo" e o macOS pinta tudo de uma cor só.
+    static func barra(_ pedacos: [Pedaco], colorido: Bool = false) -> NSImage {
         let fonte = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
-        let atributos: [NSAttributedString.Key: Any] = [.font: fonte, .foregroundColor: NSColor.black]
         let configuracao = NSImage.SymbolConfiguration(pointSize: 12, weight: .medium)
+        let medir: [NSAttributedString.Key: Any] = [.font: fonte]
         var largura: CGFloat = 0
         var medidas: [(NSImage?, CGFloat, CGFloat)] = []
         for p in pedacos {
-            let simbolo = p.barrinhas != nil ? nil : p.simbolo.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil)?.withSymbolConfiguration(configuracao) }
+            var config = configuracao
+            if colorido, let cor = p.cor { config = config.applying(.init(paletteColors: [NSColor(cor)])) }
+            let simbolo = p.barrinhas != nil ? nil : p.simbolo.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil)?.withSymbolConfiguration(config) }
             let larguraDoIcone: CGFloat = p.barrinhas != nil ? 14 : (simbolo.map { $0.size.width * 14 / max($0.size.height, 1) } ?? 0)
-            let larguraDoTexto = p.texto.isEmpty ? 0 : (p.texto as NSString).size(withAttributes: atributos).width
+            let larguraDoTexto = p.texto.isEmpty ? 0 : (p.texto as NSString).size(withAttributes: medir).width
             medidas.append((simbolo, larguraDoIcone, larguraDoTexto))
             largura += larguraDoIcone + (larguraDoTexto > 0 ? 3 + larguraDoTexto : 0)
         }
         largura += CGFloat(max(0, pedacos.count - 1)) * 9
         let img = NSImage(size: NSSize(width: max(16, ceil(largura)), height: 18), flipped: false) { _ in
+            // Desenhado na hora de aparecer: o `labelColor` já é o da barra (claro ou escuro).
+            let atributos: [NSAttributedString.Key: Any] = [.font: fonte, .foregroundColor: colorido ? NSColor.labelColor : NSColor.black]
             var x: CGFloat = 0
             for (i, p) in pedacos.enumerated() {
                 let (simbolo, larguraDoIcone, larguraDoTexto) = medidas[i]
                 if let (cpu, memoria) = p.barrinhas {
-                    desenharBarrinhas(em: NSRect(x: x, y: 2, width: 14, height: 14), cpu: cpu, memoria: memoria)
+                    desenharBarrinhas(em: NSRect(x: x, y: 2, width: 14, height: 14), cpu: cpu, memoria: memoria,
+                                      cores: colorido ? (NSColor(Tinta.cpu), NSColor(Tinta.memoria)) : nil)
                 } else if let simbolo {
                     let altura: CGFloat = 14
                     simbolo.draw(in: NSRect(x: x, y: (18 - altura) / 2, width: larguraDoIcone, height: altura))
@@ -1436,16 +1561,17 @@ enum Icone {
             }
             return true
         }
-        img.isTemplate = true
+        img.isTemplate = !colorido
         return img
     }
 
-    private static func desenharBarrinhas(em r: NSRect, cpu: Double, memoria: Double) {
+    private static func desenharBarrinhas(em r: NSRect, cpu: Double, memoria: Double, cores: (NSColor, NSColor)? = nil) {
         for (i, v) in [cpu, memoria].enumerated() {
             let x = r.minX + 2 + CGFloat(i) * 6
-            NSColor.black.withAlphaComponent(0.32).setFill()
+            let cor = cores.map { i == 0 ? $0.0 : $0.1 } ?? NSColor.black
+            (cores == nil ? NSColor.black.withAlphaComponent(0.32) : NSColor.labelColor.withAlphaComponent(0.25)).setFill()
             NSBezierPath(roundedRect: NSRect(x: x, y: r.minY, width: 3.6, height: r.height - 2), xRadius: 1.8, yRadius: 1.8).fill()
-            NSColor.black.setFill()
+            cor.setFill()
             let altura = max(2.5, (r.height - 2) * CGFloat(min(1, max(0, v))))
             NSBezierPath(roundedRect: NSRect(x: x, y: r.minY, width: 3.6, height: altura), xRadius: 1.8, yRadius: 1.8).fill()
         }

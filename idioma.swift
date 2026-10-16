@@ -98,8 +98,6 @@ enum Traducao {
         "Fechar": ("Close", "Cerrar"), "Forçar": ("Force", "Forzar"), "Esperar": ("Wait", "Esperar"),
         // Anéis e gráfico
         "Chip": ("Chip", "Chip"), "Temp.": ("Temp.", "Temp."),
-        "Juntando as primeiras leituras (uma por minuto).": ("Collecting the first readings (one per minute).",
-                                                             "Reuniendo las primeras lecturas (una por minuto)."),
         "últimas 6 h": ("last 6 h", "últimas 6 h"),
         // Memória
         "apps": ("apps", "apps"), "fixa": ("wired", "fija"), "comprimida": ("compressed", "comprimida"), "cache": ("cached", "caché"),
@@ -169,7 +167,7 @@ enum Traducao {
             ("Everything in the Trash is deleted for good. There's no getting it back.",
              "Los archivos de la Papelera se borran para siempre. No se pueden recuperar."),
         // Barra de menus
-        "Barrinhas de CPU e memória": ("CPU and memory bars", "Barras de CPU y memoria"), "Temperatura do chip": ("Chip temperature", "Temperatura del chip"),
+        "CPU + RAM": ("CPU + RAM", "CPU + RAM"), "Temperatura do chip": ("Chip temperature", "Temperatura del chip"),
         "Disco livre": ("Free disk", "Disco libre"), "Portas abertas": ("Open ports", "Puertos abiertos"),
         "NA BARRA DE MENUS": ("IN THE MENU BAR", "EN LA BARRA DE MENÚS"), "até 3": ("up to 3", "hasta 3"),
         "NO GERAL": ("IN THE OVERVIEW", "EN GENERAL"), "Na barra de menus (até 3)": ("In the menu bar (up to 3)", "En la barra de menús (hasta 3)"),
@@ -187,6 +185,21 @@ enum Traducao {
              "Solo el proceso que escucha el puerto. Si hay un supervisor en la terminal, puede iniciar otro."),
         "Não consegui ler a árvore de processos; vai só quem ouve.": ("Couldn't read the process tree; only the listener goes.",
                                                                       "No pude leer el árbol de procesos; solo se va el que escucha."),
+        // Aparência
+        "Aparência": ("Appearance", "Apariencia"), "FUNDO": ("BACKGROUND", "FONDO"), "Sólido": ("Solid", "Sólido"),
+        "Fosco": ("Frosted", "Esmerilado"), "Vidro": ("Glass", "Vidrio"), "Vidro claro": ("Clear glass", "Vidrio claro"),
+        "TRANSPARÊNCIA": ("TRANSPARENCY", "TRANSPARENCIA"), "fechado": ("solid", "opaco"), "transparente": ("see-through", "transparente"),
+        "CORES": ("COLORS", "COLORES"), "Padrão": ("Default", "Predeterminado"), "Neon": ("Neon", "Neón"),
+        "Pastel": ("Pastel", "Pastel"), "Oceano": ("Ocean", "Océano"), "Entardecer": ("Sunset", "Atardecer"),
+        "Grafite": ("Graphite", "Grafito"), "DESTAQUE": ("ACCENT", "ACENTO"), "Da paleta": ("From the palette", "De la paleta"),
+        "CANTOS": ("CORNERS", "ESQUINAS"), "Retos": ("Sharp", "Rectas"), "Médios": ("Medium", "Medias"),
+        "Redondos": ("Round", "Redondas"), "MOVIMENTO": ("MOTION", "MOVIMIENTO"), "Suave": ("Smooth", "Suave"),
+        "Com mola": ("Springy", "Con rebote"), "Sem animação": ("No animation", "Sin animación"),
+        "Ícone colorido na barra": ("Colored menu bar icon", "Icono de color en la barra"),
+        "As barrinhas e os ícones com as cores do painel.": ("The bars and icons in the panel's colors.",
+                                                             "Las barritas y los iconos con los colores del panel."),
+        "O vidro líquido precisa do macOS 26 ou mais novo.": ("Liquid glass needs macOS 26 or later.",
+                                                               "El vidrio líquido necesita macOS 26 o posterior."),
     ]
 
     struct Padrao {
