@@ -1,0 +1,39 @@
+# Cada push e cada pull request: compila, roda os testes, roda a prova do × e compila como o instalador.
+# Numa máquina com macOS 26 e chip da Apple, igual a de quem usa (o vidro líquido precisa do SDK do macOS 26).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Um push novo cancela a rodada anterior do mesmo ramo.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    name: Compilar e testar
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Versões
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Compilar
+        run: swift build
+
+      - name: Testes
+        run: swift test
+
+      - name: Prova do × (sobe processos de verdade e confere quem morre)
+        run: python3 provas/provar-encerrar.py
+
+      - name: Compilar como o instalador
+        run: swift build -c release
