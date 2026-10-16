@@ -68,6 +68,11 @@ extension Barra {
         if CommandLine.arguments.contains("--mola") { ap.movimento = .mola }
         if CommandLine.arguments.contains("--colorido") { ap.iconeColorido = true }
         if let m = argumento("--modo").flatMap(Aparencia.Modo.init(rawValue:)) { ap.modo = m }
+        if CommandLine.arguments.contains("--chapado") { ap.chapado = true }
+        if CommandLine.arguments.contains("--icones-coloridos") { ap.iconesColoridos = true }
+        if ap.paleta == Paleta.personalizadaId { ap.cores = Paleta.coresDePartida(de: Paleta.todas[1]) }
+        if CommandLine.arguments.contains("--editar-cores") { estado.editandoCores = true }
+        if let n = argumento("--processos").flatMap(Int.init) { estado.quantosProcessos = n }
         estado.aparencia = ap
         // A saúde oficial chega em segundo plano (system_profiler): espera por ela, até 3 s.
         _ = leitorDeBateria.ler(comOficial: true)

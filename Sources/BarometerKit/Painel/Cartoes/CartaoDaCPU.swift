@@ -50,7 +50,7 @@ struct CartaoDaCPU: View {
                     ZStack(alignment: .bottom) {
                         RoundedRectangle(cornerRadius: 2).fill(Tinta.tinta.opacity(0.06))
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(LinearGradient(colors: [cor, cor.opacity(0.55)], startPoint: .top, endPoint: .bottom))
+                            .fill(Tinta.degrade([cor, cor.opacity(0.55)], de: .top, ate: .bottom, chapada: cor))
                             .frame(height: max(2, 34 * CGFloat(min(1, nucleos[i].uso))))
                             .animation(.easeOut(duration: 0.45), value: nucleos[i].uso)
                     }

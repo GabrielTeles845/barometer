@@ -140,9 +140,9 @@ struct Painel: View {
     private var rodape: some View {
         HStack(spacing: 4) {
             Botaozinho(simbolo: "arrow.clockwise", dica: "Atualizar agora", lado: .topLeading, acao: acoes.atualizar)
-            Botaozinho(simbolo: estado.mostrarTudo ? "eye.fill" : "eye", dica: "Mostrar todas as portas", acao: acoes.virarTudo)
-            Botaozinho(simbolo: "gauge.with.dots.needle.33percent", dica: "Abrir o Monitor de Atividade", acao: acoes.monitor)
-            Botaozinho(simbolo: "doc.on.clipboard", dica: "Copiar a lista de portas", acao: acoes.copiar)
+            Botaozinho(simbolo: estado.mostrarTudo ? "eye.fill" : "eye", dica: "Mostrar todas as portas", cor: Tinta.porta, acao: acoes.virarTudo)
+            Botaozinho(simbolo: "gauge.with.dots.needle.33percent", dica: "Abrir o Monitor de Atividade", cor: Tinta.cpu, acao: acoes.monitor)
+            Botaozinho(simbolo: "doc.on.clipboard", dica: "Copiar a lista de portas", cor: Tinta.memoria, acao: acoes.copiar)
             Spacer()
             Botaozinho(simbolo: "gearshape", dica: "Ajustes", lado: .topTrailing, acao: acoes.ajustes)
         }

@@ -68,7 +68,9 @@ enum Maquina {
         return soma > 0 ? (usuario + sistema + nice) / soma : nil
     }
 
-    struct Gasto {
+    struct Gasto: Identifiable {
+        /// Nome e processo: dois processos soltos com o mesmo nome (dois `claude`) são duas linhas.
+        var id: String { "\(nome)#\(pid)" }
         let nome: String
         let bytes: Double
         let processos: Int

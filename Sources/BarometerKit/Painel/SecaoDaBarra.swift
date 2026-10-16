@@ -24,7 +24,8 @@ struct SecaoDaBarra: View {
                     } label: {
                         HStack(spacing: 7) {
                             Image(systemName: item.simbolo).font(.system(size: 11))
-                                .foregroundStyle(escolhido ? Tinta.texto : Tinta.apagado).frame(width: 16)
+                                .foregroundStyle(Tinta.icone(item.cor ?? Tinta.destaque, senao: escolhido ? Tinta.texto : Tinta.apagado))
+                                .frame(width: 16)
                             Text(item.nome).font(.system(size: 11)).foregroundStyle(escolhido ? Tinta.texto : Tinta.apagado)
                                 .lineLimit(1).minimumScaleFactor(0.85)
                             Spacer(minLength: 0)

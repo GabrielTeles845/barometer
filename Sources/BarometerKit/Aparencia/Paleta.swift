@@ -20,6 +20,49 @@ struct Paleta: Identifiable {
         Color(red: Double((hex >> 16) & 0xff) / 255, green: Double((hex >> 8) & 0xff) / 255, blue: Double(hex & 0xff) / 255)
     }
 
+    /// "FF9F45" → cor. Texto que não é cor dá nil.
+    static func cor(hex: String) -> Color? {
+        guard hex.count == 6, let n = UInt32(hex, radix: 16) else { return nil }
+        return c(n)
+    }
+
+    // MARK: A personalizada
+
+    static let personalizadaId = "personalizada"
+
+    /// As leituras que a pessoa pinta, na ordem do editor.
+    static let pintaveis: [(id: String, nome: String)] = [
+        ("cpu", "CPU"), ("memoria", "Memória"), ("gpu", "GPU"), ("disco", "Disco"), ("bateria", "Bateria"), ("porta", "Portas"),
+    ]
+
+    /// As cores para escolher, uma fileira por leitura.
+    static let amostras = ["FF9F45", "FF5F5F", "FF6FAE", "C77DFF", "7F9CFF", "4C9BFF", "3FD4E0", "5AD99A", "B5E35A", "FFD54A"]
+
+    /// A paleta das cores escolhidas; o que não foi escolhido fica como na padrão.
+    static func personalizada(_ cores: [String: String]) -> Paleta {
+        func pega(_ id: String, _ reserva: Color) -> Color { cores[id].flatMap(cor(hex:)) ?? reserva }
+        let p = padrao
+        return Paleta(id: personalizadaId, nome: "Personalizada", cpu: pega("cpu", p.cpu), memoria: pega("memoria", p.memoria),
+                      gpu: pega("gpu", p.gpu), disco: pega("disco", p.disco), bateria: pega("bateria", p.bateria),
+                      porta: pega("porta", p.porta), fixa: p.fixa, eficiencia: p.eficiencia, comprimida: p.comprimida,
+                      destaque: pega("porta", p.destaque))
+    }
+
+    /// As cores de partida do editor: as da paleta que a pessoa está vendo, na amostra mais parecida.
+    static func coresDePartida(de p: Paleta) -> [String: String] {
+        let fontes: [String: Color] = ["cpu": p.cpu, "memoria": p.memoria, "gpu": p.gpu, "disco": p.disco, "bateria": p.bateria, "porta": p.porta]
+        return fontes.mapValues { maisParecida($0) }
+    }
+
+    private static func maisParecida(_ cor: Color) -> String {
+        let alvo = NSColor(cor).usingColorSpace(.sRGB)
+        func distancia(_ hex: String) -> Double {
+            guard let a = alvo, let b = Paleta.cor(hex: hex).flatMap({ NSColor($0).usingColorSpace(.sRGB) }) else { return .infinity }
+            return pow(a.redComponent - b.redComponent, 2) + pow(a.greenComponent - b.greenComponent, 2) + pow(a.blueComponent - b.blueComponent, 2)
+        }
+        return amostras.min { distancia($0) < distancia($1) } ?? amostras[0]
+    }
+
     static let padrao = Paleta(
         id: "padrao", nome: "Padrão",
         cpu: Color(red: 1.0, green: 0.62, blue: 0.27), memoria: Color(red: 0.36, green: 0.62, blue: 1.0),

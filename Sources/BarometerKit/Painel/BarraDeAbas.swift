@@ -26,7 +26,8 @@ struct BarraDeAbas: View {
                             if aba != .geral { estado.editandoGeral = false }
                         } label: {
                             Image(systemName: aba.simbolo).font(.system(size: 12, weight: escolhida ? .semibold : .regular))
-                                .foregroundStyle(escolhida ? Tinta.texto : (sobre ? Tinta.apagado.opacity(1.4) : Tinta.apagado))
+                                .foregroundStyle(Tinta.icone(aba.cor.opacity(escolhida || sobre ? 1 : 0.8),
+                                                             senao: escolhida ? Tinta.texto : (sobre ? Tinta.apagado.opacity(1.4) : Tinta.apagado)))
                                 .scaleEffect(sobre && !escolhida && estado.aparencia.movimento == .mola ? 1.12 : 1)
                                 .frame(maxWidth: .infinity).frame(height: 26)
                                 .background(RoundedRectangle(cornerRadius: 7).fill(!escolhida && sobre ? Tinta.tinta.opacity(0.05) : .clear))
@@ -48,7 +49,7 @@ struct BarraDeAbas: View {
 
     @ViewBuilder private var pilula: some View {
         let forma = RoundedRectangle(cornerRadius: 7, style: .continuous)
-        if estado.aparencia.fundoReal != .solido, !estado.paraImagem, #available(macOS 26, *) {
+        if estado.aparencia.fundoReal != .solido, !estado.aparencia.chapado, !estado.paraImagem, #available(macOS 26, *) {
             Color.clear.glassEffect(.regular.interactive(), in: forma)
         } else {
             forma.fill(Tinta.tinta.opacity(0.11))

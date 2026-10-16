@@ -13,7 +13,7 @@ struct Regua: View {
             let x = CGFloat(min(valor, limite) / limite) * (g.size.width - 18)
             ZStack(alignment: .leading) {
                 Capsule().fill(Tinta.tinta.opacity(0.1)).frame(height: 5)
-                Capsule().fill(LinearGradient(colors: [Tinta.destaque.opacity(0.6), Tinta.destaque], startPoint: .leading, endPoint: .trailing))
+                Capsule().fill(Tinta.degrade([Tinta.destaque.opacity(0.6), Tinta.destaque], de: .leading, ate: .trailing, chapada: Tinta.destaque))
                     .frame(width: x + 9, height: 5)
                 Circle().fill(Color.white).frame(width: 18, height: 18)
                     .shadow(color: .black.opacity(0.35), radius: 2, y: 1)

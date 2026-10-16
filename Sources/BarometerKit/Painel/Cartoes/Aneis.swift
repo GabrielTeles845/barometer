@@ -42,11 +42,12 @@ struct Anel: View {
                 Circle().stroke(Tinta.tinta.opacity(0.07), lineWidth: 5)
                 Circle()
                     .trim(from: 0, to: CGFloat(min(1, max(0.001, valor))))
-                    .stroke(AngularGradient(colors: [cor.opacity(0.5), cor], center: .center,
-                                            startAngle: .degrees(0), endAngle: .degrees(360 * max(0.05, valor))),
+                    .stroke(Tinta.chapado ? AnyShapeStyle(cor)
+                            : AnyShapeStyle(AngularGradient(colors: [cor.opacity(0.5), cor], center: .center,
+                                                            startAngle: .degrees(0), endAngle: .degrees(360 * max(0.05, valor)))),
                             style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .shadow(color: cor.opacity(0.35), radius: 4)
+                    .shadow(color: cor.opacity(Tinta.chapado ? 0 : 0.35), radius: 4)
                     .animation(.spring(response: 0.7, dampingFraction: 0.85), value: valor)
                 VStack(spacing: 0) {
                     Text(texto).font(.system(size: tamanho > 60 ? 18 : 13.5, weight: .semibold, design: .rounded)).monospacedDigit()

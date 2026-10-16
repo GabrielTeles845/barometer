@@ -33,4 +33,14 @@ enum Tinta {
     static var destaque: Color { Aparencia.atual.corDeDestaque }
 
     static func pressao(_ n: Int) -> Color { n >= 4 ? calor : (n >= 2 ? cpu : porta) }
+
+    /// Com "cores chapadas", sem degradê nem brilho: a cor lisa no lugar.
+    static var chapado: Bool { Aparencia.atual.chapado }
+
+    static func degrade(_ cores: [Color], de inicio: UnitPoint, ate fim: UnitPoint, chapada: Color) -> AnyShapeStyle {
+        chapado ? AnyShapeStyle(chapada) : AnyShapeStyle(LinearGradient(colors: cores, startPoint: inicio, endPoint: fim))
+    }
+
+    /// O ícone com a cor dele quando "ícones coloridos" está ligado; senão, a cor neutra de sempre.
+    static func icone(_ cor: Color, senao neutra: Color) -> Color { Aparencia.atual.iconesColoridos ? cor : neutra }
 }

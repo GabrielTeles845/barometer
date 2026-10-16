@@ -35,6 +35,20 @@ enum Aba: String, CaseIterable {
         case .aparencia: return "paintpalette"
         }
     }
+
+    /// A cor do ícone com "ícones coloridos" ligado: a cor da leitura de cada aba.
+    var cor: Color {
+        switch self {
+        case .geral, .aparencia: return Tinta.destaque
+        case .cpu: return Tinta.cpu
+        case .memoria: return Tinta.memoria
+        case .gpu: return Tinta.gpu
+        case .disco: return Tinta.disco
+        case .bateria: return Tinta.bateria
+        case .portas: return Tinta.porta
+        case .limpeza: return Tinta.calor
+        }
+    }
 }
 
 /// O que pode aparecer na barra de menus, até 3 de uma vez, cada um com o seu ícone.

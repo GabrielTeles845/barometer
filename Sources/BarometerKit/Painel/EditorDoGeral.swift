@@ -12,6 +12,13 @@ struct EditorDoGeral: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             SecaoDaBarra(estado: estado)
+            HStack {
+                Text(t("PROCESSOS NA LISTA")).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(Tinta.fraco)
+                Spacer()
+            }
+            .padding(.top, 8)
+            Escolha(opcoes: Pref.opcoesDeProcessos.map { (String($0), $0) }, atual: estado.quantosProcessos,
+                    vidro: estado.aparencia.fundoReal != .solido && !estado.paraImagem) { estado.quantosProcessos = $0 }
             Text(t("NO GERAL")).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(Tinta.fraco)
                 .padding(.top, 8)
             Text(t("Ligue o que quer ver no Geral. Segure e arraste para mudar a ordem."))

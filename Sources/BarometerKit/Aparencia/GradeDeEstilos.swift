@@ -1,5 +1,6 @@
-// A grade dos estilos prontos, cada um com uma miniatura desenhada com as cores e o fundo dele (e não com os
-// do momento): dá para comparar todos lado a lado.
+// A grade dos estilos prontos, mais o personalizado no fim. Cada miniatura é desenhada com as cores e o fundo
+// do estilo, no modo de agora (claro ou escuro): dá para comparar todos lado a lado. Escolher um estilo nunca
+// muda o modo.
 
 import SwiftUI
 
@@ -7,28 +8,78 @@ struct GradeDeEstilos: View {
     @ObservedObject var estado: Estado
 
     var body: some View {
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-            ForEach(Estilo.todos) { e in
-                CartaoDeEstilo(estilo: e, escolhido: estado.aparencia == e.aparencia) {
-                    withAnimation(Mexer.troca) { estado.aparencia = e.aparencia }
+        if estado.editandoCores {
+            EditorDeCores(estado: estado)
+        } else {
+          VStack(spacing: 8) {
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                ForEach(Estilo.todos) { e in
+                    CartaoDeEstilo(nome: e.nome, descricao: e.descricao, aparencia: e.aplicado(em: estado.aparencia),
+                                   escolhido: e.aparencia.igualTirandoModo(estado.aparencia)) {
+                        withAnimation(Mexer.troca) { estado.aparencia = e.aplicado(em: estado.aparencia) }
+                    }
                 }
             }
+            CartaoPersonalizado(aparencia: personalizada, escolhido: estado.aparencia.paleta == Paleta.personalizadaId) {
+                withAnimation(Mexer.troca) {
+                    estado.aparencia = personalizada
+                    estado.editandoCores = true
+                }
+            }
+          }
         }
+    }
+
+    /// A aparência de agora com a paleta personalizada; na primeira vez, começa das cores que a pessoa está vendo.
+    private var personalizada: Aparencia {
+        var a = estado.aparencia
+        if a.cores.isEmpty { a.cores = Paleta.coresDePartida(de: a.paletaAtual) }
+        a.paleta = Paleta.personalizadaId
+        return a
+    }
+}
+
+/// O personalizado, largo, embaixo dos estilos: a miniatura com as cores escolhidas e o convite para escolher.
+struct CartaoPersonalizado: View {
+    let aparencia: Aparencia
+    let escolhido: Bool
+    let escolher: () -> Void
+
+    var body: some View {
+        Button(action: escolher) {
+            HStack(spacing: 10) {
+                MiniaturaDoEstilo(aparencia: aparencia, escuro: Tinta.escuro).frame(width: 140, height: 52)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(t("Personalizado")).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Tinta.texto)
+                    Text(t("Escolha a cor de cada leitura.")).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 10, weight: .semibold)).foregroundStyle(Tinta.fraco)
+            }
+            .padding(6)
+            .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.tinta.opacity(escolhido ? 0.08 : 0.035)))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(escolhido ? Tinta.destaque : .clear, lineWidth: 1.5))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
 struct CartaoDeEstilo: View {
-    let estilo: Estilo
+    let nome: String
+    let descricao: String
+    let aparencia: Aparencia
     let escolhido: Bool
     let escolher: () -> Void
 
     var body: some View {
         Button(action: escolher) {
             VStack(alignment: .leading, spacing: 6) {
-                MiniaturaDoEstilo(aparencia: estilo.aparencia).frame(height: 62)
+                MiniaturaDoEstilo(aparencia: aparencia, escuro: Tinta.escuro).frame(height: 62)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(t(estilo.nome)).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Tinta.texto)
-                    Text(t(estilo.descricao)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
+                    Text(t(nome)).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Tinta.texto)
+                    Text(t(descricao)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
                         .lineLimit(1).minimumScaleFactor(0.85)
                 }
                 .padding(.horizontal, 2)
@@ -47,27 +98,15 @@ struct CartaoDeEstilo: View {
 /// cores da paleta e duas linhas de texto.
 struct MiniaturaDoEstilo: View {
     let aparencia: Aparencia
+    let escuro: Bool
 
     var body: some View {
-        // A miniatura do "Junto com o Mac" é o mesmo painel, escuro na metade esquerda e claro na direita.
-        if aparencia.modo == .automatico {
-            ZStack {
-                painel(escuro: true)
-                painel(escuro: false).mask(HStack(spacing: 0) { Color.clear; Color.black })
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        } else {
-            painel(escuro: aparencia.modo == .escuro)
-                .clipShape(RoundedRectangle(cornerRadius: min(aparencia.cantos, 14) * 0.6, style: .continuous))
-        }
-    }
-
-    private func painel(escuro: Bool) -> some View {
         let tinta: Color = escuro ? .white : .black
         let fundo = escuro ? Color(red: 0.035, green: 0.035, blue: 0.04) : Color(red: 0.965, green: 0.965, blue: 0.972)
         let paleta = aparencia.paletaAtual.paraOModo(escuro: escuro)
         let deixaVer = aparencia.fundoReal != .solido
-        return ZStack {
+        let forma = RoundedRectangle(cornerRadius: min(aparencia.cantos, 14) * 0.6, style: .continuous)
+        ZStack {
             if deixaVer {
                 ZStack {
                     Color(red: 0.1, green: 0.11, blue: 0.12)
@@ -92,11 +131,11 @@ struct MiniaturaDoEstilo: View {
                 }
             }
             if aparencia.fundoReal == .vidro || aparencia.fundoReal == .vidroClaro {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(LinearGradient(colors: [.white.opacity(0.6), .white.opacity(0.05), .white.opacity(0.25)],
-                                                 startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                forma.strokeBorder(LinearGradient(colors: [.white.opacity(0.6), .white.opacity(0.05), .white.opacity(0.25)],
+                                                  startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
             }
         }
-        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(tinta.opacity(0.08), lineWidth: 1))
+        .clipShape(forma)
+        .overlay(forma.strokeBorder(tinta.opacity(0.08), lineWidth: 1))
     }
 }

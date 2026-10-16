@@ -31,7 +31,7 @@ struct Processos: View {
             }
             .padding(.horizontal, 6).padding(.top, 4).padding(.bottom, 2)
             let maior = max(0.0001, gastos.map { porCPU ? $0.cpu : $0.bytes }.max() ?? 1)
-            ForEach(gastos, id: \.nome) { g in
+            ForEach(Array(gastos.prefix(estado.quantosProcessos))) { g in
                 Linha(id: "g:" + g.nome + "\(g.pid)", podeFechar: g.meu, fechar: { fechar(g) }) {
                     HStack(spacing: 6) {
                         IconeDoProcesso(app: g.app)
@@ -55,7 +55,7 @@ struct Processos: View {
                 }
             }
         }
-        .animation(.snappy(duration: 0.3), value: gastos.map(\.nome))
+        .animation(.snappy(duration: 0.3), value: gastos.map(\.id))
     }
 
     /// "com.apple.AppleUserHIDDrivers" vira "AppleUserHIDDrivers": o prefixo não diz nada e empurra o resto.

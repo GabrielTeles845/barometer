@@ -46,6 +46,19 @@ struct MaquinaTests {
         #expect(Maquina.agrupar(Self.saida, eu: Self.eu, quantos: 2).memoria.count == 2)
     }
 
+    @Test("Dois processos soltos com o mesmo nome são duas linhas, cada uma com a sua identidade")
+    func mesmoNome() {
+        let saida = """
+         600000  1.0  700  501 /usr/local/bin/claude
+         500000  2.0  701  501 /usr/local/bin/claude
+        """
+        let (memoria, _) = Maquina.agrupar(saida, eu: Self.eu)
+        #expect(memoria.filter { $0.nome == "claude" }.count == 2)
+        #expect(Set(memoria.map(\.id)).count == memoria.count)
+        // E a ordem por memória vale entre eles também.
+        #expect(memoria.map(\.pid) == [700, 701])
+    }
+
     @Test("Saída vazia não quebra")
     func vazia() {
         let (memoria, cpu) = Maquina.agrupar("", eu: Self.eu)

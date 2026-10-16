@@ -73,8 +73,14 @@ struct Aparencia: Codable, Equatable {
     /// nil = a cor de destaque da paleta.
     var destaque: String?
     var cantos: Double = 14
+    /// As cores de cada leitura quando a paleta é a personalizada (id da leitura → cor em hex, "FF9F45").
+    var cores: [String: String] = [:]
     var movimento: Movimento = .suave
     var iconeColorido = false
+    /// Cores chapadas: sem degradê, sem brilho e sem vidro nos botões.
+    var chapado = false
+    /// Cada aba e cada botão do painel com a cor dele (CPU laranja, memória azul…).
+    var iconesColoridos = false
     var modo: Modo = .escuro
 
     /// O macOS está no escuro? A `Barra` acompanha a troca do sistema e atualiza aqui.
@@ -97,7 +103,17 @@ struct Aparencia: Codable, Equatable {
     /// O fundo que de fato aparece: vidro em Mac sem vidro vira fosco.
     var fundoReal: Fundo { fundo.existe ? fundo : .fosco }
 
-    var paletaAtual: Paleta { Paleta.todas.first { $0.id == paleta } ?? .padrao }
+    var paletaAtual: Paleta {
+        if paleta == Paleta.personalizadaId { return Paleta.personalizada(cores) }
+        return Paleta.todas.first { $0.id == paleta } ?? .padrao
+    }
+
+    /// Igual a outra tirando o modo: os estilos tratam de cores e fundo, o modo é escolha à parte.
+    func igualTirandoModo(_ outra: Aparencia) -> Bool {
+        var a = self, b = outra
+        a.modo = .escuro; b.modo = .escuro
+        return a == b
+    }
 
     var corDeDestaque: Color {
         if let destaque, let cor = Paleta.destaques.first(where: { $0.id == destaque }) { return cor.cor }
@@ -105,7 +121,11 @@ struct Aparencia: Codable, Equatable {
     }
 
     /// O que muda as cores do painel inteiro: quando muda, o painel se redesenha de cima a baixo.
-    var chaveDasCores: String { paleta + "-" + (destaque ?? "") + (escuroAgora ? "-escuro" : "-claro") }
+    var chaveDasCores: String {
+        paleta + "-" + (destaque ?? "") + (escuroAgora ? "-escuro" : "-claro") + (chapado ? "-chapado" : "")
+            + (iconesColoridos ? "-icones" : "")
+            + (paleta == Paleta.personalizadaId ? "-" + cores.sorted { $0.key < $1.key }.map { $0.value }.joined() : "")
+    }
 
     /// A aparência em uso, para as cores (`Tinta`) e as animações (`Mexer`), que não recebem o `Estado`.
     static var atual: Aparencia = Pref.aparencia
@@ -119,8 +139,11 @@ struct Aparencia: Codable, Equatable {
         paleta = (try? c.decode(String.self, forKey: .paleta)) ?? Paleta.padrao.id
         destaque = try? c.decode(String.self, forKey: .destaque)
         cantos = (try? c.decode(Double.self, forKey: .cantos)) ?? 14
+        cores = (try? c.decode([String: String].self, forKey: .cores)) ?? [:]
         movimento = (try? c.decode(Movimento.self, forKey: .movimento)) ?? .suave
         iconeColorido = (try? c.decode(Bool.self, forKey: .iconeColorido)) ?? false
         modo = (try? c.decode(Modo.self, forKey: .modo)) ?? .escuro
+        chapado = (try? c.decode(Bool.self, forKey: .chapado)) ?? false
+        iconesColoridos = (try? c.decode(Bool.self, forKey: .iconesColoridos)) ?? false
     }
 }

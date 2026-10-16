@@ -147,3 +147,73 @@ struct ModoTests {
         #expect(Paleta.padrao.paraOModo(escuro: false).cpu == Paleta.padrao.cpu)
     }
 }
+
+@Suite("Estilo personalizado")
+struct PersonalizadoTests {
+    @Test("Usa as cores escolhidas; o que não foi escolhido fica como na padrão")
+    func usaAsCores() {
+        var a = Aparencia()
+        a.paleta = Paleta.personalizadaId
+        a.cores = ["cpu": "FF5F5F"]
+        #expect(a.paletaAtual.cpu == Paleta.cor(hex: "FF5F5F"))
+        #expect(a.paletaAtual.memoria == Paleta.padrao.memoria)
+    }
+
+    @Test("Cor em hex: válida vira cor, inválida vira nil")
+    func hex() {
+        #expect(Paleta.cor(hex: "FF9F45") != nil)
+        #expect(Paleta.cor(hex: "XYZ") == nil)
+        #expect(Paleta.cor(hex: "FF9F4") == nil)
+    }
+
+    @Test("O editor começa das cores que a pessoa está vendo, uma para cada leitura")
+    func partida() {
+        let cores = Paleta.coresDePartida(de: .padrao)
+        #expect(Set(cores.keys) == Set(Paleta.pintaveis.map(\.id)))
+        #expect(cores.values.allSatisfy { Paleta.amostras.contains($0) })
+        #expect(cores["cpu"] == "FF9F45")     // o laranja da padrão
+    }
+
+    @Test("As cores escolhidas sobrevivem ao JSON")
+    func guarda() throws {
+        var a = Aparencia()
+        a.paleta = Paleta.personalizadaId
+        a.cores = ["cpu": "4C9BFF", "porta": "FFD54A"]
+        let volta = try JSONDecoder().decode(Aparencia.self, from: JSONEncoder().encode(a))
+        #expect(volta.cores == a.cores)
+    }
+
+    @Test("Trocar uma cor redesenha o painel")
+    func chave() {
+        var a = Aparencia()
+        a.paleta = Paleta.personalizadaId
+        a.cores = ["cpu": "4C9BFF"]
+        var b = a
+        b.cores["cpu"] = "FF5F5F"
+        #expect(a.chaveDasCores != b.chaveDasCores)
+    }
+}
+
+@Suite("Estilo não mexe no modo")
+struct EstiloEModoTests {
+    @Test("Aplicar um estilo guarda o modo escolhido", arguments: Aparencia.Modo.allCases)
+    func guardaOModo(modo: Aparencia.Modo) {
+        var atual = Aparencia()
+        atual.modo = modo
+        for e in Estilo.todos { #expect(e.aplicado(em: atual).modo == modo, "\(e.id) mudou o modo") }
+    }
+
+    @Test("O estilo continua marcado em qualquer modo")
+    func marcadoEmQualquerModo() {
+        for e in Estilo.todos {
+            var a = e.aparencia
+            a.modo = .claro
+            #expect(Estilo.atual(a)?.id == e.id)
+        }
+    }
+
+    @Test("Nenhum estilo pronto é só um modo (todos com modo de fábrica)")
+    func nenhumEhModo() {
+        #expect(Estilo.todos.allSatisfy { $0.aparencia.modo == Aparencia().modo })
+    }
+}

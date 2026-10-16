@@ -54,6 +54,9 @@ struct AbaDeAparencia: View {
                           spacing: 6) {
                     ForEach(Paleta.todas) { p in amostraDePaleta(p, escolhida: ap.paleta == p.id) }
                 }
+                if ap.paleta == Paleta.personalizadaId {
+                    EditorDeCores(estado: estado, comCabecalho: false)
+                }
             }
             secao("DESTAQUE") {
                 HStack(spacing: 0) {
@@ -72,17 +75,14 @@ struct AbaDeAparencia: View {
                 Escolha(opcoes: Aparencia.Movimento.allCases.map { ($0.nome, $0) },
                         atual: ap.movimento, vidro: ap.fundoReal != .solido && !estado.paraImagem) { estado.aparencia.movimento = $0 }
             }
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(t("Ícone colorido na barra")).font(.system(size: 12)).foregroundStyle(Tinta.texto)
-                    Text(t("As barrinhas e os ícones com as cores do painel."))
-                        .font(.system(size: 10.5)).foregroundStyle(Tinta.fraco)
-                }
-                Spacer()
-                Interruptor(ligado: ap.iconeColorido) { estado.aparencia.iconeColorido.toggle() }
+            VStack(spacing: 6) {
+                LinhaDeInterruptor(titulo: "Cores chapadas", explicacao: "Sem degradê, brilho nem vidro nos botões.",
+                                   ligado: ap.chapado) { estado.aparencia.chapado.toggle() }
+                LinhaDeInterruptor(titulo: "Ícones coloridos", explicacao: "Cada aba e cada botão com a cor dele.",
+                                   ligado: ap.iconesColoridos) { estado.aparencia.iconesColoridos.toggle() }
+                LinhaDeInterruptor(titulo: "Ícone colorido na barra", explicacao: "As barrinhas e os ícones com as cores do painel.",
+                                   ligado: ap.iconeColorido) { estado.aparencia.iconeColorido.toggle() }
             }
-            .padding(10)
-            .background(RoundedRectangle(cornerRadius: 9).fill(Tinta.cartao))
             if ap != Aparencia() {
                 Button {
                     withAnimation(Mexer.troca) { estado.aparencia = Aparencia() }

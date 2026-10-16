@@ -65,6 +65,13 @@ enum Pref {
 
     /// As portas que você quer ver mesmo quando estão livres — a resposta
     /// direta para "tem coisa na 3000 e na 3006?".
+    /// Quantos processos a lista de quem mais usa mostra (3, 5 ou 8).
+    static let opcoesDeProcessos = [3, 5, 8]
+    static var quantosProcessos: Int {
+        get { let n = armazem.integer(forKey: "quantosProcessos"); return opcoesDeProcessos.contains(n) ? n : 8 }
+        set { armazem.set(newValue, forKey: "quantosProcessos") }
+    }
+
     static var favoritas: [Int] {
         get {
             if armazem.object(forKey: "favoritas") == nil {

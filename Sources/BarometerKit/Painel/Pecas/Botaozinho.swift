@@ -8,6 +8,8 @@ struct Botaozinho: View {
     let dica: String
     /// De que lado o balão do nome se apoia: o primeiro botão para a direita, a engrenagem para a esquerda.
     var lado: Alignment = .top
+    /// A cor com "ícones coloridos" ligado.
+    var cor: Color = Tinta.destaque
     let acao: () -> Void
     @EnvironmentObject var estado: Estado
     private var sobre: Bool { estado.sobre == "b:" + simbolo }
@@ -15,7 +17,7 @@ struct Botaozinho: View {
     var body: some View {
         Button(action: acao) {
             Image(systemName: simbolo).font(.system(size: 12))
-                .foregroundStyle(sobre ? Tinta.texto : Tinta.apagado)
+                .foregroundStyle(Tinta.icone(cor, senao: sobre ? Tinta.texto : Tinta.apagado))
                 .frame(width: 28, height: 24)
                 .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Tinta.tinta.opacity(0.08) : .clear))
         }

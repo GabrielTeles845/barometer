@@ -53,6 +53,10 @@ final class Estado: ObservableObject {
     @Published var abaAparencia = 0
     /// As boas-vindas da primeira abertura (escolher um estilo).
     @Published var boasVindas = false
+    /// O editor do estilo personalizado aberto, no lugar da grade de estilos.
+    @Published var editandoCores = false
+    /// Quantos processos a lista mostra.
+    @Published var quantosProcessos = Pref.quantosProcessos { didSet { if !paraImagem { Pref.quantosProcessos = quantosProcessos } } }
     /// Fundo, transparência, cores, cantos e animações (aba Aparência). Vale na hora e fica gravado.
     @Published var aparencia: Aparencia = Aparencia.atual {
         didSet {

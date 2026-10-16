@@ -35,7 +35,7 @@ struct Escolha<V: Equatable>: View {
 
     @ViewBuilder private var pilula: some View {
         let forma = RoundedRectangle(cornerRadius: 7, style: .continuous)
-        if vidro, #available(macOS 26, *) {
+        if vidro, !Tinta.chapado, #available(macOS 26, *) {
             Color.clear.glassEffect(.regular.interactive(), in: forma)
         } else {
             forma.fill(Tinta.tinta.opacity(0.11))

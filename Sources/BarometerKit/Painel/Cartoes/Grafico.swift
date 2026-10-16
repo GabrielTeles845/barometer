@@ -76,7 +76,7 @@ struct Grafico: View {
             ForEach(Array(pontos.enumerated()), id: \.offset) { _, p in
                 if let v = valor(p) {
                     AreaMark(x: .value("hora", p.quando), yStart: .value("base", dominio.lowerBound), yEnd: .value("valor", v))
-                        .foregroundStyle(LinearGradient(colors: [cor.opacity(0.35), cor.opacity(0.02)], startPoint: .top, endPoint: .bottom))
+                        .foregroundStyle(Tinta.degrade([cor.opacity(0.35), cor.opacity(0.02)], de: .top, ate: .bottom, chapada: cor.opacity(0.14)))
                         .interpolationMethod(.monotone)
                     LineMark(x: .value("hora", p.quando), y: .value("valor", v))
                         .foregroundStyle(cor)
