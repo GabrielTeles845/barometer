@@ -63,8 +63,10 @@ como livres quando ninguém está nelas.
 um com o tamanho e o que acontece depois. A Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos
 nunca entram.
 
-**Aparência.** Preto sólido, fosco ou **vidro líquido** (macOS 26), com régua de transparência. Seis paletas de cor,
-cor de destaque, três tipos de canto, animação suave, com mola ou nenhuma, e ícone colorido na barra.
+**Aparência.** Oito estilos prontos para escolher logo na primeira abertura, do Meia-noite ao Entardecer em vidro
+líquido. **Claro, escuro ou junto com o Mac.** Depois, do seu jeito: sólido, fosco ou **vidro líquido** (macOS 26) com
+régua de transparência, seis paletas de cor, cor de destaque, três tipos de canto, animação suave, com mola ou
+nenhuma, e ícone colorido na barra.
 
 **Barra de menus.** Até três coisas lado a lado, cada uma com o seu ícone: uso de CPU, memória ou GPU, temperatura do
 chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.

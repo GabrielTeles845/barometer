@@ -17,7 +17,7 @@ struct Botaozinho: View {
             Image(systemName: simbolo).font(.system(size: 12))
                 .foregroundStyle(sobre ? Tinta.texto : Tinta.apagado)
                 .frame(width: 28, height: 24)
-                .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Color.white.opacity(0.08) : .clear))
+                .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Tinta.tinta.opacity(0.08) : .clear))
         }
         .buttonStyle(.plain)
         .overlay(alignment: lado) { if sobre { Dica(texto: t(dica)).offset(y: -30) } }

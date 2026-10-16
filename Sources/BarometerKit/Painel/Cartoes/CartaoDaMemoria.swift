@@ -35,7 +35,7 @@ struct BarraDeMemoria: View {
     var body: some View {
         let partes: [(String, Double, Color)] = [
             ("apps", memoria.apps, Tinta.memoria), ("fixa", memoria.fixa, Tinta.fixa),
-            ("comprimida", memoria.comprimida, Tinta.comprimida), ("cache", memoria.cache, Color.white.opacity(0.22)),
+            ("comprimida", memoria.comprimida, Tinta.comprimida), ("cache", memoria.cache, Tinta.tinta.opacity(0.22)),
         ]
         VStack(alignment: .leading, spacing: 6) {
             GeometryReader { g in
@@ -48,9 +48,9 @@ struct BarraDeMemoria: View {
                 }
             }
             .frame(height: 7)
-            .background(RoundedRectangle(cornerRadius: 3).fill(Color.white.opacity(0.05)))
+            .background(RoundedRectangle(cornerRadius: 3).fill(Tinta.tinta.opacity(0.05)))
             // Duas linhas de três, com o valor alinhado: numa linha só não cabia e cortava com reticências.
-            let itens = partes.map { ($0.0, Maquina.gb($0.1), $0.2) } + (swap > 0 ? [("swap", Maquina.gb(swap), Color.white.opacity(0.1))] : [])
+            let itens = partes.map { ($0.0, Maquina.gb($0.1), $0.2) } + (swap > 0 ? [("swap", Maquina.gb(swap), Tinta.tinta.opacity(0.1))] : [])
             Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 3) {
                 ForEach(Array(stride(from: 0, to: itens.count, by: 3)), id: \.self) { inicio in
                     GridRow {

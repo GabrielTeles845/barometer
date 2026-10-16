@@ -38,7 +38,7 @@ struct Linha<Conteudo: View>: View {
                     Image(systemName: "xmark").font(.system(size: 9, weight: .bold))
                         .foregroundStyle(sobreX ? Color.white : Tinta.apagado)
                         .frame(width: 18, height: 18)
-                        .background(Circle().fill(sobreX ? Tinta.calor.opacity(0.85) : Color.white.opacity(0.08)))
+                        .background(Circle().fill(sobreX ? Tinta.calor.opacity(0.85) : Tinta.tinta.opacity(0.08)))
                 }
                 .buttonStyle(.plain)
                 .opacity(sobre ? 1 : 0)
@@ -51,7 +51,7 @@ struct Linha<Conteudo: View>: View {
         }
         .padding(.horizontal, 6)
         .frame(height: 24)
-        .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Color.white.opacity(0.07) : .clear))
+        .background(RoundedRectangle(cornerRadius: 6).fill(sobre ? Tinta.tinta.opacity(0.07) : .clear))
         .animation(.easeOut(duration: 0.12), value: sobre)
         .animation(.easeOut(duration: 0.12), value: sobreX)
         .contentShape(Rectangle())

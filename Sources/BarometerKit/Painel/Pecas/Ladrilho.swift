@@ -19,7 +19,7 @@ struct Ladrilho: View {
             if let barra {
                 GeometryReader { g in
                     ZStack(alignment: .leading) {
-                        Capsule().fill(Color.white.opacity(0.07))
+                        Capsule().fill(Tinta.tinta.opacity(0.07))
                         Capsule().fill(cor).frame(width: max(3, g.size.width * CGFloat(min(1, barra))))
                             .animation(.easeOut(duration: 0.5), value: barra)
                     }
@@ -30,6 +30,6 @@ struct Ladrilho: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(9)
-        .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.035)))
+        .background(RoundedRectangle(cornerRadius: 9).fill(Tinta.tinta.opacity(0.035)))
     }
 }

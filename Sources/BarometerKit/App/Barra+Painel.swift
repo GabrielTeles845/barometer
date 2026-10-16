@@ -30,6 +30,10 @@ extension Barra {
         a.ajustes = { [weak self] in self?.mostrarAjustes() }
         a.redimensionar = { [weak self] tamanho in self?.redimensionar(tamanho) }
         a.limpar = { [weak self] id in self?.confirmarLimpeza(ids: [id]) }
+        a.terminarBoasVindas = { [weak self] in
+            Pref.viuBoasVindas = true
+            withAnimation(Mexer.troca) { self?.estado.boasVindas = false }
+        }
         a.limparTudo = { [weak self] in
             guard let self else { return }
             self.confirmarLimpeza(ids: self.estado.limpeza.filter { !$0.ehLixeira && ($0.bytes ?? 0) > 0 }.map(\.id))

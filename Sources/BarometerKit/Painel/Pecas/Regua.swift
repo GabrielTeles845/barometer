@@ -12,7 +12,7 @@ struct Regua: View {
         GeometryReader { g in
             let x = CGFloat(min(valor, limite) / limite) * (g.size.width - 18)
             ZStack(alignment: .leading) {
-                Capsule().fill(Color.white.opacity(0.1)).frame(height: 5)
+                Capsule().fill(Tinta.tinta.opacity(0.1)).frame(height: 5)
                 Capsule().fill(LinearGradient(colors: [Tinta.destaque.opacity(0.6), Tinta.destaque], startPoint: .leading, endPoint: .trailing))
                     .frame(width: x + 9, height: 5)
                 Circle().fill(Color.white).frame(width: 18, height: 18)

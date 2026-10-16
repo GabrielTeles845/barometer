@@ -22,7 +22,7 @@ struct FundoDoPainel: View {
             }
         case .fosco:
             ZStack {
-                if paraImagem { desfoqueDaFoto(raio: 30) } else { Fosco(cantos: ap.cantos) }
+                if paraImagem { desfoqueDaFoto(raio: 30) } else { Fosco(cantos: ap.cantos, escuro: ap.escuroAgora) }
                 forma.fill(Tinta.fundo.opacity(cobertura))
             }
             .clipShape(forma)
@@ -54,19 +54,20 @@ struct FundoDoPainel: View {
 /// O fosco do macOS (o mesmo material dos menus em HUD), com os cantos do painel.
 struct Fosco: NSViewRepresentable {
     let cantos: Double
+    let escuro: Bool
 
     func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView()
-        v.material = .hudWindow
         v.blendingMode = .behindWindow
         v.state = .active
-        v.appearance = NSAppearance(named: .darkAqua)
         v.wantsLayer = true
         v.layer?.masksToBounds = true
         return v
     }
 
     func updateNSView(_ v: NSVisualEffectView, context: Context) {
+        v.material = escuro ? .hudWindow : .popover
+        v.appearance = NSAppearance(named: escuro ? .darkAqua : .aqua)
         v.layer?.cornerRadius = cantos
         v.layer?.cornerCurve = .continuous
     }

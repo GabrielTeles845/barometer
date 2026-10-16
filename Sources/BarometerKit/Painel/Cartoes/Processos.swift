@@ -22,7 +22,7 @@ struct Processos: View {
                         Text(t(["memória", "CPU"][i])).font(.system(size: 9.5, weight: .semibold))
                             .foregroundStyle(estado.abaProcessos == i ? Tinta.texto : Tinta.fraco)
                             .padding(.horizontal, 6).padding(.vertical, 2)
-                            .background(Capsule().fill(estado.abaProcessos == i ? Color.white.opacity(0.1) : .clear))
+                            .background(Capsule().fill(estado.abaProcessos == i ? Tinta.tinta.opacity(0.1) : .clear))
                     }
                     .buttonStyle(.plain)
                 }

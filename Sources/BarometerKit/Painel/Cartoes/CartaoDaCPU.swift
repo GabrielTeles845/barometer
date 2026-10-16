@@ -48,7 +48,7 @@ struct CartaoDaCPU: View {
             HStack(alignment: .bottom, spacing: 3) {
                 ForEach(nucleos.indices, id: \.self) { i in
                     ZStack(alignment: .bottom) {
-                        RoundedRectangle(cornerRadius: 2).fill(Color.white.opacity(0.06))
+                        RoundedRectangle(cornerRadius: 2).fill(Tinta.tinta.opacity(0.06))
                         RoundedRectangle(cornerRadius: 2)
                             .fill(LinearGradient(colors: [cor, cor.opacity(0.55)], startPoint: .top, endPoint: .bottom))
                             .frame(height: max(2, 34 * CGFloat(min(1, nucleos[i].uso))))

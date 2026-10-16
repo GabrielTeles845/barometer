@@ -41,6 +41,19 @@ struct Aparencia: Codable, Equatable {
         }
     }
 
+    /// Claro, escuro, ou o do Mac (muda junto quando o macOS troca, à noite por exemplo).
+    enum Modo: String, Codable, CaseIterable {
+        case automatico, escuro, claro
+
+        var nome: String {
+            switch self {
+            case .automatico: return t("Automático")
+            case .escuro: return t("Escuro")
+            case .claro: return t("Claro")
+            }
+        }
+    }
+
     enum Movimento: String, Codable, CaseIterable {
         case suave, mola, nenhum
 
@@ -62,6 +75,19 @@ struct Aparencia: Codable, Equatable {
     var cantos: Double = 14
     var movimento: Movimento = .suave
     var iconeColorido = false
+    var modo: Modo = .escuro
+
+    /// O macOS está no escuro? A `Barra` acompanha a troca do sistema e atualiza aqui.
+    nonisolated(unsafe) static var sistemaEscuro = true
+
+    /// O painel está escuro agora (o modo escolhido, ou o do Mac no automático).
+    var escuroAgora: Bool {
+        switch modo {
+        case .escuro: return true
+        case .claro: return false
+        case .automatico: return Aparencia.sistemaEscuro
+        }
+    }
 
     var coberturaAtual: Double {
         get { cobertura[fundo.rawValue] ?? fundo.coberturaPadrao }
@@ -75,11 +101,11 @@ struct Aparencia: Codable, Equatable {
 
     var corDeDestaque: Color {
         if let destaque, let cor = Paleta.destaques.first(where: { $0.id == destaque }) { return cor.cor }
-        return paletaAtual.destaque
+        return paletaAtual.paraOModo(escuro: escuroAgora).destaque
     }
 
     /// O que muda as cores do painel inteiro: quando muda, o painel se redesenha de cima a baixo.
-    var chaveDasCores: String { paleta + "-" + (destaque ?? "") }
+    var chaveDasCores: String { paleta + "-" + (destaque ?? "") + (escuroAgora ? "-escuro" : "-claro") }
 
     /// A aparência em uso, para as cores (`Tinta`) e as animações (`Mexer`), que não recebem o `Estado`.
     static var atual: Aparencia = Pref.aparencia
@@ -95,5 +121,6 @@ struct Aparencia: Codable, Equatable {
         cantos = (try? c.decode(Double.self, forKey: .cantos)) ?? 14
         movimento = (try? c.decode(Movimento.self, forKey: .movimento)) ?? .suave
         iconeColorido = (try? c.decode(Bool.self, forKey: .iconeColorido)) ?? false
+        modo = (try? c.decode(Modo.self, forKey: .modo)) ?? .escuro
     }
 }

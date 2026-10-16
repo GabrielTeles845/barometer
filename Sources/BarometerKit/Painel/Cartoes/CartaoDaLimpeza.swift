@@ -43,14 +43,14 @@ struct CartaoDaLimpeza: View {
                             Text(t(item.ehLixeira ? "Esvaziar" : "Limpar")).font(.system(size: 11, weight: .medium))
                                 .foregroundStyle(item.ehLixeira ? Tinta.calor : Tinta.texto)
                                 .padding(.horizontal, 9).padding(.vertical, 4)
-                                .background(Capsule().fill(Color.white.opacity(0.08)))
+                                .background(Capsule().fill(Tinta.tinta.opacity(0.08)))
                         }
                         .buttonStyle(.plain)
                         .disabled((item.bytes ?? 1) == 0)
                         .opacity((item.bytes ?? 1) == 0 ? 0.35 : 1)
                     }
                     .padding(.horizontal, 10).padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.035)))
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.tinta.opacity(0.035)))
                 }
             }
             Button(action: acoes.limparTudo) {

@@ -53,7 +53,7 @@ struct EditorDoGeral: View {
         }
         .padding(.horizontal, 10)
         .frame(height: 32)
-        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(item.ligado ? 0.06 : 0.03)))
+        .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.tinta.opacity(item.ligado ? 0.06 : 0.03)))
         .contentShape(Rectangle())
     }
 }

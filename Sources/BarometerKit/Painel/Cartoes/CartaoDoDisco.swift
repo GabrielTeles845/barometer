@@ -18,7 +18,7 @@ struct CartaoDoDisco: View {
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.06))
+                    Capsule().fill(Tinta.tinta.opacity(0.06))
                     Capsule().fill(LinearGradient(colors: [Tinta.disco.opacity(0.65), Tinta.disco], startPoint: .leading, endPoint: .trailing))
                         .frame(width: max(4, g.size.width * CGFloat(disco.total > 0 ? usado / disco.total : 0)))
                 }

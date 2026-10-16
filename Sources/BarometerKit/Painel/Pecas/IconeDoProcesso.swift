@@ -34,7 +34,7 @@ struct IconeDoProcesso: View {
         } else {
             Image(systemName: "terminal").font(.system(size: 9, weight: .medium)).foregroundStyle(Tinta.fraco)
                 .frame(width: 15, height: 15)
-                .background(RoundedRectangle(cornerRadius: 3.5).fill(Color.white.opacity(0.07)))
+                .background(RoundedRectangle(cornerRadius: 3.5).fill(Tinta.tinta.opacity(0.07)))
         }
     }
 }

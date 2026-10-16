@@ -7,6 +7,32 @@ struct AbaDeAparencia: View {
     var body: some View {
         let ap = estado.aparencia
         VStack(alignment: .leading, spacing: 14) {
+            Escolha(opcoes: [(t("Estilos"), 0), (t("Do meu jeito"), 1)], atual: estado.abaAparencia,
+                    vidro: ap.fundoReal != .solido && !estado.paraImagem) { estado.abaAparencia = $0 }
+            if estado.abaAparencia == 0 {
+                GradeDeEstilos(estado: estado)
+                seletorDeModo
+            } else {
+                doMeuJeito
+            }
+        }
+        .animation(Mexer.leve, value: estado.aparencia)
+        .animation(Mexer.troca, value: estado.abaAparencia)
+    }
+
+    /// Claro, escuro ou junto com o Mac.
+    private var seletorDeModo: some View {
+        secao("MODO") {
+            Escolha(opcoes: Aparencia.Modo.allCases.map { ($0.nome, $0) }, atual: estado.aparencia.modo,
+                    vidro: estado.aparencia.fundoReal != .solido && !estado.paraImagem) { estado.aparencia.modo = $0 }
+        }
+    }
+
+    /// Cada parte da aparência, uma por uma.
+    @ViewBuilder private var doMeuJeito: some View {
+        let ap = estado.aparencia
+        VStack(alignment: .leading, spacing: 14) {
+            seletorDeModo
             secao("FUNDO") {
                 HStack(spacing: 6) {
                     ForEach(Aparencia.Fundo.allCases, id: \.self) { f in amostraDeFundo(f, escolhido: ap.fundo == f) }
@@ -63,13 +89,12 @@ struct AbaDeAparencia: View {
                 } label: {
                     Text(t("Voltar ao padrão")).font(.system(size: 11, weight: .medium)).foregroundStyle(Tinta.apagado)
                         .frame(maxWidth: .infinity).frame(height: 28)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.06)))
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.tinta.opacity(0.06)))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .animation(Mexer.leve, value: estado.aparencia)
     }
 
     private func secao<C: View>(_ titulo: String, valor: String? = nil, @ViewBuilder _ conteudo: () -> C) -> some View {
@@ -129,7 +154,8 @@ struct AbaDeAparencia: View {
         } label: {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 3) {
-                    ForEach(Array([p.cpu, p.memoria, p.gpu, p.disco, p.bateria].enumerated()), id: \.offset) { _, cor in
+                    let q = p.paraOModo(escuro: Tinta.escuro)
+                    ForEach(Array([q.cpu, q.memoria, q.gpu, q.disco, q.bateria].enumerated()), id: \.offset) { _, cor in
                         Capsule().fill(cor).frame(height: 14)
                     }
                 }
@@ -137,7 +163,7 @@ struct AbaDeAparencia: View {
                     .foregroundStyle(escolhida ? Tinta.texto : Tinta.apagado)
             }
             .padding(7)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(escolhida ? 0.09 : 0.035)))
+            .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.tinta.opacity(escolhida ? 0.09 : 0.035)))
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(escolhida ? Tinta.destaque.opacity(0.7) : .clear, lineWidth: 1.2))
             .contentShape(Rectangle())
         }

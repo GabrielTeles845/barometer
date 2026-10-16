@@ -39,7 +39,7 @@ struct Anel: View {
     var body: some View {
         VStack(spacing: 6) {
             ZStack {
-                Circle().stroke(Color.white.opacity(0.07), lineWidth: 5)
+                Circle().stroke(Tinta.tinta.opacity(0.07), lineWidth: 5)
                 Circle()
                     .trim(from: 0, to: CGFloat(min(1, max(0.001, valor))))
                     .stroke(AngularGradient(colors: [cor.opacity(0.5), cor], center: .center,

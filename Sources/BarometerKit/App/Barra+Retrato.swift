@@ -51,8 +51,10 @@ extension Barra {
         if let i = CommandLine.arguments.firstIndex(of: "--aba"), i + 1 < CommandLine.arguments.count,
            let aba = Aba(rawValue: CommandLine.arguments[i + 1]) { estado.abaAtual = aba }
         if CommandLine.arguments.contains("--editar") { estado.editandoGeral = true }
+        if CommandLine.arguments.contains("--boas-vindas") { estado.boasVindas = true }
+        if CommandLine.arguments.contains("--do-meu-jeito") { estado.abaAparencia = 1 }
         // A foto sai com a aparência padrão, mais o que vier pedido: --fundo vidro --paleta neon --destaque rosa
-        // --transparencia 60 --cantos 22 --mola --colorido.
+        // --transparencia 60 --cantos 22 --mola --colorido --modo claro.
         var ap = Aparencia()
         func argumento(_ nome: String) -> String? {
             guard let i = CommandLine.arguments.firstIndex(of: nome), i + 1 < CommandLine.arguments.count else { return nil }
@@ -65,6 +67,7 @@ extension Barra {
         if let v = argumento("--cantos").flatMap(Double.init) { ap.cantos = v }
         if CommandLine.arguments.contains("--mola") { ap.movimento = .mola }
         if CommandLine.arguments.contains("--colorido") { ap.iconeColorido = true }
+        if let m = argumento("--modo").flatMap(Aparencia.Modo.init(rawValue:)) { ap.modo = m }
         estado.aparencia = ap
         // A saúde oficial chega em segundo plano (system_profiler): espera por ela, até 3 s.
         _ = leitorDeBateria.ler(comOficial: true)
@@ -99,7 +102,7 @@ extension Barra {
         let renderizador = ImageRenderer(content: Painel(estado: estado, acoes: Acoes()).padding(margem)
             .frame(height: altura, alignment: .top)
             .background(alignment: .topLeading) {
-                if deixaVer { PapelDeParede() } else { Color(white: 0.16) }
+                if deixaVer { PapelDeParede() } else { Color(white: ap.escuroAgora ? 0.16 : 0.84) }
             }
             .clipped())
         renderizador.scale = 2

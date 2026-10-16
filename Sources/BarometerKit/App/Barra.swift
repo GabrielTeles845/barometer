@@ -30,6 +30,8 @@ final class Barra: NSObject, NSApplicationDelegate {
     var leituras = 0
     lazy var leitorDeCPU = LeitorDeCPU()
     var vigiaDaAba: AnyCancellable?
+    /// O macOS trocou entre claro e escuro: no modo automático, o painel acompanha.
+    var vigiaDoTema: NSKeyValueObservation?
     var limpezaMedidaEm = Date.distantPast
     let leitorDeDisco = LeitorDeDisco()
     let leitorDeBateria = LeitorDeBateria()
@@ -77,6 +79,14 @@ final class Barra: NSObject, NSApplicationDelegate {
                 if self.precisaDasPortas { self.varrer() }
             }
         }
+        vigiaDoTema = NSApp.observe(\.effectiveAppearance, options: [.initial, .new]) { [weak self] app, _ in
+            let escuro = app.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            DispatchQueue.main.async {
+                guard Aparencia.sistemaEscuro != escuro else { return }
+                Aparencia.sistemaEscuro = escuro
+                self?.estado.objectWillChange.send()
+            }
+        }
         item.button?.target = self
         item.button?.action = #selector(alternar)
         estado.favoritas = Pref.favoritas
@@ -99,6 +109,11 @@ final class Barra: NSObject, NSApplicationDelegate {
         amostrador?.tolerance = 2
 
         abrirNoLoginNaPrimeiraVez()
+        // Primeira abertura: o painel abre sozinho com as boas-vindas (escolher um estilo).
+        if !Pref.viuBoasVindas {
+            estado.boasVindas = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in self?.abrirPainel() }
+        }
         // --abrir: já abre o painel (para medir memória e CPU com ele aberto, sem precisar clicar).
         if CommandLine.arguments.contains("--abrir") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.abrirPainel() }

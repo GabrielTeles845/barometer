@@ -30,7 +30,7 @@ struct Escolha<V: Equatable>: View {
             }
         }
         .frame(height: 30)
-        .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.04)))
+        .background(RoundedRectangle(cornerRadius: 9).fill(Tinta.tinta.opacity(0.04)))
     }
 
     @ViewBuilder private var pilula: some View {
@@ -38,7 +38,7 @@ struct Escolha<V: Equatable>: View {
         if vidro, #available(macOS 26, *) {
             Color.clear.glassEffect(.regular.interactive(), in: forma)
         } else {
-            forma.fill(Color.white.opacity(0.11))
+            forma.fill(Tinta.tinta.opacity(0.11))
         }
     }
 }

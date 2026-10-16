@@ -9,6 +9,12 @@ enum Pref {
     /// Só muda nos testes de preferência, que rodam um de cada vez; o app nunca troca.
     nonisolated(unsafe) static var armazem = UserDefaults.standard
 
+    /// Já passou pelas boas-vindas (a escolha do estilo na primeira abertura).
+    static var viuBoasVindas: Bool {
+        get { armazem.bool(forKey: "viuBoasVindas") }
+        set { armazem.set(newValue, forKey: "viuBoasVindas") }
+    }
+
     /// A pessoa desligou o "abrir ao ligar o Mac": o app não liga de novo sozinho.
     static var desligouLogin: Bool {
         get { armazem.bool(forKey: "desligouLogin") }

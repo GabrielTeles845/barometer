@@ -24,12 +24,16 @@ struct Painel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            cabecalho
-            BarraDeAbas(estado: estado).zIndex(1)
-            VStack(alignment: .leading, spacing: 12) { conteudo }
-                .id(estado.abaAtual.rawValue + (estado.editandoGeral ? "-editando" : ""))
-                .transition(Mexer.entrada)
-            rodape
+            if estado.boasVindas {
+                BoasVindas(estado: estado, comecar: acoes.terminarBoasVindas)
+            } else {
+                cabecalho
+                BarraDeAbas(estado: estado).zIndex(1)
+                VStack(alignment: .leading, spacing: 12) { conteudo }
+                    .id(estado.abaAtual.rawValue + (estado.editandoGeral ? "-editando" : ""))
+                    .transition(Mexer.entrada)
+                rodape
+            }
         }
         // Trocou a paleta ou o destaque: o painel inteiro se redesenha com as cores novas.
         .id(estado.aparencia.chaveDasCores)
@@ -51,7 +55,7 @@ struct Painel: View {
         .opacity(estado.apareceu ? 1 : 0)
         .background(GeometryReader { g in Color.clear.preference(key: TamanhoDoPainel.self, value: g.size) })
         .onPreferenceChange(TamanhoDoPainel.self) { acoes.redimensionar($0) }
-        .environment(\.colorScheme, .dark)
+        .environment(\.colorScheme, estado.aparencia.escuroAgora ? .dark : .light)
         .environmentObject(estado)
     }
 
@@ -73,7 +77,7 @@ struct Painel: View {
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(estado.editandoGeral ? Tinta.fundo : Tinta.apagado)
                         .padding(.horizontal, 10).padding(.vertical, 3)
-                        .background(Capsule().fill(estado.editandoGeral ? Tinta.texto : Color.white.opacity(0.07)))
+                        .background(Capsule().fill(estado.editandoGeral ? Tinta.texto : Tinta.tinta.opacity(0.07)))
                 }
                 .buttonStyle(.plain)
             }

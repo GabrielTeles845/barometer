@@ -28,7 +28,7 @@ struct CartaoDaGPU: View {
             Text(t(rotulo)).font(.system(size: 10)).foregroundStyle(Tinta.fraco).frame(width: 52, alignment: .leading)
             GeometryReader { g in
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.white.opacity(0.06))
+                    Capsule().fill(Tinta.tinta.opacity(0.06))
                     Capsule().fill(LinearGradient(colors: [Tinta.gpu.opacity(0.6), Tinta.gpu], startPoint: .leading, endPoint: .trailing))
                         .frame(width: max(3, g.size.width * CGFloat(min(1, v))))
                         .animation(.easeOut(duration: 0.45), value: v)

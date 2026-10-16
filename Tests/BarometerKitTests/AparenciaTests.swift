@@ -86,3 +86,64 @@ struct AparenciaTests {
         #expect(a.chaveDasCores != b.chaveDasCores)
     }
 }
+
+@Suite("Estilos prontos")
+struct EstilosTests {
+    @Test("Nomes e ids sem repetir")
+    func semRepetidos() {
+        #expect(Set(Estilo.todos.map(\.id)).count == Estilo.todos.count)
+        #expect(Set(Estilo.todos.map(\.nome)).count == Estilo.todos.count)
+    }
+
+    @Test("Todo estilo tem nome e descrição em inglês e espanhol")
+    func traduzidos() {
+        for e in Estilo.todos {
+            for frase in [e.nome, e.descricao] {
+                #expect(Traducao.traduzir(frase, para: .en) != nil, "sem inglês: \(frase)")
+                #expect(Traducao.traduzir(frase, para: .es) != nil, "sem espanhol: \(frase)")
+            }
+        }
+    }
+
+    @Test("O primeiro estilo é o de fábrica: quem nunca mexeu aparece com ele escolhido")
+    func primeiroEhOPadrao() {
+        #expect(Estilo.todos.first?.aparencia == Aparencia())
+        #expect(Estilo.atual(Aparencia())?.id == Estilo.todos.first?.id)
+    }
+
+    @Test("Cada estilo é diferente dos outros (senão dois aparecem escolhidos)")
+    func todosDiferentes() {
+        for (i, a) in Estilo.todos.enumerated() {
+            for b in Estilo.todos[(i + 1)...] { #expect(a.aparencia != b.aparencia, "\(a.id) = \(b.id)") }
+        }
+    }
+}
+
+@Suite("Modo claro e escuro")
+struct ModoTests {
+    @Test("Claro e escuro valem sempre; o automático segue o Mac")
+    func escuroAgora() {
+        var a = Aparencia()
+        a.modo = .claro
+        #expect(!a.escuroAgora)
+        a.modo = .escuro
+        #expect(a.escuroAgora)
+    }
+
+    @Test("Trocar o modo troca a chave que redesenha o painel")
+    func chave() {
+        var a = Aparencia(), b = Aparencia()
+        b.modo = .claro
+        #expect(a.chaveDasCores != b.chaveDasCores)
+        a.modo = .claro
+        #expect(a.chaveDasCores == b.chaveDasCores)
+    }
+
+    @Test("A Grafite fica escura no claro, para não sumir no fundo branco")
+    func grafiteNoClaro() throws {
+        let mono = try #require(Paleta.todas.first { $0.id == "mono" })
+        #expect(mono.paraOModo(escuro: false).cpu != mono.cpu)
+        #expect(mono.paraOModo(escuro: true).cpu == mono.cpu)
+        #expect(Paleta.padrao.paraOModo(escuro: false).cpu == Paleta.padrao.cpu)
+    }
+}

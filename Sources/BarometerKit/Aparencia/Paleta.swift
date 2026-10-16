@@ -47,6 +47,14 @@ struct Paleta: Identifiable {
                eficiencia: Color(white: 0.66), comprimida: Color(white: 0.42), destaque: Color(white: 0.92)),
     ]
 
+    /// No modo claro, a Grafite (toda em cinza claro) sumiria no fundo branco: vira cinza escuro. As outras ficam.
+    func paraOModo(escuro: Bool) -> Paleta {
+        guard !escuro, id == "mono" else { return self }
+        return Paleta(id: id, nome: nome, cpu: Color(white: 0.15), memoria: Color(white: 0.35), gpu: Color(white: 0.5),
+                      disco: Color(white: 0.25), bateria: Color(white: 0.2), porta: Color(white: 0.18), fixa: Color(white: 0.55),
+                      eficiencia: Color(white: 0.42), comprimida: Color(white: 0.62), destaque: Color(white: 0.15))
+    }
+
     /// A cor dos interruptores, do que está escolhido e dos marcadores. "Da paleta" fica de fora (é o nil).
     struct Destaque: Identifiable {
         let id: String

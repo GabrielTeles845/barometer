@@ -29,7 +29,7 @@ struct BarraDeAbas: View {
                                 .foregroundStyle(escolhida ? Tinta.texto : (sobre ? Tinta.apagado.opacity(1.4) : Tinta.apagado))
                                 .scaleEffect(sobre && !escolhida && estado.aparencia.movimento == .mola ? 1.12 : 1)
                                 .frame(maxWidth: .infinity).frame(height: 26)
-                                .background(RoundedRectangle(cornerRadius: 7).fill(!escolhida && sobre ? Color.white.opacity(0.05) : .clear))
+                                .background(RoundedRectangle(cornerRadius: 7).fill(!escolhida && sobre ? Tinta.tinta.opacity(0.05) : .clear))
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -42,7 +42,7 @@ struct BarraDeAbas: View {
         }
         .frame(height: 26)
         .padding(3)
-        .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.04)))
+        .background(RoundedRectangle(cornerRadius: 9).fill(Tinta.tinta.opacity(0.04)))
         .animation(Mexer.leve, value: estado.sobre)
     }
 
@@ -51,7 +51,7 @@ struct BarraDeAbas: View {
         if estado.aparencia.fundoReal != .solido, !estado.paraImagem, #available(macOS 26, *) {
             Color.clear.glassEffect(.regular.interactive(), in: forma)
         } else {
-            forma.fill(Color.white.opacity(0.11))
+            forma.fill(Tinta.tinta.opacity(0.11))
         }
     }
 }

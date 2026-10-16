@@ -34,7 +34,7 @@ struct SecaoDaBarra: View {
                             }
                         }
                         .padding(.horizontal, 8).frame(height: 30)
-                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(escolhido ? 0.1 : 0.035)))
+                        .background(RoundedRectangle(cornerRadius: 7).fill(Tinta.tinta.opacity(escolhido ? 0.1 : 0.035)))
                         .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(escolhido ? Tinta.destaque.opacity(0.5) : .clear, lineWidth: 1))
                         .opacity(cheio ? 0.5 : 1)
                         .contentShape(Rectangle())

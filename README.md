@@ -63,8 +63,10 @@ ports show up as free when nothing is using them.
 size and what happens after cleaning. The Trash has its own button and confirmation. Documents, downloads and photos
 are never touched.
 
-**Appearance.** Solid black, frosted, or **liquid glass** (macOS 26), with a transparency slider. Six color
-palettes, an accent color, three corner styles, smooth, springy or no animation, and a colored menu bar icon.
+**Appearance.** Eight ready-made styles to pick on first launch, from Midnight to liquid-glass Sunset. **Light,
+dark, or following your Mac.** Then make it yours: solid, frosted or **liquid glass** (macOS 26) with a transparency
+slider, six color palettes, an accent color, three corner styles, smooth, springy or no animation, and a colored menu
+bar icon.
 
 **Menu bar.** Up to three things side by side, each with its icon: CPU, memory or GPU usage, chip temperature,
 battery, free disk, open ports, or the little CPU and memory bars.

@@ -22,4 +22,6 @@ struct Acoes {
     var redimensionar: (CGSize) -> Void = { _ in }
     var limpar: (String) -> Void = { _ in }
     var limparTudo: () -> Void = {}
+    /// "Começar", nas boas-vindas da primeira abertura.
+    var terminarBoasVindas: () -> Void = {}
 }

@@ -26,7 +26,7 @@ struct Grafico: View {
                         Text(t(titulo[i].0)).font(.system(size: 10.5, weight: aba == i ? .semibold : .regular))
                             .foregroundStyle(aba == i ? Tinta.texto : Tinta.apagado)
                             .padding(.horizontal, 7).padding(.vertical, 4)
-                            .background(Capsule().fill(aba == i ? Color.white.opacity(0.1) : .clear))
+                            .background(Capsule().fill(aba == i ? Tinta.tinta.opacity(0.1) : .clear))
                     }
                     .buttonStyle(.plain)
                 }
@@ -93,7 +93,7 @@ struct Grafico: View {
         .chartYScale(domain: dominio)
         .chartYAxis {
             AxisMarks(position: .trailing, values: marcas) { v in
-                AxisGridLine().foregroundStyle(Color.white.opacity(0.06))
+                AxisGridLine().foregroundStyle(Tinta.tinta.opacity(0.06))
                 AxisValueLabel {
                     Text("\(Int(v.as(Double.self) ?? 0))\(unidade)\(aba == 4 && (v.as(Double.self) ?? 0) > 0 ? " MB/s" : "")")
                         .font(.system(size: 9)).foregroundStyle(Tinta.fraco)

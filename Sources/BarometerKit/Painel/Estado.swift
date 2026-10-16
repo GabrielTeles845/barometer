@@ -49,6 +49,10 @@ final class Estado: ObservableObject {
     @Published var sobre: String?
     @Published var sobreX: String?
     @Published var aba = 0
+    /// Na aba Aparência: 0 = estilos prontos, 1 = do meu jeito.
+    @Published var abaAparencia = 0
+    /// As boas-vindas da primeira abertura (escolher um estilo).
+    @Published var boasVindas = false
     /// Fundo, transparência, cores, cantos e animações (aba Aparência). Vale na hora e fica gravado.
     @Published var aparencia: Aparencia = Aparencia.atual {
         didSet {
