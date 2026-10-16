@@ -10,7 +10,7 @@ Memória, CPU, GPU, disco, bateria e temperatura num painel que abre com um cliq
 O que mais está gastando, e as portas abertas, com um × para fechar o que ficou ligado à toa.
 
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](#instalar)
-[![Chip da Apple](https://img.shields.io/badge/chip%20da%20Apple-M1%20ao%20M3-black)](#limites)
+[![Chip da Apple](https://img.shields.io/badge/s%C3%B3-chip%20da%20Apple-black)](#limites)
 [![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)](#para-quem-quer-mexer)
 [![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue)](LICENSE)
 [![Idiomas](https://img.shields.io/badge/idiomas-EN%20%C2%B7%20PT%20%C2%B7%20ES-555)](#idiomas)
@@ -120,8 +120,10 @@ Nada é estimado: cada número sai de onde o próprio macOS lê.
 
 ## Limites
 
-- **Só Mac com chip da Apple.** As temperaturas e a frequência vêm de interfaces internas da Apple, as mesmas que o
-  Stats e o macmon usam. Testado do M1 ao M3 Pro; um macOS novo pode mudá-las.
+- **Só Mac com chip da Apple** (do M1 em diante). As temperaturas e a frequência vêm de interfaces internas da
+  Apple, as mesmas que o Stats e o macmon usam. Testado num M3 Pro com macOS 27; em outro chip, um sensor ou um tipo
+  de núcleo pode ter outro nome, e um macOS novo pode mudá-los. Se algo sair errado no seu Mac, abra uma issue
+  dizendo o chip.
 - **O vidro líquido precisa do macOS 26.** Nos anteriores, as duas opções de vidro aparecem apagadas e o painel fica
   no fosco.
 - **A frequência da GPU ficou de fora:** no M3 Pro a contagem da Apple não fecha com a tabela de frequências, e um

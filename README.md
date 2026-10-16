@@ -10,7 +10,7 @@ Memory, CPU, GPU, disk, battery and temperatures in a panel that opens with one 
 What is eating your Mac, and the ports left open, with a × to stop what shouldn't be running.
 
 [![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple&logoColor=white)](#install)
-[![Apple silicon](https://img.shields.io/badge/Apple%20silicon-M1%20to%20M3-black)](#limits)
+[![Apple silicon](https://img.shields.io/badge/Apple%20silicon-only-black)](#limits)
 [![Swift](https://img.shields.io/badge/Swift-SwiftUI-F05138?logo=swift&logoColor=white)](#for-tinkerers)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Languages](https://img.shields.io/badge/languages-EN%20%C2%B7%20PT%20%C2%B7%20ES-555)](#languages)
@@ -120,8 +120,10 @@ Nothing is estimated: each number comes from where macOS itself reads it.
 
 ## Limits
 
-- **Apple silicon only.** Temperatures and frequencies come from internal Apple interfaces, the same ones Stats and
-  macmon use. Tested from M1 to M3 Pro; a new macOS release may change them.
+- **Apple silicon only** (M1 and later). Temperatures and frequencies come from internal Apple interfaces, the same
+  ones Stats and macmon use. Tested on an M3 Pro with macOS 27; on other chips a sensor or a core type may be named
+  differently, and a new macOS release may change them. If something reads wrong on your Mac, open an issue with
+  your chip.
 - **Liquid glass needs macOS 26.** On older versions the two glass styles are greyed out and the panel uses frosted.
 - **No GPU frequency:** on the M3 Pro, Apple's state count doesn't line up with its frequency table, and a number
   there would be a guess.
