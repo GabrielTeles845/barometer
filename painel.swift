@@ -43,6 +43,9 @@ final class Estado: ObservableObject {
     @Published var arrastando: String?
     /// Os cartões do Geral, na ordem escolhida, cada um ligado ou não. Gravados a cada mudança.
     @Published var geral: [ItemGeral] = Pref.geral { didSet { Pref.geral = geral } }
+    /// O que aparece na barra de menus, na ordem.
+    @Published var naBarra: [ItemDaBarra] = Pref.naBarra { didSet { if !paraImagem { Pref.naBarra = naBarra }; aoMudarABarra?() } }
+    var aoMudarABarra: (() -> Void)?
     /// Para a animação de abrir: o painel nasce um pouco menor e transparente e cresce até o tamanho.
     @Published var apareceu = true
     @Published var abaProcessos = 0
@@ -87,6 +90,40 @@ enum Aba: String, CaseIterable {
         case .limpeza: return "trash"
         }
     }
+}
+
+/// O que pode aparecer na barra de menus, até 3 de uma vez, cada um com o seu ícone.
+enum ItemDaBarra: String, CaseIterable, Codable {
+    case barrinhas, cpu, memoria, gpu, chip, bateria, disco, portas
+
+    var nome: String {
+        switch self {
+        case .barrinhas: return t("Barrinhas de CPU e memória")
+        case .cpu: return "CPU"
+        case .memoria: return t("Memória")
+        case .gpu: return "GPU"
+        case .chip: return t("Temperatura do chip")
+        case .bateria: return t("Bateria")
+        case .disco: return t("Disco livre")
+        case .portas: return t("Portas abertas")
+        }
+    }
+
+    var simbolo: String {
+        switch self {
+        case .barrinhas: return "chart.bar.fill"
+        case .cpu: return "cpu"
+        case .memoria: return "memorychip"
+        case .gpu: return "cube.transparent"
+        case .chip: return "thermometer.medium"
+        case .bateria: return "battery.75percent"
+        case .disco: return "internaldrive"
+        case .portas: return "point.3.connected.trianglepath.dotted"
+        }
+    }
+
+    static let maximo = 3
+    static let padrao: [ItemDaBarra] = [.barrinhas, .portas]
 }
 
 /// Um cartão do Geral.
@@ -318,6 +355,9 @@ struct EditorDoGeral: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+            SecaoDaBarra(estado: estado)
+            Text(t("NO GERAL")).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(Tinta.fraco)
+                .padding(.top, 8)
             Text(t("Ligue o que quer ver no Geral. Segure e arraste para mudar a ordem."))
                 .font(.system(size: 11)).foregroundStyle(Tinta.apagado)
                 .fixedSize(horizontal: false, vertical: true)
@@ -359,6 +399,51 @@ struct EditorDoGeral: View {
         .frame(height: 32)
         .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(item.ligado ? 0.06 : 0.03)))
         .contentShape(Rectangle())
+    }
+}
+
+/// Escolher até 3 coisas para a barra de menus, cada uma com o ícone dela.
+struct SecaoDaBarra: View {
+    @ObservedObject var estado: Estado
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(t("NA BARRA DE MENUS")).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(Tinta.fraco)
+                Spacer()
+                Text(t("até 3")).font(.system(size: 9.5)).foregroundStyle(Tinta.fraco)
+            }
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)], spacing: 4) {
+                ForEach(ItemDaBarra.allCases, id: \.self) { item in
+                    let escolhido = estado.naBarra.contains(item)
+                    let cheio = !escolhido && estado.naBarra.count >= ItemDaBarra.maximo
+                    Button {
+                        if let i = estado.naBarra.firstIndex(of: item) { estado.naBarra.remove(at: i) }
+                        else if !cheio { estado.naBarra.append(item) }
+                    } label: {
+                        HStack(spacing: 7) {
+                            Image(systemName: item.simbolo).font(.system(size: 11))
+                                .foregroundStyle(escolhido ? Tinta.texto : Tinta.apagado).frame(width: 16)
+                            Text(item.nome).font(.system(size: 11)).foregroundStyle(escolhido ? Tinta.texto : Tinta.apagado)
+                                .lineLimit(1).minimumScaleFactor(0.85)
+                            Spacer(minLength: 0)
+                            if let n = estado.naBarra.firstIndex(of: item) {
+                                Text(verbatim: String(n + 1)).font(.system(size: 9, weight: .bold)).foregroundStyle(Tinta.fundo)
+                                    .frame(width: 15, height: 15).background(Circle().fill(Tinta.porta))
+                            }
+                        }
+                        .padding(.horizontal, 8).frame(height: 30)
+                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(escolhido ? 0.1 : 0.035)))
+                        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(escolhido ? Tinta.porta.opacity(0.5) : .clear, lineWidth: 1))
+                        .opacity(cheio ? 0.5 : 1)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(cheio)
+                }
+            }
+            .animation(.snappy(duration: 0.2), value: estado.naBarra)
+        }
     }
 }
 
@@ -1316,6 +1401,56 @@ struct Botaozinho: View {
 /// portas ao lado. Imagem "modelo" (só a forma): o macOS pinta de branco ou
 /// preto conforme o fundo da barra.
 enum Icone {
+    /// A barra de menus inteira numa imagem só (os ícones e os números), em "modelo": o macOS pinta de branco ou
+    /// preto conforme a barra. Texto em pedaços com imagem anexada não acompanha a cor; uma imagem só acompanha.
+    static func barra(_ pedacos: [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)]) -> NSImage {
+        let fonte = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        let atributos: [NSAttributedString.Key: Any] = [.font: fonte, .foregroundColor: NSColor.black]
+        let configuracao = NSImage.SymbolConfiguration(pointSize: 12, weight: .medium)
+        var largura: CGFloat = 0
+        var medidas: [(NSImage?, CGFloat, CGFloat)] = []
+        for p in pedacos {
+            let simbolo = p.barrinhas != nil ? nil : p.simbolo.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil)?.withSymbolConfiguration(configuracao) }
+            let larguraDoIcone: CGFloat = p.barrinhas != nil ? 14 : (simbolo.map { $0.size.width * 14 / max($0.size.height, 1) } ?? 0)
+            let larguraDoTexto = p.texto.isEmpty ? 0 : (p.texto as NSString).size(withAttributes: atributos).width
+            medidas.append((simbolo, larguraDoIcone, larguraDoTexto))
+            largura += larguraDoIcone + (larguraDoTexto > 0 ? 3 + larguraDoTexto : 0)
+        }
+        largura += CGFloat(max(0, pedacos.count - 1)) * 9
+        let img = NSImage(size: NSSize(width: max(16, ceil(largura)), height: 18), flipped: false) { _ in
+            var x: CGFloat = 0
+            for (i, p) in pedacos.enumerated() {
+                let (simbolo, larguraDoIcone, larguraDoTexto) = medidas[i]
+                if let (cpu, memoria) = p.barrinhas {
+                    desenharBarrinhas(em: NSRect(x: x, y: 2, width: 14, height: 14), cpu: cpu, memoria: memoria)
+                } else if let simbolo {
+                    let altura: CGFloat = 14
+                    simbolo.draw(in: NSRect(x: x, y: (18 - altura) / 2, width: larguraDoIcone, height: altura))
+                }
+                x += larguraDoIcone
+                if larguraDoTexto > 0 {
+                    (p.texto as NSString).draw(at: NSPoint(x: x + 3, y: (18 - fonte.capHeight) / 2 - 2.5), withAttributes: atributos)
+                    x += 3 + larguraDoTexto
+                }
+                x += 9
+            }
+            return true
+        }
+        img.isTemplate = true
+        return img
+    }
+
+    private static func desenharBarrinhas(em r: NSRect, cpu: Double, memoria: Double) {
+        for (i, v) in [cpu, memoria].enumerated() {
+            let x = r.minX + 2 + CGFloat(i) * 6
+            NSColor.black.withAlphaComponent(0.32).setFill()
+            NSBezierPath(roundedRect: NSRect(x: x, y: r.minY, width: 3.6, height: r.height - 2), xRadius: 1.8, yRadius: 1.8).fill()
+            NSColor.black.setFill()
+            let altura = max(2.5, (r.height - 2) * CGFloat(min(1, max(0, v))))
+            NSBezierPath(roundedRect: NSRect(x: x, y: r.minY, width: 3.6, height: altura), xRadius: 1.8, yRadius: 1.8).fill()
+        }
+    }
+
     static func desenhar(cpu: Double, memoria: Double, mostrarUso: Bool) -> NSImage {
         let largura: CGFloat = mostrarUso ? 15 : 16
         let img = NSImage(size: NSSize(width: largura, height: 16), flipped: false) { _ in

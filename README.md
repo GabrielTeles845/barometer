@@ -142,6 +142,14 @@ and photos are never touched.
 </tr>
 </table>
 
+## Your menu bar, your way
+
+Pick up to three things to keep in the menu bar, each with its own icon: CPU, memory or GPU usage, chip
+temperature, battery, free disk space, open ports, or the little CPU and memory bars. Choose them in **Edit** on the
+Overview, or from the gear menu.
+
+<img src="docs/images/menubar-options.png" width="420" alt="Four menu bar setups: the CPU and memory bars with ports; CPU, memory and chip temperature; memory, GPU and battery; CPU, free disk and ports">
+
 ## Languages
 
 English, Portuguese and Spanish. Barometer follows your Mac's language; you can pick another one from the gear menu.
@@ -173,7 +181,7 @@ existing install is safe.
     the process holding the port;
   - a **Docker container** is stopped with `docker stop`;
   - **system processes** have no ×.
-- **The gear** turns open-at-login on and off, changes the icon, picks favorite ports and the language.
+- **The gear** turns open-at-login on and off, picks what shows in the menu bar, favorite ports and the language.
 
 ## Where every number comes from
 

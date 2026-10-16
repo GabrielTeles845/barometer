@@ -695,6 +695,16 @@ enum Pref {
         set { UserDefaults.standard.set(try? JSONEncoder().encode(newValue), forKey: "geral") }
     }
 
+    /// O que aparece na barra de menus. Quem tinha desligado o uso no ícone (versão antiga) começa só com as portas.
+    static var naBarra: [ItemDaBarra] {
+        get {
+            if let dados = UserDefaults.standard.data(forKey: "naBarra"),
+               let itens = try? JSONDecoder().decode([ItemDaBarra].self, from: dados) { return Array(itens.prefix(ItemDaBarra.maximo)) }
+            return memoriaNaBarra ? ItemDaBarra.padrao : [.portas]
+        }
+        set { UserDefaults.standard.set(try? JSONEncoder().encode(newValue), forKey: "naBarra") }
+    }
+
     static var memoriaNaBarra: Bool {
         get { UserDefaults.standard.object(forKey: "memoriaNaBarra") as? Bool ?? true }
         set { UserDefaults.standard.set(newValue, forKey: "memoriaNaBarra") }
@@ -1030,6 +1040,7 @@ final class Barra: NSObject, NSApplicationDelegate {
         estado.favoritas = Pref.favoritas
         estado.mostrarTudo = Pref.tudo
         estado.memoriaNaBarra = Pref.memoriaNaBarra
+        estado.aoMudarABarra = { [weak self] in self?.desenharIcone() }
         estado.abrirAoLigar = Login.ligado
 
         relogio = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in self?.varrer() }
@@ -1062,6 +1073,7 @@ final class Barra: NSObject, NSApplicationDelegate {
         let disco = leitorDeDisco.ler()
         estado.gpu = gpu
         estado.disco = disco
+        if estado.naBarra.contains(.bateria) { estado.bateria = leitorDeBateria.ler(comOficial: false) }
         gpusDoMinuto.append(gpu?.uso ?? 0)
         discosDoMinuto.append(disco.leituraPorSegundo + disco.escritaPorSegundo)
         leituras += 1
@@ -1121,15 +1133,39 @@ final class Barra: NSObject, NSApplicationDelegate {
 
     private func desenharIcone() {
         guard let botao = item.button else { return }
-        let uso = Pref.memoriaNaBarra
-        botao.image = Icone.desenhar(cpu: estado.cpu ?? 0, memoria: (estado.memoria?.usada ?? 0) / Maquina.total, mostrarUso: uso)
-        botao.imagePosition = portas.isEmpty ? .imageOnly : .imageLeading
-        botao.title = portas.isEmpty ? "" : " \(portas.count)"
-        botao.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+        botao.title = ""
+        botao.imagePosition = .imageOnly
+        botao.image = Icone.barra(pedacosDaBarra())
         var dica = [t("CPU \(Int(((estado.cpu ?? 0) * 100).rounded()))% · memória \(Int(((estado.memoria?.usada ?? 0) / Maquina.total * 100).rounded()))%")]
         if let c = estado.temperatura.chip { dica[0] += " · chip \(Int(c.rounded())) °C" }
         dica += portas.map { "\($0.numero) — \($0.resumo)" }
         botao.toolTip = dica.joined(separator: "\n")
+    }
+
+    /// Cada item escolhido para a barra: o ícone (ou as barrinhas) e o número.
+    private func pedacosDaBarra() -> [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)] {
+        let cpu = estado.cpu ?? 0
+        let memoria = (estado.memoria?.usada ?? 0) / Maquina.total
+        let pct = { (v: Double) in "\(Int((v * 100).rounded()))%" }
+        var pedacos: [(simbolo: String?, texto: String, barrinhas: (Double, Double)?)] = []
+        for item in estado.naBarra {
+            switch item {
+            case .barrinhas: pedacos.append((nil, "", (cpu, memoria)))
+            case .cpu: pedacos.append((item.simbolo, pct(cpu), nil))
+            case .memoria: pedacos.append((item.simbolo, pct(memoria), nil))
+            case .gpu: pedacos.append((item.simbolo, pct(estado.gpu?.uso ?? 0), nil))
+            case .chip: pedacos.append((item.simbolo, estado.temperatura.chip.map { "\(Int($0.rounded()))°" } ?? "–", nil))
+            case .bateria:
+                if let b = estado.bateria ?? leitorDeBateria.ler(comOficial: false) as Bateria?, b.existe {
+                    pedacos.append((b.carregando ? "battery.100percent.bolt" : item.simbolo, "\(b.nivel)%", nil))
+                }
+            case .disco: pedacos.append((item.simbolo, estado.disco.map { Medida.espaco($0.livre) } ?? "–", nil))
+            // Sem porta aberta, o número some (o ícone fica, para a barra não pular de lugar).
+            case .portas: pedacos.append((item.simbolo, portas.isEmpty ? "" : String(portas.count), nil))
+            }
+        }
+        if pedacos.isEmpty { pedacos = [(nil, "", (cpu, memoria))] }
+        return pedacos
     }
 
     // MARK: O painel
@@ -1316,25 +1352,25 @@ final class Barra: NSObject, NSApplicationDelegate {
             try? png.write(to: URL(fileURLWithPath: arquivo))
         }
         // A barra de menus: o ícone e o número de portas, em branco sobre a faixa escura, como na tela.
-        // Em 4x: no README a faixa aparece grande e nítida.
+        // Em 4x: no README a faixa aparece grande e nítida. A largura acompanha o que está na barra.
         let k: CGFloat = 4
-        let faixa = NSImage(size: NSSize(width: 150 * k, height: 30 * k))
+        if let i = CommandLine.arguments.firstIndex(of: "--barra"), i + 1 < CommandLine.arguments.count {
+            estado.naBarra = CommandLine.arguments[i + 1].split(separator: ",").compactMap { ItemDaBarra(rawValue: String($0)) }
+        }
+        portas = estado.portas
+        let icone = Icone.barra(pedacosDaBarra())
+        let largura = icone.size.width * k
+        let faixa = NSImage(size: NSSize(width: largura + 60 * k, height: 30 * k))
         faixa.lockFocus()
         NSColor(white: 0.12, alpha: 1).setFill()
-        NSRect(x: 0, y: 0, width: 150 * k, height: 30 * k).fill()
-        let icone = Icone.desenhar(cpu: estado.cpu ?? 0.3, memoria: (estado.memoria?.usada ?? 0.5 * Maquina.total) / Maquina.total, mostrarUso: true)
+        NSRect(x: 0, y: 0, width: largura + 60 * k, height: 30 * k).fill()
         let branco = NSImage(size: icone.size, flipped: false) { r in
             icone.draw(in: r)
             NSColor.white.set()
             r.fill(using: .sourceAtop)
             return true
         }
-        branco.draw(in: NSRect(x: 52 * k, y: 7 * k, width: 16 * k, height: 16 * k))
-        if !estado.portas.isEmpty {
-            NSAttributedString(string: String(estado.portas.count), attributes: [
-                .font: NSFont.monospacedDigitSystemFont(ofSize: 13 * k, weight: .medium), .foregroundColor: NSColor.white,
-            ]).draw(at: NSPoint(x: 73 * k, y: 6 * k))
-        }
+        branco.draw(in: NSRect(x: 30 * k, y: 6 * k, width: largura, height: 18 * k))
         faixa.unlockFocus()
         if let tiff = faixa.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff),
            let png = rep.representation(using: .png, properties: [:]) {
@@ -1412,6 +1448,11 @@ final class Barra: NSObject, NSApplicationDelegate {
     @objc private func ajusteFavorita(_ mi: NSMenuItem) { Pref.virarFavorita(mi.tag); estado.favoritas = Pref.favoritas }
     @objc private func ajusteOutraFavorita() { fecharPainel(); pedirFavorita() }
     @objc private func ajusteSair() { NSApp.terminate(nil) }
+    @objc private func ajusteNaBarra(_ mi: NSMenuItem) {
+        guard let opcao = ItemDaBarra(rawValue: mi.representedObject as? String ?? "") else { return }
+        if let i = estado.naBarra.firstIndex(of: opcao) { estado.naBarra.remove(at: i) }
+        else if estado.naBarra.count < ItemDaBarra.maximo { estado.naBarra.append(opcao) }
+    }
     @objc private func ajusteIdioma(_ mi: NSMenuItem) {
         Idioma.escolhido = Idioma(rawValue: mi.representedObject as? String ?? "") ?? .automatico
         // Tudo o que está na tela passa pelo `t()` de novo.
@@ -1428,7 +1469,17 @@ final class Barra: NSObject, NSApplicationDelegate {
             return mi
         }
         m.addItem(item(t("Abrir ao ligar o Mac"), #selector(ajusteAbrirAoLigar), ligado: Login.ligado))
-        m.addItem(item(t("CPU e memória no ícone"), #selector(ajusteUsoNoIcone), ligado: Pref.memoriaNaBarra))
+        let naBarra = NSMenu()
+        for opcao in ItemDaBarra.allCases {
+            let mi = item(opcao.nome, #selector(ajusteNaBarra(_:)), ligado: estado.naBarra.contains(opcao))
+            mi.representedObject = opcao.rawValue
+            mi.image = NSImage(systemSymbolName: opcao.simbolo, accessibilityDescription: nil)
+            if !estado.naBarra.contains(opcao) && estado.naBarra.count >= ItemDaBarra.maximo { mi.action = nil }
+            naBarra.addItem(mi)
+        }
+        let paiBarra = NSMenuItem(title: t("Na barra de menus (até 3)"), action: nil, keyEquivalent: "")
+        paiBarra.submenu = naBarra
+        m.addItem(paiBarra)
         let favoritas = NSMenu()
         let sugeridas = [3000, 3001, 3002, 3003, 3006, 4000, 5173, 5432, 6379, 8000, 8080]
         for n in Array(Set(sugeridas).union(Pref.favoritas)).sorted() {

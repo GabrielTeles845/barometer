@@ -168,6 +168,11 @@ enum Traducao {
         "Os arquivos da Lixeira são apagados de vez. Não tem como recuperar depois.":
             ("Everything in the Trash is deleted for good. There's no getting it back.",
              "Los archivos de la Papelera se borran para siempre. No se pueden recuperar."),
+        // Barra de menus
+        "Barrinhas de CPU e memória": ("CPU and memory bars", "Barras de CPU y memoria"), "Temperatura do chip": ("Chip temperature", "Temperatura del chip"),
+        "Disco livre": ("Free disk", "Disco libre"), "Portas abertas": ("Open ports", "Puertos abiertos"),
+        "NA BARRA DE MENUS": ("IN THE MENU BAR", "EN LA BARRA DE MENÚS"), "até 3": ("up to 3", "hasta 3"),
+        "NO GERAL": ("IN THE OVERVIEW", "EN GENERAL"), "Na barra de menus (até 3)": ("In the menu bar (up to 3)", "En la barra de menús (hasta 3)"),
         // Avisos e caixas
         "Não vou matar este processo": ("I won't kill this process", "No voy a cerrar este proceso"),
         "Acompanhar qual porta?": ("Which port to watch?", "¿Qué puerto seguir?"),

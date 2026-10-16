@@ -142,6 +142,14 @@ fotos nunca entram.
 </tr>
 </table>
 
+## A barra de menus do seu jeito
+
+Escolha até três coisas para ficar na barra de menus, cada uma com o seu ícone: uso de CPU, memória ou GPU,
+temperatura do chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória. A escolha fica em
+**Editar**, no Geral, ou na engrenagem.
+
+<img src="docs/images/menubar-options.png" width="420" alt="Quatro jeitos de montar a barra: as barrinhas com as portas; CPU, memória e temperatura do chip; memória, GPU e bateria; CPU, disco livre e portas">
+
 ## Idiomas
 
 Inglês, português e espanhol. O Barometer segue o idioma do Mac; dá para escolher outro na engrenagem.
@@ -171,7 +179,7 @@ fica marcado para abrir ao ligar o Mac (dá para desligar na engrenagem). Rodar 
     terminal, e não só o processo que ouve a porta;
   - **container do Docker** para com `docker stop`;
   - **processos do sistema** não têm ×.
-- **A engrenagem** liga e desliga o abrir ao ligar o Mac, troca o ícone, escolhe as portas favoritas e o idioma.
+- **A engrenagem** liga e desliga o abrir ao ligar o Mac, escolhe o que fica na barra, as portas favoritas e o idioma.
 
 ## De onde vem cada número
 
