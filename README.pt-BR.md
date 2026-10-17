@@ -70,8 +70,8 @@ Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos nunc
 
 **Aparência.** Oito estilos prontos para escolher logo na primeira abertura, do Clássico ao Entardecer em vidro
 líquido, e o **Personalizado**, em que você escolhe a cor de cada leitura. **Claro, escuro ou junto com o Mac**, e
-nenhum estilo mexe nisso. Depois, do seu jeito: sólido, fosco ou **vidro líquido** (macOS 26) com régua de
-transparência, seis paletas, cor de destaque, **cores chapadas** para quem não gosta de brilho, **ícones coloridos**
+nenhum estilo mexe nisso. Depois, do seu jeito: sólido (sempre fechado), ou fosco ou **vidro líquido** (macOS 26) com
+régua de transparência, seis paletas, cor de destaque, **cores chapadas** para quem não gosta de brilho, **ícones coloridos**
 em tudo, três tipos de canto, animação suave, com mola ou nenhuma, e ícone colorido na barra.
 
 **Barra de menus.** Até três coisas lado a lado, cada uma com o seu ícone: uso de CPU, memória ou GPU, temperatura do

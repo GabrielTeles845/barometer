@@ -42,12 +42,20 @@ struct AbaDeAparencia: View {
                         .font(.system(size: 10.5)).foregroundStyle(Tinta.fraco)
                 }
             }
-            secao("TRANSPARÊNCIA", valor: "\(Int(((1 - ap.coberturaAtual) * 100).rounded()))%") {
-                Regua(valor: 1 - ap.coberturaAtual, limite: 0.9) { estado.aparencia.coberturaAtual = 1 - $0 }
-                HStack {
-                    Text(t("fechado")); Spacer(); Text(t("transparente"))
+            // No sólido não há régua: ele é fechado. Ver atrás é com o fosco ou o vidro, que desfocam.
+            if ap.fundo == .solido {
+                secao("TRANSPARÊNCIA") {
+                    Text(t("O sólido é fechado. Para ver o que está atrás, escolha Fosco ou Vidro."))
+                        .font(.system(size: 10.5)).foregroundStyle(Tinta.fraco).fixedSize(horizontal: false, vertical: true)
                 }
-                .font(.system(size: 9.5)).foregroundStyle(Tinta.fraco)
+            } else {
+                secao("TRANSPARÊNCIA", valor: "\(Int(((1 - ap.coberturaAtual) * 100).rounded()))%") {
+                    Regua(valor: 1 - ap.coberturaAtual, limite: 0.9) { estado.aparencia.coberturaAtual = 1 - $0 }
+                    HStack {
+                        Text(t("fechado")); Spacer(); Text(t("transparente"))
+                    }
+                    .font(.system(size: 9.5)).foregroundStyle(Tinta.fraco)
+                }
             }
             secao("CORES") {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6)],

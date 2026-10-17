@@ -182,6 +182,9 @@ enum Traducao {
         "Boas-vindas ao Barometer": ("Welcome to Barometer", "Te damos la bienvenida a Barometer"),
         "Escolha um estilo para começar. Dá para mudar quando quiser, na aba Aparência.": ("Pick a style to start. You can change it anytime in the Appearance tab.", "Elige un estilo para empezar. Puedes cambiarlo cuando quieras en la pestaña Apariencia."),
         "Começar": ("Get started", "Empezar"),
+        "O sólido é fechado. Para ver o que está atrás, escolha Fosco ou Vidro.":
+            ("Solid is opaque. To see what's behind, pick Frosted or Glass.",
+             "El sólido es opaco. Para ver lo que hay detrás, elige Esmerilado o Vidrio."),
         // Quem mais esquentou
         "Quem mais esquentou": ("What heated it up", "Quién más lo calentó"),
         "Em 2 minutos aparece quem mais gastou.": ("In 2 minutes you'll see what used the most.", "En 2 minutos aparece quién más gastó."),

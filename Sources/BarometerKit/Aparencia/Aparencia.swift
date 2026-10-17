@@ -95,9 +95,11 @@ struct Aparencia: Codable, Equatable {
         }
     }
 
+    /// Quanto o fundo cobre. O sólido é sempre fechado: sem desfoque, o que passa por trás embaralha o texto (17/10);
+    /// para ver atrás existem o fosco e o vidro.
     var coberturaAtual: Double {
-        get { cobertura[fundo.rawValue] ?? fundo.coberturaPadrao }
-        set { cobertura[fundo.rawValue] = min(1, max(0.1, newValue)) }
+        get { fundo == .solido ? 1 : (cobertura[fundo.rawValue] ?? fundo.coberturaPadrao) }
+        set { if fundo != .solido { cobertura[fundo.rawValue] = min(1, max(0.1, newValue)) } }
     }
 
     /// O fundo que de fato aparece: vidro em Mac sem vidro vira fosco.

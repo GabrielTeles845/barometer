@@ -15,11 +15,7 @@ struct FundoDoPainel: View {
         let cobertura = ap.coberturaAtual
         switch ap.fundoReal {
         case .solido:
-            if paraImagem && cobertura < 1 {
-                ZStack { desfoqueDaFoto(raio: 2); forma.fill(Tinta.fundo.opacity(cobertura)) }.clipShape(forma)
-            } else {
-                forma.fill(Tinta.fundo.opacity(cobertura))
-            }
+            forma.fill(Tinta.fundo)
         case .fosco:
             ZStack {
                 if paraImagem { desfoqueDaFoto(raio: 30) } else { Fosco(cantos: ap.cantos, escuro: ap.escuroAgora) }

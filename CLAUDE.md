@@ -131,6 +131,9 @@ verificador aqui.
 - **Estilo não mexe no modo.** Claro, escuro e automático só mudam pelos botões de modo; estilos são cores e fundo.
   Estilo que era só modo ("Papel", "Junto com o Mac") saiu. Verificador em `AparenciaTests` ("Estilo não mexe no modo").
 - Tem que existir o caminho sem vidro e sem brilho ("cores chapadas") e o de ícones coloridos em tudo.
+- **Sólido é sempre fechado (17/10).** Com transparência e sem desfoque, o que estava atrás embaralhava o texto. No
+  sólido a régua some e fica a frase "Para ver o que está atrás, escolha Fosco ou Vidro"; transparência guardada de
+  versão antiga é ignorada (`coberturaAtual` devolve 1). Verificador em `AparenciaTests`.
 - Personalizado: a pessoa escolhe a cor de cada leitura (fileiras de amostras; nada de seletor nativo de cor).
 - Ícone das portas: `server.rack` (o triângulo `point.3.connected.trianglepath.dotted` não agradou). Escolhi pela
   recomendação; ele pode trocar.

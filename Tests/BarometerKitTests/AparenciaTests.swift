@@ -27,9 +27,19 @@ struct AparenciaTests {
         #expect(a.coberturaAtual == 0.3)
     }
 
+    @Test("O sólido é sempre fechado, até com transparência guardada de uma versão antiga")
+    func solidoFechado() throws {
+        var a = Aparencia()
+        a.coberturaAtual = 0.1
+        #expect(a.coberturaAtual == 1)
+        let antigo = #"{"fundo": "solido", "cobertura": {"solido": 0.1}}"#.data(using: .utf8)!
+        #expect(try JSONDecoder().decode(Aparencia.self, from: antigo).coberturaAtual == 1)
+    }
+
     @Test("A transparência para antes de o texto sumir", arguments: [-1.0, 0, 0.05, 2])
     func limites(valor: Double) {
         var a = Aparencia()
+        a.fundo = .fosco
         a.coberturaAtual = valor
         #expect(a.coberturaAtual >= 0.1 && a.coberturaAtual <= 1)
     }

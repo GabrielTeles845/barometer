@@ -69,7 +69,7 @@ confirmation. Documents, downloads and photos are never touched.
 
 **Appearance.** Eight ready-made styles to pick on first launch, from Classic to liquid-glass Sunset, plus
 **Custom**, where you pick the color of each reading. **Light, dark, or following your Mac**, and a style never changes
-that. Then make it yours: solid, frosted or **liquid glass** (macOS 26) with a transparency slider, six palettes, an
+that. Then make it yours: solid (always opaque), or frosted or **liquid glass** (macOS 26) with a transparency slider, six palettes, an
 accent color, **flat colors** for those who'd rather skip the gloss, **colored icons** everywhere, three corner styles,
 smooth, springy or no animation, and a colored menu bar icon.
 
