@@ -16,9 +16,22 @@ import re
 import subprocess
 import sys
 import tempfile
+import signal
 import time
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Uma prova que trava não prova nada e prende o CI: depois de 3 minutos, ela desiste dizendo onde estava.
+ultimo_passo = ["começo"]
+
+
+def _desistir(*_):
+    print(f"\nX a prova passou de 3 minutos e desistiu; último passo: {ultimo_passo[0]}", flush=True)
+    os._exit(2)
+
+
+signal.signal(signal.SIGALRM, _desistir)
+signal.alarm(180)
 
 with tempfile.TemporaryDirectory() as tmp:
     # O arnês é o próprio app (`--arnes-encerrar`): a decisão e o sinal são o código de verdade do botão.
@@ -34,7 +47,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
     def ouvinte():
         r = subprocess.run(["/usr/sbin/lsof", "-nP", f"-iTCP:{PORTA}", "-sTCP:LISTEN"],
-                           capture_output=True, text=True, timeout=120)
+                           capture_output=True, text=True, timeout=20)
         for linha in r.stdout.splitlines():
             if "LISTEN" in linha:
                 return int(linha.split()[1])
@@ -53,6 +66,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
     def provar(titulo, deu, detalhe=""):
         global falhas
+        ultimo_passo[0] = titulo
         print(f"  {'ok ' if deu else 'X  '} {titulo}{('  — ' + detalhe) if detalhe and not deu else ''}")
         if not deu:
             falhas += 1
@@ -66,6 +80,10 @@ with tempfile.TemporaryDirectory() as tmp:
 
     def matar(*pids):
         for p in pids:
+            # Nunca 0, 1 nem negativo: kill(0) é o GRUPO de quem chama. Em 17/10 um `filho2 or 0` mandava KILL para o
+            # grupo da prova; no CI o grupo é o do executor do GitHub, que morria e deixava a etapa presa para sempre.
+            if not p or p <= 1:
+                continue
             try:
                 os.kill(p, 9)
             except (ProcessLookupError, PermissionError):
@@ -138,7 +156,7 @@ with tempfile.TemporaryDirectory() as tmp:
         conchas = {"zsh", "bash", "sh", "dash", "fish"}
         provar("e ainda assim nenhum shell entrou",
                not (conchas & {n for _, n in membros}))
-    matar(pai2.pid, filho2 or 0)
+    matar(pai2.pid, filho2)
     time.sleep(0.5)
     p = ouvinte()
     matar(p) if p else None

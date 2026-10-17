@@ -109,6 +109,12 @@ editor e sessão nunca são alvo. Finder, Dock, a tela e o próprio app não tê
 processo ainda é dono da porta. Mexeu na `Sonda` (`trabalho(de:)`, `sinalizar`)? Rodar
 `provas/provar-encerrar.py`. Ela existe porque um `kill -TERM -$PGID` de teste já matou o shell que rodava o teste.
 
+**A prova que travava o CI (17/10):** no caso 2, se a cobaia não subisse, `matar(pai2.pid, filho2 or 0)` virava
+`kill(0, SIGKILL)`, que é o grupo de quem chama. No CI esse grupo é o do executor do GitHub: ele morria, a etapa ficava
+"em andamento" para sempre (nem o `timeout-minutes` valia, porque quem o aplica tinha morrido) e o push seguinte a
+cancelava. Aqui o grupo seria o do terminal. Agora `matar` ignora 0, 1 e negativos, e a prova desiste sozinha em 3
+minutos dizendo o último passo. Regra: em teste, nunca `kill` com PID que pode ser 0 ou vazio.
+
 ## Verificadores (`Tests/BarometerKitTests/ArquiteturaTests.swift`)
 
 Cada um trava um erro que já aconteceu: arquivo acima de 450 linhas, `numericText`, `UserDefaults.standard` fora do
@@ -176,6 +182,4 @@ verificador aqui.
 
 ## Ainda por fazer
 
-- A prova do × trava no CI (aqui leva 1 minuto). A etapa tem limite de 4 minutos e saída sem buffer para mostrar
-  onde para.
 - A lista de 20 melhorias de 16/10 não ficou registrada; a de 17/10 está na seção acima.
