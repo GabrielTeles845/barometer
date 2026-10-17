@@ -28,8 +28,16 @@ struct FundoDoPainel: View {
             .clipShape(forma)
         case .vidro, .vidroClaro:
             if !paraImagem, #available(macOS 26, *) {
-                Color.clear
-                    .glassEffect((ap.fundo == .vidro ? Glass.regular : Glass.clear).tint(Tinta.fundo.opacity(cobertura)), in: forma)
+                // O vidro sem tinta, e o escurecer numa camada à parte, por cima. Tinta no próprio vidro deixava o
+                // painel chapado: no macOS 27 a tinta escura passou a sair como um bloco opaco (cmux #5860), e o
+                // Ghostty recomenda o mesmo sanduíche para vidro de fundo de janela.
+                ZStack {
+                    Color.clear.glassEffect(ap.fundo == .vidro ? Glass.regular : Glass.clear, in: forma)
+                    forma.fill(Tinta.fundo.opacity(cobertura))
+                    // A camada de cima apaga a luz da borda do vidro; ela volta por cima de tudo, mais fraca.
+                    forma.strokeBorder(LinearGradient(colors: [.white.opacity(0.4), .white.opacity(0.04), .white.opacity(0.16)],
+                                                      startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+                }
             } else {
                 ZStack {
                     desfoqueDaFoto(raio: ap.fundo == .vidro ? 22 : 9)

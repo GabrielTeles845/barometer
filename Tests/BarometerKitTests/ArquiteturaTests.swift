@@ -69,4 +69,13 @@ struct ArquiteturaTests {
             #expect(f.texto.contains("#available(macOS 26"), "\(f.nome) usa glassEffect sem #available")
         }
     }
+
+    @Test("Vidro líquido sem tinta (no macOS 27 a tinta escura vira bloco opaco, 16/10/2026)")
+    func vidroSemTinta() {
+        for f in Self.fontes {
+            for linha in f.texto.split(separator: "\n") where linha.contains(".glassEffect(") {
+                #expect(!linha.contains(".tint("), "\(f.nome): escurecer numa camada por cima, não com tinta no vidro")
+            }
+        }
+    }
 }
