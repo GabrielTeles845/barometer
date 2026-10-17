@@ -195,4 +195,11 @@ enum Maquina {
         return decimal(v) + " GB"
     }
 
+    /// Se um app aberto (pelo caminho do pacote) pertence à linha de um aplicativo. A linha junta pelo `.app` de
+    /// fora, e há app que roda de dentro de outro: o Docker abre `Docker.app/Contents/MacOS/Docker Desktop.app`.
+    /// Comparar só o caminho igual deixava o × sem nada para fechar.
+    static func pertence(_ aberto: String, aoApp app: String) -> Bool {
+        aberto == app || aberto.hasPrefix(app + "/")
+    }
+
 }

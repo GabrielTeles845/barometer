@@ -247,7 +247,7 @@ extension Barra {
     }
 
     /// O × da lista de memória. Aplicativo fecha como o Cmd+Q (ele salva e pergunta o que precisar); se não
-    /// fechar em 5 s, oferece forçar. Processo solto vai como o das portas: o trabalho inteiro, TERM e depois KILL.
+    /// fechar em 5 s, oferece forçar. Se não há app aberto para fechar, encerra o processo maior da linha. Processo solto vai como o das portas: o trabalho inteiro, TERM e depois KILL.
     func confirmarFechar(_ g: Maquina.Gasto) {
         let alerta = NSAlert()
         if let caminho = g.app {
@@ -258,8 +258,15 @@ extension Barra {
             DispatchQueue.main.async { [weak self] in
                 NSApp.activate(ignoringOtherApps: true)
                 guard alerta.runModal() == .alertFirstButtonReturn else { return }
-                let apps = NSWorkspace.shared.runningApplications.filter { $0.bundleURL?.path == caminho }
+                let apps = NSWorkspace.shared.runningApplications.filter {
+                    $0.bundleURL.map { Maquina.pertence($0.path, aoApp: caminho) } ?? false
+                }
                 Diario.anotar("fechar app \(g.nome): \(apps.count) instância(s)")
+                // Nenhum app aberto com janela (sobrou só processo de fundo): encerra como o × das portas.
+                guard !apps.isEmpty else {
+                    self?.encerrarProcesso(g.pid, nome: g.nome, self?.sonda.trabalho(de: g.pid))
+                    return
+                }
                 apps.forEach { $0.terminate() }
                 DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 5) { [weak self] in
                     guard apps.contains(where: { !$0.isTerminated }) else { return }

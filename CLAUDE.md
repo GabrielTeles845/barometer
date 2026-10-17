@@ -178,6 +178,9 @@ verificador aqui.
   do tempo de CPU acumulado entre duas leituras é o gasto do minuto; pid novo conta tudo, pid reaproveitado por outro
   programa não vira negativo. Guarda os 12 maiores de cada minuto por 6 h. Tempo curto na coluna ("40 s", "2 h 5 min"):
   "menos de 1 min" saía cortado.
+- **× de app que roda dentro de outro (17/10):** o Docker abre `Docker.app/Contents/MacOS/Docker Desktop.app`. A linha
+  junta pelo `.app` de fora, e o fechar só comparava caminho igual: achava 0 apps e não fazia nada, calado. Agora vale
+  o app de dentro (`Maquina.pertence`), e se não houver app aberto nenhum o × encerra o processo maior da linha.
 - **Testes de preferência apagam o próprio arquivo** (`PrefTests.comArmazemNovo`): o `removePersistentDomain` deixava
   o plist em `~/Library/Preferences` (108 acumulados até 17/10; foram para a Lixeira).
 - **Fotos do README só com os exemplos** (17/10): `scripts/comum.sh` sobe os exemplos nas portas 4000 e 5173, para se

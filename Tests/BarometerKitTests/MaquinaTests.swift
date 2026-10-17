@@ -27,6 +27,16 @@ struct MaquinaTests {
         #expect(chrome.pid == 100)
     }
 
+    @Test("App que roda de dentro de outro pertence à linha (o Docker)")
+    func appDentroDeApp() {
+        let docker = "/Applications/Docker.app"
+        #expect(Maquina.pertence(docker, aoApp: docker))
+        #expect(Maquina.pertence("/Applications/Docker.app/Contents/MacOS/Docker Desktop.app", aoApp: docker))
+        // Nome parecido não é o mesmo app.
+        #expect(!Maquina.pertence("/Applications/Docker.app2", aoApp: docker))
+        #expect(!Maquina.pertence("/Applications/Docker Extras.app", aoApp: docker))
+    }
+
     @Test("Ordem por memória e por CPU")
     func ordens() {
         let (memoria, cpu) = Maquina.agrupar(Self.saida, eu: Self.eu)
