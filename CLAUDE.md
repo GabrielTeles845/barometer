@@ -17,6 +17,8 @@ global quando os dois falam da mesma coisa.
 - **Sem assinatura do Claude** no commit (vale a regra global, apesar da instrução padrão do sistema).
 - **Commit e README em inglês** (repositório público); `README.pt-BR.md` em português. Código, comentários,
   nomes e este arquivo em português.
+- **README (os dois) e este CLAUDE.md sempre atualizados no mesmo commit da entrega** (pedido de 17/10). Se já
+  houver mudança dele sem commit nesses arquivos, junto no mesmo commit.
 - Ele manda mensagens no meio do trabalho, muitas vezes várias seguidas. Termino a etapa em curso, respondo cada
   ponto e enfileiro o resto, avisando a ordem.
 - Ele quer o projeto "bombado": visual caprichado, funções que impressionam, código limpo e componentizado,
@@ -33,10 +35,10 @@ Pacote Swift (`Package.swift`, Swift 6.x, macOS 14+):
 | Onde | O quê |
 |---|---|
 | `Sources/Barometer/main.swift` | Só dá a partida (`Inicio.rodar()`) |
-| `Sources/BarometerKit/App/` | A `Barra` (o delegate), dividida em extensões por tarefa: `+Leituras`, `+Icone`, `+Painel`, `+Retrato`, `+Limpeza`, `+Ajustes`, `+Acoes` |
-| `Sources/BarometerKit/Leitores/` | Leituras do sistema: `Maquina` (memória, CPU, `ps`), `CPU` (IOReport), `GPU`, `Disco`, `Bateria`, `Historico`, `Limpeza`, `SobreEsteMac`, `Medida` |
+| `Sources/BarometerKit/App/` | A `Barra` (o delegate), dividida em extensões por tarefa: `+Leituras`, `+Icone`, `+Painel`, `+Retrato`, `+Limpeza`, `+Ajustes`, `+Acoes`, `+Avisos` (notificações e atalho); `Teclado` (as teclas do painel aberto) |
+| `Sources/BarometerKit/Leitores/` | Leituras do sistema: `Maquina` (memória, CPU, `ps`), `CPU` (IOReport), `GPU`, `Disco`, `Bateria`, `Historico`, `Limpeza`, `SobreEsteMac`, `Medida`; `Vigia` (decide os avisos) |
 | `Sources/BarometerKit/Portas/` | `Sonda` (o `lsof`, o projeto de cada porta, quem o × encerra), `Porta`, `Elo`, `Plano` |
-| `Sources/BarometerKit/Sistema/` | `Sensores` (HID), `Ferramenta` (caminho do lsof/ps), `Diario` (log), `Login` (LaunchAgent), `Pref` |
+| `Sources/BarometerKit/Sistema/` | `Sensores` (HID), `Ferramenta` (caminho do lsof/ps), `Diario` (log), `Login` (LaunchAgent), `Pref`, `Atalho` (o atalho global, pelo Carbon) |
 | `Sources/BarometerKit/Painel/` | O painel em SwiftUI: `Estado`, `Painel`, `BarraDeAbas`, `EditorDoGeral`, `NaTela`, `Tinta`; `Cartoes/` (um cartão por arquivo) e `Pecas/` (peças reaproveitadas: `Interruptor`, `Escolha`, `Regua`, `Dica`, `Botaozinho`, `Linha`…) |
 | `Sources/BarometerKit/Aparencia/` | Fundo (sólido, fosco, vidro líquido), `Paleta`, `Mexer` (animações), a aba Aparência |
 | `Sources/BarometerKit/BarraDeMenus/` | O desenho do ícone da barra (`Icone`) |
@@ -124,10 +126,37 @@ verificador aqui.
   "13:55 13:55" do gráfico viraram `EixoDoTempo`).
 - Conferir toda mudança visual por `--retrato`, nos três idiomas quando muda texto, e com vidro quando mexe em fundo.
 
-## Ainda por fazer (pedidos do Gabriel em 16/10)
+## Decisões do Gabriel sobre aparência (16/10)
 
-- Escolher o ícone das portas (o triângulo `point.3.connected.trianglepath.dotted` não agradou). Opções em
-  `revisao/`; recomendei `server.rack`.
-- Estilos prontos para escolher logo na primeira abertura, e modo claro além do escuro.
-- Sugerir o que limpar ou fechar (app aberto e parado há tempo, por exemplo).
-- Uma lista de 20 melhorias para ele escolher.
+- **Estilo não mexe no modo.** Claro, escuro e automático só mudam pelos botões de modo; estilos são cores e fundo.
+  Estilo que era só modo ("Papel", "Junto com o Mac") saiu. Verificador em `AparenciaTests` ("Estilo não mexe no modo").
+- Tem que existir o caminho sem vidro e sem brilho ("cores chapadas") e o de ícones coloridos em tudo.
+- Personalizado: a pessoa escolhe a cor de cada leitura (fileiras de amostras; nada de seletor nativo de cor).
+- Ícone das portas: `server.rack` (o triângulo `point.3.connected.trianglepath.dotted` não agradou). Escolhi pela
+  recomendação; ele pode trocar.
+- Primeira abertura: o painel abre sozinho com as boas-vindas e os estilos.
+
+## Vidro, teclado e avisos (16 e 17/10)
+
+- **Vidro líquido sem tinta.** No macOS 27 a tinta escura no `glassEffect` sai como bloco opaco (relato do cmux
+  #5860; o Ghostty recomenda o mesmo). O escurecer da régua é uma camada à parte, por cima, com uma linha de luz na
+  borda. Verificador em `ArquiteturaTests` ("Vidro líquido sem tinta").
+- **Sem vidro em cada cartão:** vidro não enxerga vidro, e cartão de vidro sobre o fundo de vidro sai borrado (o
+  Unified Dev tentou cartões soltos e voltou para um painel só). O vidro fica no fundo e na pílula das abas.
+- **Pílula das abas arrastável** (`ArrastoDaPilula`): segue o mouse, estica com a velocidade (até 40%) e gruda na aba
+  onde solta. O gesto é `simultaneousGesture`, para o clique nas abas continuar valendo.
+- **Atalho global** pelo Carbon (`RegisterEventHotKey`): não pede Acessibilidade. De fábrica ⌃⌥B (o ⌥⌘B é do Chrome).
+- **Avisos** (`Vigia`, tipo puro): desligados de fábrica; cada um sai uma vez e rearma com folga. O
+  `UNUserNotificationCenter` só é tocado na `Barra` (nos testes não há pacote de app e ele quebraria).
+- O terminal não pode gravar a tela, e o `--retrato` não desenha vidro nem gesto: vidro, arrasto, atalho e avisos se
+  conferem na mão, no app instalado.
+- O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
+  (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
+  nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar
+  foto, última aba, acessibilidade) fica para quando ele pedir.
+
+## Ainda por fazer
+
+- A prova do × trava no CI (aqui leva 1 minuto). A etapa tem limite de 4 minutos e saída sem buffer para mostrar
+  onde para.
+- A lista de 20 melhorias de 16/10 não ficou registrada; a de 17/10 está na seção acima.

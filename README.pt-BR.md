@@ -41,7 +41,7 @@ desligar na engrenagem). Rodar de novo por cima é seguro.
 
 **Geral.** O resumo que você monta: anéis de CPU, memória, GPU e temperatura do chip, gráfico das últimas horas,
 disco, bateria, memória por partes, o que mais gasta e as portas. Em **Editar**, cada cartão liga e desliga e muda de
-lugar arrastando.
+lugar arrastando, e dá para escolher quantos processos as listas mostram (3, 5 ou 8).
 
 **CPU.** Uma barra por núcleo, separando os de eficiência e os de desempenho, a frequência de cada grupo, a carga, há
 quanto tempo o Mac está ligado, as temperaturas do chip, do SSD e da bateria, e o que mais usa CPU.
@@ -59,21 +59,26 @@ temperatura, voltagem, watts e o carregador ligado.
 git); no Docker, o container e o projeto do compose. Clicar abre no navegador, o **×** encerra. As favoritas aparecem
 como livres quando ninguém está nelas.
 
-**Limpeza.** Cache dos apps, do npm, do Bun e do pnpm, dados do Xcode, cache dos simuladores e registros antigos, cada
-um com o tamanho e o que acontece depois. A Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos
-nunca entram.
+**Limpeza.** Primeiro, o que dá para fechar: apps abertos e sem uso há mais de 1 hora (os que mais ocupam primeiro) e
+servidores ligados há mais de 12 horas, como o `npm run dev` de ontem. Depois, cache dos apps, do npm, do Bun e do
+pnpm, dados do Xcode, cache dos simuladores e registros antigos, cada um com o tamanho e o que acontece depois. A
+Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos nunca entram.
 
-**Aparência.** Oito estilos prontos para escolher logo na primeira abertura, do Meia-noite ao Entardecer em vidro
-líquido. **Claro, escuro ou junto com o Mac.** Depois, do seu jeito: sólido, fosco ou **vidro líquido** (macOS 26) com
-régua de transparência, seis paletas de cor, cor de destaque, três tipos de canto, animação suave, com mola ou
-nenhuma, e ícone colorido na barra.
+**Aparência.** Oito estilos prontos para escolher logo na primeira abertura, do Clássico ao Entardecer em vidro
+líquido, e o **Personalizado**, em que você escolhe a cor de cada leitura. **Claro, escuro ou junto com o Mac**, e
+nenhum estilo mexe nisso. Depois, do seu jeito: sólido, fosco ou **vidro líquido** (macOS 26) com régua de
+transparência, seis paletas, cor de destaque, **cores chapadas** para quem não gosta de brilho, **ícones coloridos**
+em tudo, três tipos de canto, animação suave, com mola ou nenhuma, e ícone colorido na barra.
 
 **Barra de menus.** Até três coisas lado a lado, cada uma com o seu ícone: uso de CPU, memória ou GPU, temperatura do
 chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.
 
 ## Como usar
 
-- **Clique no ícone** para abrir o painel; clique fora ou aperte Esc para fechar.
+- **Clique no ícone** para abrir o painel, ou aperte **⌃⌥B** em qualquer app; clique fora ou aperte Esc para fechar.
+- **Teclado no painel:** ⌘1 a ⌘9 vão para cada aba, as setas passam de uma para a outra, ⌘R atualiza e ⌘, abre os
+  ajustes.
+- **Arraste a pílula das abas** pela barra: ela segue o mouse, estica com a velocidade e gruda na aba onde você solta.
 - **Passe o mouse em qualquer ícone** para ver o nome.
 - **Editar**, no Geral, escolhe os cartões, a ordem e o que fica na barra.
 - **O ×** aparece ao passar o mouse sobre um processo ou uma porta:
@@ -81,7 +86,11 @@ chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.
   - **processo solto** (um `npm run dev` esquecido) encerra o trabalho inteiro, como o Ctrl+C no terminal;
   - **container do Docker** para com `docker stop`;
   - **processos do sistema** não têm ×.
-- **A engrenagem** tem o abrir ao ligar o Mac, as portas favoritas e o idioma.
+- **A engrenagem** tem o abrir ao ligar o Mac, o que fica na barra, o atalho (⌃⌥B, ⌥⌘B, ⌃⌥Espaço, ⌃⌥M ou desligado),
+  os avisos, as portas favoritas e o idioma.
+- **Avisos**, todos desligados até você ligar: memória no limite por 1 minuto, chip acima de 95° por 30 segundos,
+  disco com menos de 10% livre, bateria em 20% fora da tomada e porta favorita que caiu. Cada um sai uma vez e só
+  volta depois que tudo normaliza.
 
 ## Leve de verdade
 
@@ -127,7 +136,8 @@ Nada é estimado: cada número sai de onde o próprio macOS lê.
   de núcleo pode ter outro nome, e um macOS novo pode mudá-los. Se algo sair errado no seu Mac, abra uma issue
   dizendo o chip.
 - **O vidro líquido precisa do macOS 26.** Nos anteriores, as duas opções de vidro aparecem apagadas e o painel fica
-  no fosco.
+  no fosco. O vidro nunca leva tinta: no macOS 27 a tinta escura vira um bloco opaco, então a régua de transparência
+  escurece uma camada à parte, por cima.
 - **A frequência da GPU ficou de fora:** no M3 Pro a contagem da Apple não fecha com a tabela de frequências, e um
   número ali seria chute.
 

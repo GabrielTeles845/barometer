@@ -40,8 +40,8 @@ The installer compiles the app, builds `~/Applications/Barometer.app` and opens 
 ## Features
 
 **Overview.** The summary you build yourself: rings for CPU, memory, GPU and chip temperature, a history chart, disk,
-battery, memory breakdown, top processes and open ports. **Edit** turns each card on or off and drags them into any
-order.
+battery, memory breakdown, top processes and open ports. **Edit** turns each card on or off, drags them into any
+order, and sets how many processes the lists show (3, 5 or 8).
 
 **CPU.** One bar per core, efficiency and performance cores apart, each cluster's frequency, load, uptime, chip, SSD
 and battery temperatures, and the processes using the most CPU.
@@ -59,21 +59,27 @@ count, capacity, temperature, voltage, watts and the charger plugged in.
 folder); Docker containers with their compose project. Click to open in the browser, **×** to stop it. Favorite
 ports show up as free when nothing is using them.
 
-**Cleanup.** App caches, npm, Bun and pnpm caches, Xcode DerivedData, simulator caches and old logs, each with its
-size and what happens after cleaning. The Trash has its own button and confirmation. Documents, downloads and photos
-are never touched.
+**Cleanup.** First, what you could close: apps open but unused for over an hour (biggest first) and servers listening
+for over 12 hours, like yesterday's `npm run dev`. Then app caches, npm, Bun and pnpm caches, Xcode DerivedData,
+simulator caches and old logs, each with its size and what happens after cleaning. The Trash has its own button and
+confirmation. Documents, downloads and photos are never touched.
 
-**Appearance.** Eight ready-made styles to pick on first launch, from Midnight to liquid-glass Sunset. **Light,
-dark, or following your Mac.** Then make it yours: solid, frosted or **liquid glass** (macOS 26) with a transparency
-slider, six color palettes, an accent color, three corner styles, smooth, springy or no animation, and a colored menu
-bar icon.
+**Appearance.** Eight ready-made styles to pick on first launch, from Classic to liquid-glass Sunset, plus
+**Custom**, where you pick the color of each reading. **Light, dark, or following your Mac**, and a style never changes
+that. Then make it yours: solid, frosted or **liquid glass** (macOS 26) with a transparency slider, six palettes, an
+accent color, **flat colors** for those who'd rather skip the gloss, **colored icons** everywhere, three corner styles,
+smooth, springy or no animation, and a colored menu bar icon.
 
 **Menu bar.** Up to three things side by side, each with its icon: CPU, memory or GPU usage, chip temperature,
 battery, free disk, open ports, or the little CPU and memory bars.
 
 ## How to use it
 
-- **Click the icon** to open the panel; click outside or press Esc to close it.
+- **Click the icon** to open the panel, or press **⌃⌥B** from any app; click outside or press Esc to close it.
+- **Keyboard in the panel:** ⌘1 to ⌘9 jump to each tab, the arrow keys step through them, ⌘R refreshes, ⌘, opens
+  the settings.
+- **Drag the tab pill** across the bar: it follows the mouse, stretches with your speed and snaps to the tab where you
+  let go.
 - **Hover any icon** to see its name.
 - **Edit**, on the Overview, picks the cards, their order and what goes in the menu bar.
 - **The ×** shows up when you hover a process or a port:
@@ -81,7 +87,11 @@ battery, free disk, open ports, or the little CPU and memory bars.
   - a **stray process** (a forgotten `npm run dev`) stops the whole job, like Ctrl+C in the terminal;
   - a **Docker container** is stopped with `docker stop`;
   - **system processes** have no ×.
-- **The gear** has open at login, favorite ports and the language.
+- **The gear** has open at login, what goes in the menu bar, the shortcut (⌃⌥B, ⌥⌘B, ⌃⌥Space, ⌃⌥M or off), the
+  alerts, favorite ports and the language.
+- **Alerts**, all off until you turn them on: memory at the limit for a minute, chip above 95° for 30 seconds, disk
+  under 10% free, battery at 20% off the charger, and a favorite port going down. Each one fires once and only again
+  after things are back to normal.
 
 ## Light on your Mac
 
@@ -127,6 +137,8 @@ Nothing is estimated: each number comes from where macOS itself reads it.
   differently, and a new macOS release may change them. If something reads wrong on your Mac, open an issue with
   your chip.
 - **Liquid glass needs macOS 26.** On older versions the two glass styles are greyed out and the panel uses frosted.
+  The glass itself is never tinted: on macOS 27 a dark tint turns it into a solid block, so the transparency slider
+  darkens a separate layer on top.
 - **No GPU frequency:** on the M3 Pro, Apple's state count doesn't line up with its frequency table, and a number
   there would be a guess.
 - **The code is commented in Portuguese.** The interface speaks English, Portuguese and Spanish.
