@@ -25,8 +25,24 @@ O que mais está gastando, e as portas abertas, com um × para fechar o que fico
 
 ## Instalar
 
-Precisa de um Mac com chip da Apple, macOS 14 ou mais novo, e das ferramentas de linha de comando da Apple
-(`xcode-select --install`). Sem Xcode, sem Homebrew, sem pacote nenhum.
+Precisa de um Mac com chip da Apple e macOS 14 ou mais novo.
+
+### Baixando o app pronto
+
+1. Baixe o `Barometer-<versão>.zip` em [Versões](https://github.com/GabrielTeles845/barometer/releases/latest), abra
+   e arraste o `Barometer.app` para a pasta Aplicativos.
+2. Abra o app. Na primeira vez o macOS bloqueia, porque o app não é assinado com uma conta paga de desenvolvedor da
+   Apple (US$ 99 por ano). Feche o aviso, vá em **Ajustes do Sistema → Privacidade e Segurança** e clique em
+   **Abrir Mesmo Assim**, lá embaixo. Isso vale só para o Barometer, e só uma vez.
+3. Se o botão não aparecer, no Terminal: `xattr -dr com.apple.quarantine /Applications/Barometer.app`. Isso tira a
+   marca de "baixado da internet" só desse app.
+
+O código do app inteiro está aqui; se preferir não confiar num app baixado, compile você mesmo.
+
+### Compilando
+
+Precisa das ferramentas de linha de comando da Apple (`xcode-select --install`). Sem Xcode, sem Homebrew, sem pacote
+nenhum.
 
 ```sh
 git clone https://github.com/GabrielTeles845/barometer.git

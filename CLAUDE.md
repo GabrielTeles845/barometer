@@ -45,7 +45,7 @@ Pacote Swift (`Package.swift`, Swift 6.x, macOS 14+):
 | `Sources/BarometerKit/Idioma/` | `t()`, `Idioma`, `Traducao` (en, pt, es) |
 | `Tests/BarometerKitTests/` | Swift Testing |
 | `provas/provar-encerrar.py` | A prova mais importante: sobe processos de verdade e confere quem o × mata |
-| `scripts/` | Fotos e GIF do README, servidores de exemplo (`scripts/README.md`) |
+| `scripts/` | Fotos e GIF do README, servidores de exemplo, montar o app e a versão para baixar (`scripts/README.md`) |
 | `docs/icon/` | Ícone e banner, desenhados em código |
 
 Princípios:
@@ -64,6 +64,7 @@ bash testar.sh                 # testes (use este, não o `swift test` puro; ver
 bash testar.sh Portas          # uma suíte
 python3 provas/provar-encerrar.py
 zsh instalar.sh                # compila em release e instala em ~/Applications (fecha a versão aberta)
+bash scripts/versao.sh         # a versão para baixar em dist/ (número no arquivo VERSAO); publicar: scripts/README.md
 bash scripts/gif.sh            # refaz os GIFs do README
 bash scripts/fotos.sh          # refaz as fotos por aba e os banners
 ```
@@ -175,6 +176,12 @@ verificador aqui.
   "menos de 1 min" saía cortado.
 - **Testes de preferência apagam o próprio arquivo** (`PrefTests.comArmazemNovo`): o `removePersistentDomain` deixava
   o plist em `~/Library/Preferences` (108 acumulados até 17/10; foram para a Lixeira).
+- **Fotos do README só com os exemplos** (17/10): `scripts/comum.sh` sobe os exemplos nas portas 4000 e 5173, para se
+  alguma estiver ocupada e desliga só os PIDs que subiu (antes desligava pela porta e mataria o que fosse de outra
+  pessoa na 3000). Com `BAROMETER_FOTO_PORTAS`, o `--retrato` mostra só essas portas e nenhum projeto de verdade ao
+  lado dos processos: as fotos são públicas.
+- O período do "quem mais esquentou" é o tempo medido entre as leituras, não "leituras × 60 s" (a foto, com 2 s,
+  dizia "últimos 2 min").
 - O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar

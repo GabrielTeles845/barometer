@@ -25,8 +25,23 @@ What is eating your Mac, and the ports left open, with a × to stop what shouldn
 
 ## Install
 
-You need a Mac with Apple silicon, macOS 14 or later, and Apple's command line tools (`xcode-select --install`).
-No Xcode, no Homebrew, no packages.
+You need a Mac with Apple silicon and macOS 14 or later.
+
+### Download the app
+
+1. Download `Barometer-<version>.zip` from [Releases](https://github.com/GabrielTeles845/barometer/releases/latest),
+   open it and drag `Barometer.app` to your Applications folder.
+2. Open it. The first time, macOS blocks it, because the app isn't signed with a paid Apple developer account
+   ($99 a year). Close the warning, go to **System Settings → Privacy & Security** and click **Open Anyway** near the
+   bottom. That's for Barometer only, and only once.
+3. If the button doesn't show up, in Terminal: `xattr -dr com.apple.quarantine /Applications/Barometer.app`. That
+   removes the "downloaded from the internet" flag from this app only.
+
+All of the app's code is right here; if you'd rather not trust a downloaded app, build it yourself.
+
+### Build it yourself
+
+You need Apple's command line tools (`xcode-select --install`). No Xcode, no Homebrew, no packages.
 
 ```sh
 git clone https://github.com/GabrielTeles845/barometer.git

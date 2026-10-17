@@ -6,3 +6,4 @@
 revisao/
 /.build/
 /.swiftpm/
+/dist/

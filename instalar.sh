@@ -34,36 +34,7 @@ pkill -x portas-barra 2>/dev/null || true
 sleep 1
 
 mkdir -p "$APPS"
-rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS"
-cp "$BINARIO" "$APP/Contents/MacOS/barometer"
-mkdir -p "$APP/Contents/Resources"
-cp "$DIR/docs/icon/Barometer.icns" "$APP/Contents/Resources/"
-
-# LSUIElement: aplicativo só de barra — sem ícone no Dock e sem janela.
-cat > "$APP/Contents/Info.plist" <<'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleName</key><string>Barometer</string>
-  <key>CFBundleDisplayName</key><string>Barometer</string>
-  <key>CFBundleExecutable</key><string>barometer</string>
-  <key>CFBundleIconFile</key><string>Barometer</string>
-  <key>CFBundleIdentifier</key><string>com.gabrielteles.barometer</string>
-  <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>1.0</string>
-  <key>CFBundleVersion</key><string>1</string>
-  <key>LSMinimumSystemVersion</key><string>14.0</string>
-  <key>LSUIElement</key><true/>
-  <key>NSHighResolutionCapable</key><true/>
-</dict>
-</plist>
-PLIST
-
-# Sem assinatura o "Abrir no login" (SMAppService) não registra.
-codesign -f -s - "$APP" >/dev/null 2>&1
-codesign -v "$APP" 2>/dev/null || erro "a assinatura não fechou"
+bash "$DIR/scripts/montar-app.sh" "$BINARIO" "$APP" "$(cat "$DIR/VERSAO")" || erro "a assinatura não fechou"
 feito "aplicativo montado em $APP"
 
 open -a "$APP"
