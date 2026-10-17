@@ -11,7 +11,7 @@ for lang in en pt; do
     R="$RAIZ/docs/images/pt"; nomes="cpu:cpu memoria:memoria gpu:gpu disco:disco bateria:bateria portas:portas limpeza:limpeza"
   fi
   ligar_demo $lang
-  "$B" --retrato "$R/overview.png" --acender p:3000 --idioma $lang >/dev/null 2>&1
+  "$B" --retrato "$R/overview.png" --acender p:4000 --idioma $lang >/dev/null 2>&1
   for par in $nomes; do "$B" --retrato "$R/${par##*:}.png" --aba "${par%%:*}" --idioma $lang >/dev/null 2>&1; done
   "$B" --retrato "$R/edit.png" --editar --idioma $lang >/dev/null 2>&1
   mv "$R/overview-icone.png" "$R/menubar.png"; rm -f "$R"/*-icone.png

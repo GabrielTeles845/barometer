@@ -8,7 +8,7 @@ Q="$(mktemp -d)"
 ALTURA=1010
 
 quadros=(
-  "geral|--acender p:3000"
+  "geral|--acender p:4000"
   "cpu|"
   "memoria|"
   "gpu|"
