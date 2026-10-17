@@ -73,6 +73,15 @@ with tempfile.TemporaryDirectory() as tmp:
                 membros.append((int(p[1]), p[2]))
         return plano, membros
 
+    def esperar_livre():
+        # O caso seguinte não pode herdar a porta ocupada pelo anterior.
+        for _ in range(20):
+            p = ouvinte()
+            if not p:
+                return
+            matar(p)
+            time.sleep(0.25)
+
     def provar(titulo, deu, detalhe=""):
         global falhas
         ultimo_passo[0] = titulo
@@ -141,7 +150,11 @@ with tempfile.TemporaryDirectory() as tmp:
     matar(p) if p else None
     time.sleep(0.5)
 
+    esperar_livre()
+
     # ── caso 2: cadeia sem shell no meio (o pai entra junto) ───────────────
+    # Cada caso na sua porta: no CI (17/10) a cobaia do caso 2 dava "Address already in use" com a sobra do caso 1.
+    PORTA = "3398"
     print("\ncaso 2 — pai e filho sem shell entre eles (o pai deve entrar)")
     pyprog = (
         "import subprocess,sys,time\n"
@@ -171,10 +184,13 @@ with tempfile.TemporaryDirectory() as tmp:
     matar(p) if p else None
 
 
+    esperar_livre()
+
     # ── caso 3: de ponta a ponta, o caso que o usuário relatou ─────────────
     # "Eu fechei, e o terminal continua com o negocio rodando": matar só quem
     # ouve deixava o supervisor vivo. Aqui o encerramento roda pelo MESMO
     # código do botão, e a porta tem de ficar livre.
+    PORTA = "3397"
     print("\ncaso 3 — encerrar de verdade um supervisor que ressuscita")
     pyprog3 = (
         "import subprocess,sys,time\n"
