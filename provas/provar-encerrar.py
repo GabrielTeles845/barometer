@@ -73,6 +73,16 @@ with tempfile.TemporaryDirectory() as tmp:
                 membros.append((int(p[1]), p[2]))
         return plano, membros
 
+    # A cobaia: só abre a porta e espera. Antes era o `python -m http.server`, que no Python 3.15 do CI não subia nos
+    # casos 2 e 3 (17/10) sem dizer por quê; esta é igual em qualquer versão e avisa quando está ouvindo.
+    COBAIA = os.path.join(tmp, "cobaia.py")
+    open(COBAIA, "w").write(
+        "import socket,sys,time\n"
+        "s=socket.socket(); s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)\n"
+        "s.bind(('127.0.0.1', int(sys.argv[1]))); s.listen()\n"
+        "print('cobaia ouvindo na', sys.argv[1], file=sys.stderr, flush=True)\n"
+        "while True: time.sleep(60)\n")
+
     def esperar_livre():
         # O caso seguinte não pode herdar a porta ocupada pelo anterior.
         for _ in range(20):
@@ -112,7 +122,7 @@ with tempfile.TemporaryDirectory() as tmp:
     print("\ncaso 1 — supervisor com shell no meio (forma do `npm run dev`)")
     script = os.path.join(tmp, "pai.sh")
     open(script, "w").write(
-        f"#!/bin/zsh\nwhile true; do python3 -m http.server {PORTA} >/dev/null 2>&1;"
+        f"#!/bin/zsh\nwhile true; do {sys.executable} {COBAIA} {PORTA} >/dev/null 2>&1;"
         " /bin/sleep 0.2; done\n")
     os.chmod(script, 0o755)
     pai = subprocess.Popen(["/bin/zsh", script],
@@ -158,7 +168,7 @@ with tempfile.TemporaryDirectory() as tmp:
     print("\ncaso 2 — pai e filho sem shell entre eles (o pai deve entrar)")
     pyprog = (
         "import subprocess,sys,time\n"
-        f"f=subprocess.Popen([sys.executable,'-m','http.server','{PORTA}'],"
+        f"f=subprocess.Popen([sys.executable,'{COBAIA}','{PORTA}'],"
         "stdout=subprocess.DEVNULL)\n"
         "time.sleep(600)\n")
     pai2 = subprocess.Popen([sys.executable, "-c", pyprog],
@@ -195,7 +205,7 @@ with tempfile.TemporaryDirectory() as tmp:
     pyprog3 = (
         "import subprocess,sys,time\n"
         "while True:\n"
-        f"    f=subprocess.Popen([sys.executable,'-m','http.server','{PORTA}'],"
+        f"    f=subprocess.Popen([sys.executable,'{COBAIA}','{PORTA}'],"
         "stdout=subprocess.DEVNULL)\n"
         "    f.wait()\n"
         "    time.sleep(0.2)\n")
