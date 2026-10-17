@@ -115,6 +115,10 @@ processo ainda é dono da porta. Mexeu na `Sonda` (`trabalho(de:)`, `sinalizar`)
 "em andamento" para sempre (nem o `timeout-minutes` valia, porque quem o aplica tinha morrido) e o push seguinte a
 cancelava. Aqui o grupo seria o do terminal. Agora `matar` ignora 0, 1 e negativos, e a prova desiste sozinha em 3
 minutos dizendo o último passo. Regra: em teste, nunca `kill` com PID que pode ser 0 ou vazio.
+Depois disso apareceram as falhas de verdade, que o travamento escondia: no CI (Python 3.15) a cobaia do caso 2 dava
+"Address already in use" com a sobra do caso 1, e o `http.server` não subia nos casos 2 e 3. Agora cada caso tem a
+sua porta (3399, 3398, 3397), espera a porta liberar e usa uma cobaia própria de poucas linhas (abre a porta e
+espera), igual em qualquer Python. CI verde desde `3abcfab`.
 
 ## Verificadores (`Tests/BarometerKitTests/ArquiteturaTests.swift`)
 
@@ -186,6 +190,12 @@ verificador aqui.
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar
   foto, última aba, acessibilidade) fica para quando ele pedir.
+
+## Versões publicadas
+
+- **v1.0.0 (17/10):** https://github.com/GabrielTeles845/barometer/releases/tag/v1.0.0. Assinatura local (ad hoc):
+  o macOS bloqueia na primeira abertura e o README ensina o "Abrir Mesmo Assim". Para notarizar seria preciso a conta
+  paga de desenvolvedor da Apple (US$ 99 por ano), que é decisão do Gabriel.
 
 ## Ainda por fazer
 
