@@ -33,4 +33,14 @@ struct EixoDoTempoTests {
             #expect(m >= inicio && m <= fim)
         }
     }
+
+    @Test("Nenhuma marca colada nas pontas (a hora sairia cortada)", arguments: [7.0, 25, 61, 180, 240, 360])
+    func longeDasPontas(minutos: Double) {
+        let fim = Date(timeIntervalSince1970: 1_800_000_000 + 37)
+        let inicio = fim.addingTimeInterval(-minutos * 60)
+        let folga = minutos * 60 * EixoDoTempo.margem
+        for m in EixoDoTempo.marcas(de: inicio, ate: fim) {
+            #expect(m.timeIntervalSince(inicio) >= folga && fim.timeIntervalSince(m) >= folga)
+        }
+    }
 }

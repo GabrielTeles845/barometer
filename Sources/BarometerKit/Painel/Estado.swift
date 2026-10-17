@@ -53,6 +53,8 @@ final class Estado: ObservableObject {
     @Published var sobre: String?
     @Published var sobreX: String?
     @Published var aba = 0
+    /// O ponto do gráfico debaixo do mouse (nil = mouse fora).
+    @Published var sobreGrafico: Date?
     /// Arrastando a pílula das abas: onde está o mouse (nil = solta) e quanto ela estica com a velocidade.
     @Published var arrastoDaAba: CGFloat?
     @Published var esticoDaAba: CGFloat = 0

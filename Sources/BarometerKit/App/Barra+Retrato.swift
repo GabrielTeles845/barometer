@@ -97,6 +97,10 @@ extension Barra {
         }
         if let i = CommandLine.arguments.firstIndex(of: "--acender"), i + 1 < CommandLine.arguments.count {
             estado.sobre = CommandLine.arguments[i + 1]
+            // --acender g:90 = o mouse no gráfico, 90 minutos atrás.
+            if estado.sobre?.hasPrefix("g:") == true, let min = Double(estado.sobre!.dropFirst(2)), let fim = estado.pontos.last?.quando {
+                estado.sobreGrafico = fim.addingTimeInterval(-min * 60)
+            }
         }
         if CommandLine.arguments.contains("--cpu") { estado.abaProcessos = 1 }
         if let i = CommandLine.arguments.firstIndex(of: "--grafico"), i + 1 < CommandLine.arguments.count {

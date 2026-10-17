@@ -82,7 +82,7 @@ battery, free disk, open ports, or the little CPU and memory bars.
   the settings.
 - **Drag the tab pill** across the bar: it follows the mouse, stretches with your speed and snaps to the tab where you
   let go.
-- **Hover any icon** to see its name.
+- **Hover any icon** to see its name, and **hover the chart** to see the time and value of that point.
 - **Edit**, on the Overview, picks the cards, their order and what goes in the menu bar.
 - **The ×** shows up when you hover a process or a port:
   - an **app** quits like Cmd+Q; if it hasn't quit after 5 seconds, Barometer offers to force it;

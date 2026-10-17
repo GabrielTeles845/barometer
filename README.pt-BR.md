@@ -81,7 +81,7 @@ chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.
 - **Teclado no painel:** ⌘1 a ⌘9 vão para cada aba, as setas passam de uma para a outra, ⌘R atualiza e ⌘, abre os
   ajustes.
 - **Arraste a pílula das abas** pela barra: ela segue o mouse, estica com a velocidade e gruda na aba onde você solta.
-- **Passe o mouse em qualquer ícone** para ver o nome.
+- **Passe o mouse em qualquer ícone** para ver o nome, e **no gráfico** para ver a hora e o valor daquele ponto.
 - **Editar**, no Geral, escolhe os cartões, a ordem e o que fica na barra.
 - **O ×** aparece ao passar o mouse sobre um processo ou uma porta:
   - **aplicativo** fecha como o Cmd+Q; se não fechar em 5 s, oferece forçar;

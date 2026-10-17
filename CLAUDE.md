@@ -72,7 +72,7 @@ bash scripts/fotos.sh          # refaz as fotos por aba e os banners
   do × e o build de release. Depois do push, conferir com `gh run watch`.
 - `barometer --retrato x.png [--aba cpu] [--editar] [--idioma en|pt|es] [--fundo vidro] [--paleta neon]
   [--destaque rosa] [--transparencia 60] [--cantos 22] [--mola] [--colorido] [--papel] [--altura 1010]
-  [--acender aba:cpu|b:gearshape|p:3000] [--uma-leitura] [--barra cpu,memoria]` desenha o painel numa imagem.
+  [--acender aba:cpu|b:gearshape|p:3000|g:90] [--uma-leitura] [--barra cpu,memoria]` desenha o painel numa imagem.
   É assim que confiro o desenho: o terminal não tem permissão de gravar a tela.
 - `barometer --abrir` já abre o painel, para medir memória e CPU com ele aberto (`footprint <pid>`, `heap <pid>`).
 
@@ -155,6 +155,10 @@ verificador aqui.
 - **Encerrar os servidores esquecidos de uma vez** (`confirmarEncerrarServidores`, em `Barra+Portas`): lê o trabalho
   de cada um antes de perguntar (a caixa diz quantos processos vão) e chama o mesmo `encerrar` do ×, um por vez na fila
   da sonda. Não mexe na `Sonda`, então a prova do × não precisou rodar.
+- **Mouse no gráfico** (`estado.sobreGrafico`): a hora e o valor no lugar do período, com linha e ponto. Só muda o
+  `Estado` quando muda de ponto (cada mudança redesenha o painel). Na foto: `--acender g:90` (90 min atrás).
+- **Eixo do tempo sem hora cortada:** marca nos 12% de cada ponta fica de fora (`EixoDoTempo.margem`); com 7% o
+  "12:00" ainda saía "1…".
 - O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar

@@ -8,7 +8,14 @@ struct Grafico: View {
     @Binding var aba: Int
     /// Na aba de uma área, o gráfico é só dela: sem as pílulas, com o título.
     var fixa: Int? = nil
+    @EnvironmentObject var estado: Estado
     private var atual: Int { fixa ?? aba }
+
+    /// O ponto debaixo do mouse, se ele está sobre o gráfico.
+    private var apontado: Historico.Ponto? {
+        guard let quando = estado.sobreGrafico else { return nil }
+        return Historico.maisPerto(serie, de: quando)
+    }
 
     private var titulo: [(String, Color)] {
         [("Memória", Tinta.memoria), ("CPU", Tinta.cpu), ("GPU", Tinta.gpu), ("Temp.", Tinta.calor), ("Disco", Tinta.disco)]
@@ -31,7 +38,13 @@ struct Grafico: View {
                     .buttonStyle(.plain)
                 }
                 Spacer()
-                Text(t(alcance)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
+                // Com o mouse no gráfico, a hora e o valor daquele ponto no lugar do período.
+                if let p = apontado, let v = valor(p) {
+                    Text(verbatim: Self.hora.string(from: p.quando) + " · " + Self.texto(v, aba: atual))
+                        .font(.system(size: 10, weight: .semibold)).monospacedDigit().foregroundStyle(Tinta.texto)
+                } else {
+                    Text(t(alcance)).font(.system(size: 10)).foregroundStyle(Tinta.fraco)
+                }
             }
             grafico.frame(height: 96)
                 .animation(Mexer.valor(.easeInOut(duration: 0.35)), value: aba)
@@ -51,6 +64,21 @@ struct Grafico: View {
         guard let primeiro = pontos.first?.quando, pontos.count > 1 else { return "agora" }
         let minutos = Int(Date().timeIntervalSince(primeiro) / 60)
         return minutos < 60 ? "últimos \(max(1, minutos)) min" : "últimas \(min(6, minutos / 60)) h"
+    }
+
+    private static let hora: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "HH:mm"
+        return f
+    }()
+
+    /// "38%", "64°", "12 MB/s" (o disco vem em MB/s no gráfico).
+    static func texto(_ v: Double, aba: Int) -> String {
+        switch aba {
+        case 3: return "\(Int(v.rounded()))°"
+        case 4: return Medida.velocidade(v * 1_048_576)
+        default: return "\(Int(v.rounded()))%"
+        }
     }
 
     private func valor(_ p: Historico.Ponto) -> Double? {
@@ -84,6 +112,13 @@ struct Grafico: View {
                         .interpolationMethod(.monotone)
                 }
             }
+            // O ponto debaixo do mouse: uma linha fina na hora e o ponto em cima.
+            if let p = apontado, let v = valor(p) {
+                RuleMark(x: .value("hora", p.quando))
+                    .foregroundStyle(Tinta.tinta.opacity(0.25)).lineStyle(StrokeStyle(lineWidth: 1))
+                PointMark(x: .value("hora", p.quando), y: .value("valor", v))
+                    .foregroundStyle(cor).symbolSize(36)
+            }
             // A leitura mais recente, marcada na ponta da linha.
             if let ultimo = pontos.last, let v = valor(ultimo) {
                 PointMark(x: .value("hora", ultimo.quando), y: .value("valor", v))
@@ -91,6 +126,23 @@ struct Grafico: View {
             }
         }
         .chartYScale(domain: dominio)
+        .chartOverlay { proxy in
+            GeometryReader { g in
+                Rectangle().fill(.clear).contentShape(Rectangle())
+                    .onContinuousHover { fase in
+                        switch fase {
+                        case .active(let ponto):
+                            let origem = proxy.plotFrame.map { g[$0].origin.x } ?? 0
+                            guard let quando: Date = proxy.value(atX: ponto.x - origem),
+                                  let p = Historico.maisPerto(pontos, de: quando) else { return }
+                            // Só avisa quando muda de ponto: cada aviso redesenha o painel.
+                            if estado.sobreGrafico != p.quando { estado.sobreGrafico = p.quando }
+                        case .ended:
+                            estado.sobreGrafico = nil
+                        }
+                    }
+            }
+        }
         .chartYAxis {
             AxisMarks(position: .trailing, values: marcas) { v in
                 AxisGridLine().foregroundStyle(Tinta.tinta.opacity(0.06))

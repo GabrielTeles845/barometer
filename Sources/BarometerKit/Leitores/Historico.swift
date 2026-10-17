@@ -17,6 +17,11 @@ final class Historico {
         var disco: Double = 0
     }
     private(set) var pontos: [Ponto] = []
+
+    /// O ponto mais perto de uma hora (o mouse sobre o gráfico).
+    static func maisPerto(_ pontos: [Ponto], de quando: Date) -> Ponto? {
+        pontos.min { abs($0.quando.timeIntervalSince(quando)) < abs($1.quando.timeIntervalSince(quando)) }
+    }
     let maximo = 360
 
     func anotar(memoria: Double, cpu: Double, chip: Double?, gpu: Double = 0, disco: Double = 0) {
