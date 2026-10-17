@@ -41,6 +41,7 @@ extension Barra {
         let paiBarra = NSMenuItem(title: t("Na barra de menus (até 3)"), action: nil, keyEquivalent: "")
         paiBarra.submenu = naBarra
         m.addItem(paiBarra)
+        menusDeAtalhoEAvisos { item($0, $1, ligado: $2) }.forEach(m.addItem)
         let favoritas = NSMenu()
         let sugeridas = [3000, 3001, 3002, 3003, 3006, 4000, 5173, 5432, 6379, 8000, 8080]
         for n in Array(Set(sugeridas).union(Pref.favoritas)).sorted() {

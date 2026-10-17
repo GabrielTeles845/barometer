@@ -87,12 +87,33 @@ extension Barra {
             self?.fecharPainel()
         }
         vigiaDeTecla = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
-            if e.keyCode == 53 { self?.fecharPainel(); return nil }
-            return e
+            let mods = e.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            let comando = mods.contains(.command) && mods.isDisjoint(with: [.option, .control])
+            guard let self, let tecla = Teclado.acao(letra: e.charactersIgnoringModifiers, codigo: e.keyCode, comando: comando)
+            else { return e }
+            self.apertou(tecla)
+            return nil
         }
         // Enquanto está aberto, a lista de quem gasta e as portas se renovam.
         aberto = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in self?.lerGastos() }
         aberto?.tolerance = 0.5
+    }
+
+    func apertou(_ tecla: Tecla) {
+        switch tecla {
+        case .fechar: fecharPainel()
+        case .atualizar: acoes.atualizar()
+        case .ajustes: mostrarAjustes()
+        case .aba(let aba): irPara(aba)
+        case .anterior: irPara(Teclado.vizinha(de: estado.abaAtual, -1))
+        case .proxima: irPara(Teclado.vizinha(de: estado.abaAtual, 1))
+        }
+    }
+
+    private func irPara(_ aba: Aba) {
+        guard !estado.boasVindas else { return }
+        estado.abaAtual = aba
+        if aba != .geral { estado.editandoGeral = false }
     }
 
     /// O painel mudou de altura (outra aba, cartão ligado ou desligado): a janela acompanha, presa pelo topo.

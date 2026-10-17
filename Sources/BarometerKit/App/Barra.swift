@@ -41,6 +41,8 @@ final class Barra: NSObject, NSApplicationDelegate {
     var gpusDoMinuto: [Double] = []
     var discosDoMinuto: [Double] = []
     var cpusDoMinuto: [Double] = []
+    var ouvido: OuvidoDoAtalho?
+    var vigia = Vigia()
 
     var portas: [Porta] = [] { didSet { estado.portas = portas } }
     var ocultas: [(numero: Int, nome: String)] = [] { didSet { estado.ocultas = ocultas } }
@@ -111,6 +113,7 @@ final class Barra: NSObject, NSApplicationDelegate {
         amostrador = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in self?.amostrar() }
         amostrador?.tolerance = 2
 
+        ligarAtalhoEAvisos()
         abrirNoLoginNaPrimeiraVez()
         // Primeira abertura: o painel abre sozinho com as boas-vindas (escolher um estilo).
         if !Pref.viuBoasVindas {

@@ -82,6 +82,18 @@ enum Pref {
         set { armazem.set(Array(Set(newValue)).sorted(), forKey: "favoritas") }
     }
 
+    /// O atalho que abre o painel de qualquer app.
+    static var atalho: Atalho {
+        get { Atalho(rawValue: armazem.string(forKey: "atalho") ?? "") ?? .padrao }
+        set { armazem.set(newValue.rawValue, forKey: "atalho") }
+    }
+
+    /// Os avisos ligados. Todos desligados de fábrica: aviso que ninguém pediu vira barulho.
+    static var avisos: Set<Aviso> {
+        get { Set((armazem.stringArray(forKey: "avisos") ?? []).compactMap(Aviso.init(rawValue:))) }
+        set { armazem.set(newValue.map(\.rawValue).sorted(), forKey: "avisos") }
+    }
+
     static func virarFavorita(_ n: Int) {
         var f = favoritas
         if let i = f.firstIndex(of: n) { f.remove(at: i) } else { f.append(n) }

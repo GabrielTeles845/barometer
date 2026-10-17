@@ -11,14 +11,23 @@ struct BarraDeAbas: View {
         let abas = Aba.allCases
         let i = abas.firstIndex(of: estado.abaAtual) ?? 0
         GeometryReader { g in
-            // Uma pílula só, que desliza até a aba escolhida (com fundo de vidro, ela é de vidro líquido).
+            // Uma pílula só, que desliza até a aba escolhida (com fundo de vidro, ela é de vidro líquido). Dá para
+            // segurar e arrastar: ela segue o mouse, estica com a velocidade e gruda na aba onde você solta.
             let largura = (g.size.width - CGFloat(abas.count - 1) * 2) / CGFloat(abas.count)
+            let medida = ArrastoDaPilula(largura: largura, espaco: 2, quantas: abas.count)
+            let arrasto = estado.arrastoDaAba
+            let alvo = arrasto.map(medida.indice(em:)) ?? i
+            let estico = largura * estado.esticoDaAba
             ZStack(alignment: .leading) {
-                pilula.frame(width: largura, height: 26).offset(x: CGFloat(i) * (largura + 2))
-                    .animation(Mexer.leve, value: i)
+                pilula.frame(width: largura + estico, height: 26)
+                    .scaleEffect(arrasto == nil ? 1 : 1.06)
+                    .offset(x: (arrasto.map(medida.inicio(em:)) ?? CGFloat(i) * medida.passo) - estico / 2)
+                    .animation(arrasto == nil ? Mexer.leve : Mexer.valor(.interactiveSpring(response: 0.18, dampingFraction: 0.8)),
+                               value: arrasto ?? CGFloat(i))
+                    .animation(Mexer.leve, value: estado.esticoDaAba)
                 HStack(spacing: 2) {
                     ForEach(abas, id: \.self) { aba in
-                        let escolhida = estado.abaAtual == aba
+                        let escolhida = abas[alvo] == aba
                         let sobre = estado.sobre == "aba:" + aba.rawValue
                         let lado: Alignment = aba == abas.first ? .bottomLeading : (aba == abas.last ? .bottomTrailing : .bottom)
                         Button {
@@ -40,11 +49,27 @@ struct BarraDeAbas: View {
                     }
                 }
             }
+            .simultaneousGesture(arrastar(abas, medida))
         }
         .frame(height: 26)
         .padding(3)
         .background(RoundedRectangle(cornerRadius: 9).fill(Tinta.tinta.opacity(0.04)))
         .animation(Mexer.leve, value: estado.sobre)
+    }
+
+    private func arrastar(_ abas: [Aba], _ medida: ArrastoDaPilula) -> some Gesture {
+        DragGesture(minimumDistance: 3)
+            .onChanged { v in
+                estado.arrastoDaAba = v.location.x
+                estado.esticoDaAba = ArrastoDaPilula.estico(velocidade: v.velocity.width)
+            }
+            .onEnded { v in
+                let aba = abas[medida.indice(em: v.location.x)]
+                estado.arrastoDaAba = nil
+                estado.esticoDaAba = 0
+                estado.abaAtual = aba
+                if aba != .geral { estado.editandoGeral = false }
+            }
     }
 
     @ViewBuilder private var pilula: some View {
@@ -55,4 +80,22 @@ struct BarraDeAbas: View {
             forma.fill(Tinta.tinta.opacity(0.11))
         }
     }
+}
+
+/// A conta do arrasto da pílula, fora da view para os testes chegarem.
+struct ArrastoDaPilula {
+    let largura: CGFloat
+    let espaco: CGFloat
+    let quantas: Int
+
+    var passo: CGFloat { largura + espaco }
+
+    /// A aba debaixo do mouse.
+    func indice(em x: CGFloat) -> Int { min(max(0, Int((x / passo).rounded(.down))), quantas - 1) }
+
+    /// Onde a pílula começa com o mouse em `x` (centrada nele, sem sair da barra).
+    func inicio(em x: CGFloat) -> CGFloat { min(max(0, x - largura / 2), CGFloat(quantas - 1) * passo) }
+
+    /// Quanto a pílula estica (fração da largura) com a velocidade do arrasto: o "líquido" do vidro.
+    static func estico(velocidade: CGFloat) -> CGFloat { min(0.4, abs(velocidade) / 2000) }
 }

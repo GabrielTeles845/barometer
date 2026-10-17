@@ -32,6 +32,7 @@ extension Barra {
             estado.pontos = historico.pontos
         }
         desenharIcone()
+        vigiar()
     }
 
     /// O que a tela aberta mostra agora (ver `NaTela`).

@@ -182,6 +182,19 @@ enum Traducao {
         "Boas-vindas ao Barometer": ("Welcome to Barometer", "Te damos la bienvenida a Barometer"),
         "Escolha um estilo para começar. Dá para mudar quando quiser, na aba Aparência.": ("Pick a style to start. You can change it anytime in the Appearance tab.", "Elige un estilo para empezar. Puedes cambiarlo cuando quieras en la pestaña Apariencia."),
         "Começar": ("Get started", "Empezar"),
+        // Atalho e avisos
+        "Atalho para abrir": ("Shortcut to open", "Atajo para abrir"), "Desligado": ("Off", "Desactivado"),
+        "Espaço": ("Space", "Espacio"), "Escolha outra combinação.": ("Pick another combination.", "Elige otra combinación."),
+        "Avisos": ("Alerts", "Avisos"), "Memória no limite": ("Memory at the limit", "Memoria al límite"),
+        "Chip acima de 95°": ("Chip above 95°", "Chip por encima de 95°"),
+        "Disco com menos de 10% livre": ("Disk under 10% free", "Disco con menos del 10% libre"),
+        "Bateria abaixo de 20%": ("Battery below 20%", "Batería por debajo del 20%"),
+        "Porta favorita que caiu": ("Favorite port went down", "Puerto favorito caído"),
+        "O Mac está sem memória livre há 1 minuto. Fechar um app pesado ajuda.":
+            ("The Mac has been out of free memory for a minute. Quitting a heavy app helps.",
+             "El Mac lleva 1 minuto sin memoria libre. Cerrar una app pesada ayuda."),
+        "Chip muito quente": ("Chip very hot", "Chip muy caliente"), "Disco quase cheio": ("Disk almost full", "Disco casi lleno"),
+        "Ligue o carregador.": ("Plug in the charger.", "Conecta el cargador."),
         "O vidro líquido precisa do macOS 26 ou mais novo.": ("Liquid glass needs macOS 26 or later.",
                                                                "El vidrio líquido necesita macOS 26 o posterior."),
     ]
@@ -258,6 +271,11 @@ enum Traducao {
         ("Saem os caches dos apps e dos gerenciadores de pacote, os dados do Xcode e os registros. A Lixeira fica.",
          "App and package manager caches, Xcode data and logs will go. The Trash stays.",
          "Se van las cachés de las apps y de los gestores de paquetes, los datos de Xcode y los registros. La Papelera se queda."),
+        ("O chip está em %1°. O Mac vai ficar mais lento para esfriar.", "The chip is at %1°. The Mac will slow down to cool off.",
+         "El chip está a %1°. El Mac irá más lento para enfriarse."),
+        ("Restam %1 livres.", "%1 free left.", "Quedan %1 libres."), ("Bateria em %1%", "Battery at %1%", "Batería al %1%"),
+        ("A porta %1 caiu", "Port %1 went down", "El puerto %1 se cayó"), ("%1 parou de ouvir nela.", "%1 stopped listening on it.", "%1 dejó de escuchar en él."),
+        ("Outro app já usa %1", "Another app already uses %1", "Otra app ya usa %1"),
         ("%1 h %2 min", "%1 h %2 min", "%1 h %2 min"), ("%1 d %2 h", "%1 d %2 h", "%1 d %2 h"),
     ]
     // O mais específico primeiro: "de %1 previstos" tem de casar antes de "de %1".
