@@ -14,6 +14,10 @@ struct PrefTests {
         defer {
             Pref.armazem.removePersistentDomain(forName: nome)
             Pref.armazem = antes
+            // O removePersistentDomain esvazia, mas o arquivo fica: em 17/10 eram 108 em ~/Library/Preferences.
+            let arquivo = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Library/Preferences/\(nome).plist")
+            try? FileManager.default.removeItem(at: arquivo)
         }
         try corpo()
     }

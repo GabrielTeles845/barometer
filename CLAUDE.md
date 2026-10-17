@@ -164,6 +164,8 @@ verificador aqui.
   do tempo de CPU acumulado entre duas leituras é o gasto do minuto; pid novo conta tudo, pid reaproveitado por outro
   programa não vira negativo. Guarda os 12 maiores de cada minuto por 6 h. Tempo curto na coluna ("40 s", "2 h 5 min"):
   "menos de 1 min" saía cortado.
+- **Testes de preferência apagam o próprio arquivo** (`PrefTests.comArmazemNovo`): o `removePersistentDomain` deixava
+  o plist em `~/Library/Preferences` (108 acumulados até 17/10; foram para a Lixeira).
 - O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar
