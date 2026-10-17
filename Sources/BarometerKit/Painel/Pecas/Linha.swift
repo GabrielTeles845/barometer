@@ -25,6 +25,8 @@ struct Linha<Conteudo: View>: View {
     let podeFechar: Bool
     let fechar: () -> Void
     var clique: (() -> Void)?
+    /// Um lápis antes do ×, ao passar o mouse (dar nome à porta).
+    var editar: (() -> Void)?
     @ViewBuilder let conteudo: () -> Conteudo
     @EnvironmentObject var estado: Estado
     private var sobre: Bool { estado.sobre == id }
@@ -33,6 +35,16 @@ struct Linha<Conteudo: View>: View {
     var body: some View {
         HStack(spacing: 4) {
             conteudo()
+            if let editar {
+                Button(action: editar) {
+                    Image(systemName: "pencil").font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(Tinta.apagado)
+                        .frame(width: 18, height: 18)
+                        .background(Circle().fill(Tinta.tinta.opacity(0.08)))
+                }
+                .buttonStyle(.plain)
+                .opacity(sobre ? 1 : 0)
+            }
             if podeFechar {
                 Button(action: fechar) {
                     Image(systemName: "xmark").font(.system(size: 9, weight: .bold))

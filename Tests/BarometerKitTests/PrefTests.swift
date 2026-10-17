@@ -65,4 +65,17 @@ struct PrefTests {
             #expect(Pref.aparencia == a)
         }
     }
+
+    @Test("Nome de porta: grava, limpa os espaços, corta em 40 letras e some quando vazio")
+    func nomesDasPortas() {
+        comArmazemNovo {
+            #expect(Pref.nomesDasPortas.isEmpty)
+            Pref.darNome("  painel Evollute ", aPorta: 3100)
+            #expect(Pref.nomesDasPortas == [3100: "painel Evollute"])
+            Pref.darNome(String(repeating: "a", count: 60), aPorta: 5173)
+            #expect(Pref.nomesDasPortas[5173]?.count == 40)
+            Pref.darNome("   ", aPorta: 3100)
+            #expect(Pref.nomesDasPortas[3100] == nil)
+        }
+    }
 }

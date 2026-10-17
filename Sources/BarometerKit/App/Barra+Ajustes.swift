@@ -8,6 +8,7 @@ extension Barra {
     @objc func ajusteUsoNoIcone() { Pref.memoriaNaBarra.toggle(); estado.memoriaNaBarra = Pref.memoriaNaBarra; desenharIcone() }
     @objc func ajusteFavorita(_ mi: NSMenuItem) { Pref.virarFavorita(mi.tag); estado.favoritas = Pref.favoritas }
     @objc func ajusteOutraFavorita() { fecharPainel(); pedirFavorita() }
+    @objc func ajusteNomeDaPorta() { fecharPainel(); pedirNome(porta: nil) }
     @objc func ajusteSair() { NSApp.terminate(nil) }
     @objc func ajusteNaBarra(_ mi: NSMenuItem) {
         guard let opcao = ItemDaBarra(rawValue: mi.representedObject as? String ?? "") else { return }
@@ -45,12 +46,13 @@ extension Barra {
         let favoritas = NSMenu()
         let sugeridas = [3000, 3001, 3002, 3003, 3006, 4000, 5173, 5432, 6379, 8000, 8080]
         for n in Array(Set(sugeridas).union(Pref.favoritas)).sorted() {
-            let mi = item("\(n)", #selector(ajusteFavorita(_:)), ligado: Pref.favoritas.contains(n))
+            let mi = item(Pref.nomesDasPortas[n].map { "\(n) · \($0)" } ?? "\(n)", #selector(ajusteFavorita(_:)), ligado: Pref.favoritas.contains(n))
             mi.tag = n
             favoritas.addItem(mi)
         }
         favoritas.addItem(.separator())
         favoritas.addItem(item(t("Outra porta…"), #selector(ajusteOutraFavorita)))
+        favoritas.addItem(item(t("Dar nome a uma porta…"), #selector(ajusteNomeDaPorta)))
         let pai = NSMenuItem(title: t("Portas favoritas"), action: nil, keyEquivalent: "")
         pai.submenu = favoritas
         m.addItem(pai)

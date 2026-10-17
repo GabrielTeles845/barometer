@@ -45,12 +45,12 @@ enum Sugestoes {
 
     /// As portas de processos ligados há mais de `servidorAntigo`, os mais velhos primeiro. Docker fica de fora
     /// (container costuma ser de propósito).
-    static func servidores(_ portas: [Porta], inicio: (Int32) -> Date?, agora: Date) -> [Sugestao] {
+    static func servidores(_ portas: [Porta], inicio: (Int32) -> Date?, agora: Date, nomes: [Int: String] = [:]) -> [Sugestao] {
         portas.compactMap { p -> Sugestao? in
             guard !p.doDocker, let comeco = inicio(p.pid) else { return nil }
             let ligado = agora.timeIntervalSince(comeco)
             guard ligado >= servidorAntigo else { return nil }
-            return Sugestao(id: "porta:\(p.numero)", nome: "\(p.numero) " + (p.projeto ?? p.comando), tempo: ligado,
+            return Sugestao(id: "porta:\(p.numero)", nome: "\(p.numero) " + (nomes[p.numero] ?? p.projeto ?? p.comando), tempo: ligado,
                             bytes: nil, tipo: .porta(p))
         }
         .sorted { $0.tempo > $1.tempo }

@@ -44,6 +44,9 @@ struct SugestoesTests {
                                       12: agora.addingTimeInterval(-90_000)]
         let lista = Sugestoes.servidores([velho, novo, docker], inicio: { inicios[$0] }, agora: agora)
         #expect(lista.map(\.id) == ["porta:3000"])
+        // Com nome dado pela pessoa, é ele que aparece.
+        let comNome = Sugestoes.servidores([velho], inicio: { inicios[$0] }, agora: agora, nomes: [3000: "painel"])
+        #expect(comNome.first?.nome == "3000 painel")
     }
 
     @Test("No máximo cinco de cada")

@@ -56,8 +56,9 @@ ao vivo, e o total desde que o Mac ligou. Os dois com gráfico.
 temperatura, voltagem, watts e o carregador ligado.
 
 **Portas.** O que está ouvindo em cada porta, com o comando e o nome do projeto (do `package.json` ou da pasta do
-git); no Docker, o container e o projeto do compose. Clicar abre no navegador, o **×** encerra. As favoritas aparecem
-como livres quando ninguém está nelas.
+git); no Docker, o container e o projeto do compose. Clicar abre no navegador, o **×** encerra e o lápis dá um nome seu
+à porta ("painel da loja"), que passa a aparecer na lista, nos avisos e na Limpeza. As favoritas aparecem como livres
+quando ninguém está nelas.
 
 **Limpeza.** Primeiro, o que dá para fechar: apps abertos e sem uso há mais de 1 hora (os que mais ocupam primeiro) e
 servidores ligados há mais de 12 horas, como o `npm run dev` de ontem. Depois, cache dos apps, do npm, do Bun e do

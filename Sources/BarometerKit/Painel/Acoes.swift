@@ -14,6 +14,8 @@ struct Acoes {
     var virarMemoriaNaBarra: () -> Void = {}
     var virarFavorita: (Int) -> Void = { _ in }
     var outraFavorita: () -> Void = {}
+    /// O lápis de uma porta: dar nome a ela.
+    var nomearPorta: (Int) -> Void = { _ in }
     var copiar: () -> Void = {}
     var monitor: () -> Void = {}
     /// A engrenagem abre um menu nativo (o `Menu` do SwiftUI não se desenha fora da tela, e a conferência é por imagem).

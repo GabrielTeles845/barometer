@@ -94,6 +94,24 @@ enum Pref {
         set { armazem.set(newValue.map(\.rawValue).sorted(), forKey: "avisos") }
     }
 
+    /// Os nomes que a pessoa deu às portas (3100 → "painel Evollute"). Gravados com a chave em texto (o
+    /// UserDefaults não guarda dicionário com chave número).
+    static var nomesDasPortas: [Int: String] {
+        get {
+            let salvos = armazem.dictionary(forKey: "nomesDasPortas") as? [String: String] ?? [:]
+            return salvos.reduce(into: [:]) { r, par in if let n = Int(par.key) { r[n] = par.value } }
+        }
+        set { armazem.set(Dictionary(uniqueKeysWithValues: newValue.map { (String($0.key), $0.value) }), forKey: "nomesDasPortas") }
+    }
+
+    /// Dá nome a uma porta; nome vazio tira o que havia. No máximo 40 letras, para caber na linha.
+    static func darNome(_ nome: String, aPorta n: Int) {
+        var nomes = nomesDasPortas
+        let limpo = String(nome.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40))
+        nomes[n] = limpo.isEmpty ? nil : limpo
+        nomesDasPortas = nomes
+    }
+
     static func virarFavorita(_ n: Int) {
         var f = favoritas
         if let i = f.firstIndex(of: n) { f.remove(at: i) } else { f.append(n) }

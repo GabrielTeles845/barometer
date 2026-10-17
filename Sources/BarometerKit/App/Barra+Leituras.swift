@@ -85,7 +85,7 @@ extension Barra {
             // A lista inteira de apps (não só os 8 do painel): app parado pode não estar entre os que mais gastam.
             let gastos = Maquina.quemMaisGasta(200).memoria
             let lista = Sugestoes.apps(abertos, gastos: gastos, agora: agora)
-                + Sugestoes.servidores(portas, inicio: Maquina.inicio, agora: agora)
+                + Sugestoes.servidores(portas, inicio: Maquina.inicio, agora: agora, nomes: Pref.nomesDasPortas)
             DispatchQueue.main.async { self?.estado.sugestoes = lista }
         }
     }

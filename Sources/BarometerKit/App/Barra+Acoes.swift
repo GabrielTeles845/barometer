@@ -211,7 +211,7 @@ extension Barra {
 
     func copiar() {
         var linhas = portas.map { p -> String in
-            var t = String(format: "%-6d %@", p.numero, p.comoChamar)
+            var t = String(format: "%-6d %@", p.numero, Pref.nomesDasPortas[p.numero].map { "\($0) (\(p.comoChamar))" } ?? p.comoChamar)
             if p.doDocker { t += " (docker)" }
             t += "  ·  pid \(p.pid)"
             if let c = p.contexto { t += "  ·  \(c)" }

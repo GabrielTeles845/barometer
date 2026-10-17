@@ -56,8 +56,9 @@ write speeds, and totals since boot. Both with their own chart.
 count, capacity, temperature, voltage, watts and the charger plugged in.
 
 **Ports.** What is listening on each port, with the command and the project name (from `package.json` or the git
-folder); Docker containers with their compose project. Click to open in the browser, **×** to stop it. Favorite
-ports show up as free when nothing is using them.
+folder); Docker containers with their compose project. Click to open in the browser, **×** to stop it, the pencil to
+give it your own name ("store dashboard"), which then shows in the list, the alerts and Cleanup. Favorite ports show
+up as free when nothing is using them.
 
 **Cleanup.** First, what you could close: apps open but unused for over an hour (biggest first) and servers listening
 for over 12 hours, like yesterday's `npm run dev`. Then app caches, npm, Bun and pnpm caches, Xcode DerivedData,

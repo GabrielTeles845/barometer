@@ -182,6 +182,12 @@ enum Traducao {
         "Boas-vindas ao Barometer": ("Welcome to Barometer", "Te damos la bienvenida a Barometer"),
         "Escolha um estilo para começar. Dá para mudar quando quiser, na aba Aparência.": ("Pick a style to start. You can change it anytime in the Appearance tab.", "Elige un estilo para empezar. Puedes cambiarlo cuando quieras en la pestaña Apariencia."),
         "Começar": ("Get started", "Empezar"),
+        // Nomes das portas
+        "Dar nome a uma porta": ("Name a port", "Poner nombre a un puerto"), "Dar nome a uma porta…": ("Name a port…", "Poner nombre a un puerto…"),
+        "Aparece na lista, nos avisos e na Limpeza. Deixe em branco para tirar.":
+            ("Shows up in the list, the alerts and Cleanup. Leave it empty to remove it.",
+             "Aparece en la lista, los avisos y la Limpieza. Déjalo vacío para quitarlo."),
+        "painel da loja": ("store dashboard", "panel de la tienda"), "Salvar": ("Save", "Guardar"),
         // Atalho e avisos
         "Atalho para abrir": ("Shortcut to open", "Atajo para abrir"), "Desligado": ("Off", "Desactivado"),
         "Espaço": ("Space", "Espacio"), "Escolha outra combinação.": ("Pick another combination.", "Elige otra combinación."),
@@ -275,6 +281,7 @@ enum Traducao {
          "El chip está a %1°. El Mac irá más lento para enfriarse."),
         ("Restam %1 livres.", "%1 free left.", "Quedan %1 libres."), ("Bateria em %1%", "Battery at %1%", "Batería al %1%"),
         ("A porta %1 caiu", "Port %1 went down", "El puerto %1 se cayó"), ("%1 parou de ouvir nela.", "%1 stopped listening on it.", "%1 dejó de escuchar en él."),
+        ("Nome da porta %1", "Name for port %1", "Nombre del puerto %1"),
         ("Outro app já usa %1", "Another app already uses %1", "Otra app ya usa %1"),
         ("%1 h %2 min", "%1 h %2 min", "%1 h %2 min"), ("%1 d %2 h", "%1 d %2 h", "%1 d %2 h"),
     ]

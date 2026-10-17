@@ -21,6 +21,7 @@ extension Barra {
         }
         a.virarFavorita = { [weak self] n in Pref.virarFavorita(n); self?.estado.favoritas = Pref.favoritas }
         a.outraFavorita = { [weak self] in self?.fecharPainel(); self?.pedirFavorita() }
+        a.nomearPorta = { [weak self] n in self?.fecharPainel(); self?.pedirNome(porta: n) }
         a.copiar = { [weak self] in self?.copiar() }
         a.monitor = { [weak self] in
             self?.fecharPainel()

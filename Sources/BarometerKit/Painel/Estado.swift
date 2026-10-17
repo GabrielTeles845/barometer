@@ -43,6 +43,8 @@ final class Estado: ObservableObject {
     @Published var apareceu = true
     @Published var abaProcessos = 0
     @Published var favoritas: [Int] = []
+    /// Os nomes que a pessoa deu às portas.
+    @Published var nomesDasPortas: [Int: String] = Pref.nomesDasPortas
     @Published var mostrarTudo = false
     @Published var abrirAoLigar = false
     @Published var memoriaNaBarra = true

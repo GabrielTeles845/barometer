@@ -21,9 +21,10 @@ extension Barra {
         }
         if vigia.ligados.contains(.porta) {
             let favoritas = Set(Pref.favoritas)
+            let nomes = Pref.nomesDasPortas
             var ocupadas: [Int: String] = [:]
-            for p in portas where favoritas.contains(p.numero) { ocupadas[p.numero] = p.projeto ?? p.comoChamar }
-            for o in ocultas where favoritas.contains(o.numero) { ocupadas[o.numero] = o.nome }
+            for p in portas where favoritas.contains(p.numero) { ocupadas[p.numero] = nomes[p.numero] ?? p.projeto ?? p.comoChamar }
+            for o in ocultas where favoritas.contains(o.numero) { ocupadas[o.numero] = nomes[o.numero] ?? o.nome }
             l.portas = ocupadas
             // Com as portas fora da barra e o painel fechado, ninguém mais as lê: o aviso pede uma leitura.
             if !precisaDasPortas { varrer() }
