@@ -34,6 +34,18 @@ struct CartaoDeSugestoes: View {
                     }
                 }
             }
+            let servidores = Sugestoes.servidoresDa(estado.sugestoes).count
+            if servidores >= 2 {
+                Button(action: acoes.encerrarServidores) {
+                    Text(t("Encerrar os \(servidores) servidores")).font(.system(size: 11.5, weight: .semibold))
+                        .foregroundStyle(Tinta.texto)
+                        .frame(maxWidth: .infinity).frame(height: 28)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Tinta.tinta.opacity(0.08)))
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 6).padding(.top, 6).padding(.bottom, 2)
+            }
         }
         .padding(.vertical, 4)
         .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.cartao))

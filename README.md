@@ -61,7 +61,8 @@ give it your own name ("store dashboard"), which then shows in the list, the ale
 up as free when nothing is using them.
 
 **Cleanup.** First, what you could close: apps open but unused for over an hour (biggest first) and servers listening
-for over 12 hours, like yesterday's `npm run dev`. Then app caches, npm, Bun and pnpm caches, Xcode DerivedData,
+for over 12 hours, like yesterday's `npm run dev`. With two or more servers, **Quit the N servers** stops them all
+with one confirmation, each the same careful way as the ×. Then app caches, npm, Bun and pnpm caches, Xcode DerivedData,
 simulator caches and old logs, each with its size and what happens after cleaning. The Trash has its own button and
 confirmation. Documents, downloads and photos are never touched.
 

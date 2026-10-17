@@ -152,6 +152,9 @@ verificador aqui.
   conferem na mão, no app instalado.
 - **Nome nas portas** (`Pref.nomesDasPortas`, chave em texto): o lápis da `Linha` (parâmetro `editar`) ou a engrenagem
   ("Dar nome a uma porta…"). Vale na lista, nas livres, nos avisos, nas sugestões da Limpeza e no copiar.
+- **Encerrar os servidores esquecidos de uma vez** (`confirmarEncerrarServidores`, em `Barra+Portas`): lê o trabalho
+  de cada um antes de perguntar (a caixa diz quantos processos vão) e chama o mesmo `encerrar` do ×, um por vez na fila
+  da sonda. Não mexe na `Sonda`, então a prova do × não precisou rodar.
 - O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar

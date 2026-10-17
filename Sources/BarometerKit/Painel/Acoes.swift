@@ -24,6 +24,8 @@ struct Acoes {
     var redimensionar: (CGSize) -> Void = { _ in }
     var limpar: (String) -> Void = { _ in }
     var limparTudo: () -> Void = {}
+    /// "Encerrar os N servidores", na Limpeza: os esquecidos de uma vez, com uma confirmação só.
+    var encerrarServidores: () -> Void = {}
     /// "Começar", nas boas-vindas da primeira abertura.
     var terminarBoasVindas: () -> Void = {}
 }

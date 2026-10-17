@@ -43,6 +43,11 @@ enum Sugestoes {
         .prefix(maximo).map { $0 }
     }
 
+    /// Os servidores da lista (para o "encerrar todos"), na ordem em que aparecem.
+    static func servidoresDa(_ lista: [Sugestao]) -> [(porta: Porta, tempo: TimeInterval)] {
+        lista.compactMap { s in if case .porta(let p) = s.tipo { return (p, s.tempo) } else { return nil } }
+    }
+
     /// As portas de processos ligados há mais de `servidorAntigo`, os mais velhos primeiro. Docker fica de fora
     /// (container costuma ser de propósito).
     static func servidores(_ portas: [Porta], inicio: (Int32) -> Date?, agora: Date, nomes: [Int: String] = [:]) -> [Sugestao] {

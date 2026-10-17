@@ -49,6 +49,18 @@ struct SugestoesTests {
         #expect(comNome.first?.nome == "3000 painel")
     }
 
+    @Test("O encerrar todos pega só os servidores, na ordem da lista")
+    func soServidores() {
+        let p1 = Porta(numero: 3000, pid: 10, comando: "node", endereco: "*")
+        let p2 = Porta(numero: 8000, pid: 11, comando: "python", endereco: "*")
+        let app = Sugestao(id: "app:/x.app", nome: "X", tempo: 9000, bytes: 1, tipo: .app(gasto("X", app: "/x.app", mb: 1, pid: 3)))
+        let lista = [Sugestao(id: "porta:3000", nome: "3000 node", tempo: 50_000, bytes: nil, tipo: .porta(p1)), app,
+                     Sugestao(id: "porta:8000", nome: "8000 python", tempo: 45_000, bytes: nil, tipo: .porta(p2))]
+        let servidores = Sugestoes.servidoresDa(lista)
+        #expect(servidores.map(\.porta.numero) == [3000, 8000])
+        #expect(servidores.map(\.tempo) == [50_000, 45_000])
+    }
+
     @Test("No máximo cinco de cada")
     func maximo() {
         let abertos = (0..<9).map { Sugestoes.AppAberto(caminho: "/\($0).app", nome: "\($0)", ultimoUso: agora.addingTimeInterval(-9000)) }

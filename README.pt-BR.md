@@ -61,7 +61,8 @@ git); no Docker, o container e o projeto do compose. Clicar abre no navegador, o
 quando ninguém está nelas.
 
 **Limpeza.** Primeiro, o que dá para fechar: apps abertos e sem uso há mais de 1 hora (os que mais ocupam primeiro) e
-servidores ligados há mais de 12 horas, como o `npm run dev` de ontem. Depois, cache dos apps, do npm, do Bun e do
+servidores ligados há mais de 12 horas, como o `npm run dev` de ontem. Com dois ou mais servidores, **Encerrar os N
+servidores** fecha todos com uma confirmação só, cada um do mesmo jeito cuidadoso do ×. Depois, cache dos apps, do npm, do Bun e do
 pnpm, dados do Xcode, cache dos simuladores e registros antigos, cada um com o tamanho e o que acontece depois. A
 Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos nunca entram.
 
