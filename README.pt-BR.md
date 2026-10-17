@@ -44,7 +44,9 @@ disco, bateria, memória por partes, o que mais gasta e as portas. Em **Editar**
 lugar arrastando, e dá para escolher quantos processos as listas mostram (3, 5 ou 8).
 
 **CPU.** Uma barra por núcleo, separando os de eficiência e os de desempenho, a frequência de cada grupo, a carga, há
-quanto tempo o Mac está ligado, as temperaturas do chip, do SSD e da bateria, e o que mais usa CPU.
+quanto tempo o Mac está ligado, as temperaturas do chip, do SSD e da bateria, o que mais usa CPU e **quem mais
+esquentou**: o tempo de CPU que cada app gastou nas últimas horas (até 6), para a tarde pesada ter nome. Também pode
+ir para o Geral.
 
 **Memória.** O uso e a pressão (a mesma do Monitor de Atividade), por partes: apps, fixa, comprimida, cache e swap.
 Os que mais usam vêm agrupados por aplicativo: o Chrome com os trinta processos dele vira uma linha só.
@@ -99,7 +101,8 @@ chip, bateria, disco livre, portas abertas, ou as barrinhas de CPU e memória.
 O Barometer só lê o que você está vendo.
 
 - **Painel fechado:** memória, CPU, temperatura, GPU e disco a cada 10 s, por chamadas diretas ao sistema, para o
-  ícone e o gráfico. As portas (`lsof`) só se o número delas está na barra.
+  ícone e o gráfico. Uma vez por minuto, um `ps` para o "quem mais esquentou". As portas (`lsof`) só se o número delas
+  está na barra, ou se o aviso de porta favorita está ligado.
 - **Painel aberto:** a cada 2 s, só o que a aba aberta mostra. A aba Aparência não lê nada; a aba Portas não lista
   processos.
 - **Ao fechar o painel**, tudo o que ele desenhou sai da memória. Com o painel aberto, uns 30 MB.

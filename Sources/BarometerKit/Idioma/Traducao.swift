@@ -182,6 +182,10 @@ enum Traducao {
         "Boas-vindas ao Barometer": ("Welcome to Barometer", "Te damos la bienvenida a Barometer"),
         "Escolha um estilo para começar. Dá para mudar quando quiser, na aba Aparência.": ("Pick a style to start. You can change it anytime in the Appearance tab.", "Elige un estilo para empezar. Puedes cambiarlo cuando quieras en la pestaña Apariencia."),
         "Começar": ("Get started", "Empezar"),
+        // Quem mais esquentou
+        "Quem mais esquentou": ("What heated it up", "Quién más lo calentó"),
+        "Em 2 minutos aparece quem mais gastou.": ("In 2 minutes you'll see what used the most.", "En 2 minutos aparece quién más gastó."),
+        "Nada gastou CPU de verdade.": ("Nothing has really used the CPU.", "Nada ha usado la CPU de verdad."),
         // Nomes das portas
         "Dar nome a uma porta": ("Name a port", "Poner nombre a un puerto"), "Dar nome a uma porta…": ("Name a port…", "Poner nombre a un puerto…"),
         "Aparece na lista, nos avisos e na Limpeza. Deixe em branco para tirar.":
@@ -286,6 +290,7 @@ enum Traducao {
         ("Cada um vai como no ×: o trabalho inteiro, como o Ctrl+C no terminal. São %1 processos no total.",
          "Each one goes like with the ×: the whole job, like Ctrl+C in the terminal. %1 processes in all.",
          "Cada uno se va como con la ×: el trabajo entero, como Ctrl+C en la terminal. Son %1 procesos en total."),
+        ("média %1%", "avg %1%", "media %1%"),
         ("Nome da porta %1", "Name for port %1", "Nombre del puerto %1"),
         ("Outro app já usa %1", "Another app already uses %1", "Otra app ya usa %1"),
         ("%1 h %2 min", "%1 h %2 min", "%1 h %2 min"), ("%1 d %2 h", "%1 d %2 h", "%1 d %2 h"),

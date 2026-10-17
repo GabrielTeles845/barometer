@@ -33,6 +33,21 @@ extension Barra {
         }
         desenharIcone()
         vigiar()
+        // Uma vez por minuto (e na primeira leitura, para ter o ponto de partida): quem gastou CPU.
+        if leituras % 6 == 1 { anotarQuemEsquentou() }
+    }
+
+    func anotarQuemEsquentou() {
+        fila.async { [weak self] in
+            guard let saida = Maquina.tempoDeCPU() else { return }
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.esquentou.anotar(saida, quando: Date())
+                let r = self.esquentou.ranking()
+                if self.estado.quentes != r.lista { self.estado.quentes = r.lista }
+                self.estado.periodoQuente = r.periodo
+            }
+        }
     }
 
     /// O que a tela aberta mostra agora (ver `NaTela`).

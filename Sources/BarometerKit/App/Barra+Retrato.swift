@@ -43,6 +43,15 @@ extension Barra {
         }
         estado.gastos = gastos
         estado.gastosCPU = gastosCPU
+        // Quem mais esquentou: duas leituras com 2 s entre elas, contadas como um minuto.
+        if let a = Maquina.tempoDeCPU() {
+            esquentou.anotar(a, quando: agora)
+            Thread.sleep(forTimeInterval: 2)
+            if let b = Maquina.tempoDeCPU() { esquentou.anotar(b, quando: agora) }
+            let r = esquentou.ranking()
+            estado.quentes = r.lista
+            estado.periodoQuente = r.periodo
+        }
         _ = leitorDeCPU.ler()
         Thread.sleep(forTimeInterval: 1)
         estado.cpuDetalhada = leitorDeCPU.ler()

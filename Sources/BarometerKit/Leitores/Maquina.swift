@@ -135,6 +135,21 @@ enum Maquina {
         return agrupar(String(data: dados, encoding: .utf8) ?? "", eu: getuid(), quantos: quantos)
     }
 
+    /// O tempo de CPU acumulado de cada processo, para o "quem mais esquentou" (`ps -axo time=,rss=,pid=,comm=`).
+    static func tempoDeCPU() -> String? {
+        guard let ps = Ferramenta.ps else { return nil }
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: ps)
+        p.arguments = ["-axo", "time=,rss=,pid=,comm="]
+        let cano = Pipe()
+        p.standardOutput = cano
+        p.standardError = FileHandle.nullDevice
+        do { try p.run() } catch { return nil }
+        let dados = cano.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(data: dados, encoding: .utf8)
+    }
+
     /// A saída do `ps -axo rss=,pcpu=,pid=,uid=,comm=` agrupada: cada aplicativo vira uma linha só (o Chrome com
     /// os seus trinta ajudantes), processo solto fica sozinho. Devolve os maiores por memória e por CPU.
     static func agrupar(_ saida: String, eu: uid_t, quantos: Int = 8) -> (memoria: [Gasto], cpu: [Gasto]) {

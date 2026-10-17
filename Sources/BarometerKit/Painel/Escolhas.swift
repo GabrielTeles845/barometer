@@ -109,13 +109,13 @@ struct ItemGeral: Identifiable, Codable, Equatable {
     static let nomes: [String: String] = [
         "aneis": "Visão rápida", "grafico": "Histórico", "disco": "Disco", "bateria": "Bateria",
         "memoria": "Memória por partes", "cpu": "Núcleos da CPU", "gpu": "GPU", "temperaturas": "Temperaturas",
-        "processos": "O que mais usa", "portas": "Portas", "limpeza": "Limpeza",
+        "processos": "O que mais usa", "portas": "Portas", "limpeza": "Limpeza", "esquentou": "Quem mais esquentou",
     ]
     /// A ordem e o que vem ligado na primeira vez.
     static let padrao: [ItemGeral] = [
         .init(id: "aneis", ligado: true), .init(id: "grafico", ligado: true), .init(id: "disco", ligado: true),
         .init(id: "bateria", ligado: true), .init(id: "memoria", ligado: true), .init(id: "processos", ligado: true),
         .init(id: "portas", ligado: true), .init(id: "cpu", ligado: false), .init(id: "gpu", ligado: false),
-        .init(id: "temperaturas", ligado: false), .init(id: "limpeza", ligado: false),
+        .init(id: "temperaturas", ligado: false), .init(id: "limpeza", ligado: false), .init(id: "esquentou", ligado: false),
     ]
 }

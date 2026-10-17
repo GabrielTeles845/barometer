@@ -98,7 +98,7 @@ Medido em 16/10: com o painel aberto, ~29 MB e estável. Antes do conserto eram 
   cache não para de crescer (3.988 blocos em 85 s, contra 73 sem). Verificador em `ArquiteturaTests`.
 - **Ler só o que está na tela** (`NaTela`): com o painel aberto, a cada 2 s, só o que a aba mostra. Fechado: a cada
   10 s o básico para o ícone e o gráfico; `lsof` só se as portas estão na barra.
-- Um `ps` só para as duas listas de processos. Fechar o painel solta o desenho (`contentView = nil`).
+- Um `ps` só para as duas listas de processos (e um por minuto para o "quem mais esquentou"). Fechar o painel solta o desenho (`contentView = nil`).
 - Relógios com `tolerance`. Nada de processo novo a cada leitura quando dá para chamar o kernel.
 - Mudou algo que roda sempre? Medir antes e depois com `footprint` e `heap` numa cópia com `--abrir`.
 
@@ -159,6 +159,11 @@ verificador aqui.
   `Estado` quando muda de ponto (cada mudança redesenha o painel). Na foto: `--acender g:90` (90 min atrás).
 - **Eixo do tempo sem hora cortada:** marca nos 12% de cada ponta fica de fora (`EixoDoTempo.margem`); com 7% o
   "12:00" ainda saía "1…".
+- **Quem mais esquentou** (`QuemEsquentou`, tipo puro; cartão na aba CPU e opcional no Geral): um `ps -axo
+  time=,rss=,pid=,comm=` por minuto, também com o painel fechado (único processo novo fixo do app fechado). A diferença
+  do tempo de CPU acumulado entre duas leituras é o gasto do minuto; pid novo conta tudo, pid reaproveitado por outro
+  programa não vira negativo. Guarda os 12 maiores de cada minuto por 6 h. Tempo curto na coluna ("40 s", "2 h 5 min"):
+  "menos de 1 min" saía cortado.
 - O Gabriel escolheu, da lista de melhorias de 17/10, o arrastar, o atalho, o teclado e os avisos. O resto da lista
   (buscar digitando, fixar o painel, ícone que muda de cor, histórico de quem esquentou, botão direito no processo,
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar

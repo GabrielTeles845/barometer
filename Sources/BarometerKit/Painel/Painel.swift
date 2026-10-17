@@ -97,6 +97,7 @@ struct Painel: View {
             Grafico(pontos: estado.pontos, aba: $estado.aba, fixa: 1)
             CartaoDeTemperaturas(t: estado.temperatura)
             Processos(estado: estado, fechar: acoes.fechar, fixo: 1)
+            CartaoQuemEsquentou(estado: estado)
         case .memoria:
             CartaoDaMemoria(estado: estado)
             Grafico(pontos: estado.pontos, aba: $estado.aba, fixa: 0)
@@ -134,6 +135,7 @@ struct Painel: View {
         case "processos": Processos(estado: estado, fechar: acoes.fechar)
         case "portas": Portas(estado: estado, acoes: acoes)
         case "limpeza": ResumoDaLimpeza(estado: estado)
+        case "esquentou": CartaoQuemEsquentou(estado: estado)
         default: EmptyView()
         }
     }

@@ -14,6 +14,9 @@ final class Estado: ObservableObject {
     @Published var temperatura = Sensores.Leitura(chip: nil, chipMaximo: nil, ssd: nil, bateria: nil)
     @Published var gastos: [Maquina.Gasto] = []
     @Published var gastosCPU: [Maquina.Gasto] = []
+    /// Quem mais gastou CPU nas últimas horas, e quanto tempo isso cobre (em segundos).
+    @Published var quentes: [QuemEsquentou.Quente] = []
+    @Published var periodoQuente: TimeInterval = 0
     @Published var cpuDetalhada: CPUDetalhada?
     @Published var gpu: GPU?
     @Published var disco: Disco?

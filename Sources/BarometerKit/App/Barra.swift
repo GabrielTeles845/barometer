@@ -43,6 +43,7 @@ final class Barra: NSObject, NSApplicationDelegate {
     var cpusDoMinuto: [Double] = []
     var ouvido: OuvidoDoAtalho?
     var vigia = Vigia()
+    var esquentou = QuemEsquentou()
 
     var portas: [Porta] = [] { didSet { estado.portas = portas } }
     var ocultas: [(numero: Int, nome: String)] = [] { didSet { estado.ocultas = ocultas } }

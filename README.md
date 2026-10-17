@@ -44,7 +44,8 @@ battery, memory breakdown, top processes and open ports. **Edit** turns each car
 order, and sets how many processes the lists show (3, 5 or 8).
 
 **CPU.** One bar per core, efficiency and performance cores apart, each cluster's frequency, load, uptime, chip, SSD
-and battery temperatures, and the processes using the most CPU.
+and battery temperatures, the processes using the most CPU, and **what heated it up**: the CPU time each app used
+over the last hours (up to 6), so a heavy afternoon has a name. It can also go on the Overview.
 
 **Memory.** Usage and memory pressure (the same Activity Monitor shows), split into apps, wired, compressed, cached
 and swap. The biggest users are grouped by app: Chrome and its thirty helpers become one line.
@@ -100,7 +101,8 @@ battery, free disk, open ports, or the little CPU and memory bars.
 Barometer only reads what you can see.
 
 - **Panel closed:** memory, CPU, temperature, GPU and disk every 10 seconds, through direct system calls, for the
-  icon and the chart. Ports (`lsof`) only if their count is in the menu bar.
+  icon and the chart. Once a minute, one `ps` for "what heated it up". Ports (`lsof`) only if their count is in the
+  menu bar, or if the favorite-port alert is on.
 - **Panel open:** every 2 seconds, only what the open tab shows. The Appearance tab reads nothing; the Ports tab
   doesn't list processes.
 - **Closing the panel** drops everything it drew from memory. About 30 MB with the panel open.
