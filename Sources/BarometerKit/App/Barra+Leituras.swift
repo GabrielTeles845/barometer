@@ -34,7 +34,7 @@ extension Barra {
         desenharIcone()
         vigiar()
         // Uma vez por minuto (e na primeira leitura, para ter o ponto de partida): quem gastou CPU.
-        if leituras % 6 == 1 { anotarQuemEsquentou() }
+        if leituras % 6 == 1 && !estado.paraImagem { anotarQuemEsquentou() }
     }
 
     func anotarQuemEsquentou() {

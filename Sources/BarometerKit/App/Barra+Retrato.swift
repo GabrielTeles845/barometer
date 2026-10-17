@@ -41,13 +41,24 @@ extension Barra {
         for i in gastos.indices where gastos[i].app == nil && gastos[i].meu {
             if let pasta = sonda.pastaDoProcesso(gastos[i].pid) { gastos[i].projeto = sonda.projeto(de: pasta) }
         }
+        // Fotos do README (BAROMETER_FOTO_PORTAS=4000,5173): só as portas de exemplo, e nenhum projeto de verdade da
+        // máquina ao lado dos processos.
+        if let lista = ProcessInfo.processInfo.environment["BAROMETER_FOTO_PORTAS"] {
+            let demo = Set(lista.split(separator: ",").compactMap { Int($0) })
+            estado.portas = estado.portas.filter { demo.contains($0.numero) }
+            estado.ocultas = []
+            let nomesDemo: Set<String> = ["my-store", "landing-site", "minha-loja", "site-vitrine"]
+            for i in gastos.indices where !nomesDemo.contains(gastos[i].projeto ?? "") { gastos[i].projeto = nil }
+            for i in gastosCPU.indices { gastosCPU[i].projeto = nil }
+        }
         estado.gastos = gastos
         estado.gastosCPU = gastosCPU
         // Quem mais esquentou: duas leituras com 2 s entre elas, contadas como um minuto.
         if let a = Maquina.tempoDeCPU() {
-            esquentou.anotar(a, quando: agora)
+            esquentou = QuemEsquentou()
+            esquentou.anotar(a, quando: Date())
             Thread.sleep(forTimeInterval: 2)
-            if let b = Maquina.tempoDeCPU() { esquentou.anotar(b, quando: agora) }
+            if let b = Maquina.tempoDeCPU() { esquentou.anotar(b, quando: Date()) }
             let r = esquentou.ranking()
             estado.quentes = r.lista
             estado.periodoQuente = r.periodo

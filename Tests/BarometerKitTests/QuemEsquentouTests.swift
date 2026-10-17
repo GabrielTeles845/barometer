@@ -47,6 +47,16 @@ struct QuemEsquentouTests {
         #expect(r["outro"] == 2)
     }
 
+    @Test("O período é o tempo medido de verdade, não o número de leituras vezes 60 s")
+    func periodoReal() {
+        var q = QuemEsquentou()
+        q.anotar("1:00.00 100 10 /bin/a\n", quando: t0)
+        q.anotar("1:01.00 100 10 /bin/a\n", quando: t0.addingTimeInterval(2))
+        #expect(q.ranking().periodo == 2)
+        q.anotar("1:02.00 100 10 /bin/a\n", quando: t0.addingTimeInterval(92))
+        #expect(q.ranking().periodo == 92)
+    }
+
     @Test("Guarda no máximo 6 horas")
     func limite() {
         var q = QuemEsquentou()

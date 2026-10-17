@@ -29,7 +29,9 @@ struct QuemEsquentou {
     static let porMinuto = 12
 
     private var antes: [Int32: (cpu: Double, chave: String)] = [:]
-    private(set) var minutos: [(quando: Date, grupos: [String: Grupo])] = []
+    private var ultima: Date?
+    /// Cada leitura com o tempo que ela cobre de verdade (60 s no app; o Mac dormindo pode esticar).
+    private(set) var minutos: [(quando: Date, duracao: TimeInterval, grupos: [String: Grupo])] = []
 
     /// "416:39.44" (minutos:segundos) em segundos. Com hora ("1:02:03.4"), também.
     static func segundos(_ texto: Substring) -> Double? {
@@ -70,9 +72,11 @@ struct QuemEsquentou {
             grupos[chave] = g
         }
         antes = agora
-        guard !primeira else { return }
+        let desde = ultima
+        ultima = quando
+        guard !primeira, let desde else { return }
         let maiores = grupos.sorted { $0.value.cpu > $1.value.cpu }.prefix(Self.porMinuto).filter { $0.value.cpu > 0 }
-        minutos.append((quando, Dictionary(uniqueKeysWithValues: maiores.map { ($0.key, $0.value) })))
+        minutos.append((quando, max(0, quando.timeIntervalSince(desde)), Dictionary(uniqueKeysWithValues: maiores.map { ($0.key, $0.value) })))
         if minutos.count > Self.minutosGuardados { minutos.removeFirst(minutos.count - Self.minutosGuardados) }
     }
 
@@ -89,7 +93,7 @@ struct QuemEsquentou {
         }
         let lista = soma.sorted { $0.value.cpu > $1.value.cpu }.prefix(quantos)
             .map { Quente(nome: $0.key, app: $0.value.app, cpu: $0.value.cpu, pico: $0.value.bytes) }
-        return (lista, Double(minutos.count) * 60)
+        return (lista, minutos.map(\.duracao).reduce(0, +))
     }
 
     /// "40 s", "38 min", "2 h 5 min": curto, para caber na coluna sem cortar.
