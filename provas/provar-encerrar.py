@@ -44,6 +44,15 @@ with tempfile.TemporaryDirectory() as tmp:
 
     PORTA = "3399"          # alta e improvável, para não brigar com nada seu
     falhas = 0
+    print(f"python das cobaias: {sys.executable} {sys.version.split()[0]}")
+    # A saída de erro das cobaias vai para um arquivo: quando uma não sobe, a prova mostra por quê.
+    erros = open(os.path.join(tmp, "cobaias.log"), "w+")
+
+    def por_que():
+        erros.flush()
+        erros.seek(0)
+        texto = erros.read().strip()
+        return texto[-1500:] if texto else "(a cobaia não escreveu nada)"
 
     def ouvinte():
         r = subprocess.run(["/usr/sbin/lsof", "-nP", f"-iTCP:{PORTA}", "-sTCP:LISTEN"],
@@ -137,16 +146,16 @@ with tempfile.TemporaryDirectory() as tmp:
     pyprog = (
         "import subprocess,sys,time\n"
         f"f=subprocess.Popen([sys.executable,'-m','http.server','{PORTA}'],"
-        "stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n"
+        "stdout=subprocess.DEVNULL)\n"
         "time.sleep(600)\n")
     pai2 = subprocess.Popen([sys.executable, "-c", pyprog],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            stdout=subprocess.DEVNULL, stderr=erros)
     for _ in range(40):
         time.sleep(0.25)
         if ouvinte():
             break
     filho2 = ouvinte()
-    provar("a cobaia subiu e ocupou a porta", filho2 is not None)
+    provar("a cobaia subiu e ocupou a porta", filho2 is not None, por_que())
     if filho2:
         plano, membros = decidir(filho2)
         pids = [p for p, _ in membros]
@@ -171,17 +180,17 @@ with tempfile.TemporaryDirectory() as tmp:
         "import subprocess,sys,time\n"
         "while True:\n"
         f"    f=subprocess.Popen([sys.executable,'-m','http.server','{PORTA}'],"
-        "stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)\n"
+        "stdout=subprocess.DEVNULL)\n"
         "    f.wait()\n"
         "    time.sleep(0.2)\n")
     suv = subprocess.Popen([sys.executable, "-c", pyprog3],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                           stdout=subprocess.DEVNULL, stderr=erros)
     for _ in range(40):
         time.sleep(0.25)
         if ouvinte():
             break
     alvo3 = ouvinte()
-    provar("o supervisor subiu e a porta está ocupada", alvo3 is not None)
+    provar("o supervisor subiu e a porta está ocupada", alvo3 is not None, por_que())
 
     if alvo3:
         # Primeiro a prova de que o bug era real: matar só quem ouve.
