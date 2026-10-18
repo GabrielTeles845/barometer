@@ -14,24 +14,43 @@ struct CartaoDaCPU: View {
                 grupo(cpu.nucleos.filter(\.eficiencia), cor: Tinta.eficiencia, rotulo: "E", ghz: cpu.ghzE)
                 grupo(cpu.nucleos.filter { !$0.eficiencia }, cor: Tinta.cpu, rotulo: "P", ghz: cpu.ghzP)
             }
-            HStack(spacing: 10) {
-                miudo("usuário", "\(Int((cpu.usuario * 100).rounded()))%")
-                miudo("sistema", "\(Int((cpu.sistema * 100).rounded()))%")
-                miudo("carga", decimal(cpu.carga.0))
-                if let d = cpu.ligadoDesde { miudo("ligado há", tempo(desde: d)) }
-                Spacer(minLength: 0)
-                // O estado térmico só aparece quando sai do normal: "tudo bem" o tempo todo é ruído.
-                if cpu.termico != .nominal {
-                    HStack(spacing: 4) {
-                        Circle().fill(corTermica).frame(width: 5, height: 5)
-                        Text(t(textoTermico)).font(.system(size: 10, weight: .medium)).foregroundStyle(corTermica)
-                    }
-                    .fixedSize()
+            // O estado térmico só aparece quando sai do normal: "tudo bem" o tempo todo é ruído. Se a linha não cabe
+            // (em espanhol, ou com "quente, reduzindo"), ela quebra em duas, em vez de alargar o painel e cortar as
+            // duas bordas (18/10). Verificador em `LarguraTests`.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 10) { uso; ligado; Spacer(minLength: 0); termico }
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 10) { uso; ligado }
+                    termico
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 10) { uso }
+                    HStack(spacing: 10) { ligado; termico }
                 }
             }
         }
         .padding(10)
         .background(RoundedRectangle(cornerRadius: 10).fill(Tinta.cartao))
+    }
+
+    @ViewBuilder private var uso: some View {
+        miudo("usuário", "\(Int((cpu.usuario * 100).rounded()))%")
+        miudo("sistema", "\(Int((cpu.sistema * 100).rounded()))%")
+        miudo("carga", decimal(cpu.carga.0))
+    }
+
+    @ViewBuilder private var ligado: some View {
+        if let d = cpu.ligadoDesde { miudo("ligado há", tempo(desde: d)) }
+    }
+
+    @ViewBuilder private var termico: some View {
+        if cpu.termico != .nominal {
+            HStack(spacing: 4) {
+                Circle().fill(corTermica).frame(width: 5, height: 5)
+                Text(t(textoTermico)).font(.system(size: 10, weight: .medium)).foregroundStyle(corTermica)
+            }
+            .fixedSize()
+        }
     }
 
     private func grupo(_ nucleos: [Nucleo], cor: Color, rotulo: String, ghz: Double?) -> some View {

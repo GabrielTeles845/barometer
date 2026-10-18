@@ -123,7 +123,9 @@ espera), igual em qualquer Python. CI verde desde `3abcfab`.
 ## Verificadores (`Tests/BarometerKitTests/ArquiteturaTests.swift`)
 
 Cada um trava um erro que já aconteceu: arquivo acima de 450 linhas, `numericText`, `UserDefaults.standard` fora do
-`Pref`, frase fixa sem tradução, `glassEffect` sem `#available(macOS 26, *)`. Defeito novo que dá para medir vira
+`Pref`, frase fixa sem tradução, `glassEffect` sem `#available(macOS 26, *)`. `LarguraTests` mede o cartão da CPU nos três idiomas e em cada estado
+térmico: linha com `fixedSize` que passa dos 332 pt alarga o painel e corta as duas bordas (18/10, o "esquentando" e o
+"encendido hace" empurravam o título "CPU" para fora; agora a linha quebra em duas com `ViewThatFits`). Defeito novo que dá para medir vira
 verificador aqui.
 
 ## Desenho

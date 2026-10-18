@@ -21,7 +21,7 @@ enum Idioma: String, CaseIterable {
 
     /// O idioma em uso: o escolhido, ou o primeiro do Mac que o app fala (inglês quando nenhum).
     /// Para a foto (`--retrato --idioma en`): passa por cima do escolhido e do Mac.
-    static var forcado: Idioma?
+    nonisolated(unsafe) static var forcado: Idioma?
 
     static var atual: Idioma {
         if let forcado { return forcado }
