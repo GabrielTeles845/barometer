@@ -89,6 +89,16 @@ struct SondaTests {
         #expect(sonda.projeto(de: modelo.path, casa: raiz.path) == "site")
     }
 
+    @Test("Não procura projeto em pasta guardada pelo macOS (o sistema perguntaria pelo Apple Music)")
+    func pastaGuardada() {
+        let sonda = Sonda()
+        #expect(sonda.projeto(de: "/Users/x/Library/Containers/com.docker.docker/Data", casa: "/Users/x") == nil)
+        #expect(sonda.projeto(de: "/Users/x/Music/Music", casa: "/Users/x") == nil)
+        #expect(Sonda.pastaGuardada("/Users/x/Library", casa: "/Users/x"))
+        #expect(!Sonda.pastaGuardada("/Users/x/LibraryApp", casa: "/Users/x"))
+        #expect(!Sonda.pastaGuardada("/Users/x/Projetos/loja", casa: "/Users/x"))
+    }
+
     @Test("Docker é reconhecido pelo nome do processo")
     func docker() {
         #expect(Porta.ehDocker("com.docker.backend"))

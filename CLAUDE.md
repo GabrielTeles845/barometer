@@ -196,6 +196,18 @@ verificador aqui.
   nome nas portas, fechar servidores de uma vez, mouse no gráfico, período do gráfico, intervalo ajustável, copiar
   foto, última aba, acessibilidade) fica para quando ele pedir.
 
+## Pedido de permissão do macOS (18/10)
+
+- **O Apple Music não é assunto do app.** A Limpeza media `~/Library/Caches` inteira e entrava em `com.apple.Music`,
+  `com.apple.iTunes`, `com.apple.AMPLibraryAgent`: o macOS perguntava "Permitir que o Barometer acesse o Apple Music?",
+  e a pergunta voltava a cada instalação (assinatura local nova a cada build, então a resposta anterior não vale).
+  Agora `Limpeza.protegida` deixa de fora toda pasta `com.apple.*` na medida e na limpeza.
+- O nome do projeto de cada porta (`Sonda.projeto`) não procura em `~/Library`, `~/Music`, `~/Movies`, `~/Pictures`
+  (`Sonda.pastaGuardada`): o Docker roda dentro de `Library/Containers` e o macOS perguntaria pelos dados de outros apps.
+- Como conferir: `open -n -W ~/Applications/Barometer.app --args --retrato x.png --aba limpeza` (pelo `open` o pedido
+  é do app, não do terminal) e `/usr/bin/log show --last 5m --predicate 'process == "tccd"' | grep barometer`. No zsh,
+  `log` é comando interno: use `/usr/bin/log`. Sobra um `SystemPolicyAllFiles` da Lixeira, que o macOS nega calado.
+
 ## Versões publicadas
 
 - **v1.0.0 (17/10):** https://github.com/GabrielTeles845/barometer/releases/tag/v1.0.0. Assinatura local (ad hoc):

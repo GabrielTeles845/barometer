@@ -80,7 +80,8 @@ up as free when nothing is using them.
 for over 12 hours, like yesterday's `npm run dev`. With two or more servers, **Quit the N servers** stops them all
 with one confirmation, each the same careful way as the ×. Then app caches, npm, Bun and pnpm caches, Xcode DerivedData,
 simulator caches and old logs, each with its size and what happens after cleaning. The Trash has its own button and
-confirmation. Documents, downloads and photos are never touched.
+confirmation. Documents, downloads and photos are never touched, and neither are the folders macOS guards for
+Apple apps (Music, Photos, Mail), so the app never asks to see your Apple Music library.
 
 **Appearance.** Eight ready-made styles to pick on first launch, from Classic to liquid-glass Sunset, plus
 **Custom**, where you pick the color of each reading. **Light, dark, or following your Mac**, and a style never changes

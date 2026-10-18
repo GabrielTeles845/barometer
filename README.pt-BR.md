@@ -82,7 +82,8 @@ quando ninguém está nelas.
 servidores ligados há mais de 12 horas, como o `npm run dev` de ontem. Com dois ou mais servidores, **Encerrar os N
 servidores** fecha todos com uma confirmação só, cada um do mesmo jeito cuidadoso do ×. Depois, cache dos apps, do npm, do Bun e do
 pnpm, dados do Xcode, cache dos simuladores e registros antigos, cada um com o tamanho e o que acontece depois. A
-Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos nunca entram.
+Lixeira tem botão e confirmação próprios. Documentos, downloads e fotos nunca entram, nem as pastas que o macOS guarda
+para os apps da Apple (Música, Fotos, Mail): o app nunca pede para ver o seu Apple Music.
 
 **Aparência.** Oito estilos prontos para escolher logo na primeira abertura, do Clássico ao Entardecer em vidro
 líquido, e o **Personalizado**, em que você escolhe a cor de cada leitura. **Claro, escuro ou junto com o Mac**, e

@@ -185,6 +185,10 @@ final class Sonda {
     /// Para no diretório pessoal: acima dele não há projeto de ninguém.
     func projeto(de pasta: String, casa: String = NSHomeDirectory()) -> String? {
         if let pronto = projetoDe[pasta] { return pronto.isEmpty ? nil : pronto }
+        // Pasta guardada pelo macOS (a de outro app em Library/Containers, Música, Fotos): só de procurar o
+        // package.json ali o sistema pergunta se o Barometer pode ver o Apple Music ou os dados de outros apps
+        // (18/10, o Docker roda dentro do container dele). Projeto de ninguém mora nessas pastas.
+        if Sonda.pastaGuardada(pasta, casa: casa) { projetoDe[pasta] = ""; return nil }
         let fm = FileManager.default
         var atual = pasta
         var achado = ""

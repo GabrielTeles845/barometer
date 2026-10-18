@@ -44,18 +44,30 @@ enum Limpeza {
     /// O espaço que a pasta ocupa de verdade no disco. Pasta sem permissão (a Lixeira, sem Acesso Total ao Disco)
     /// devolve nil, e o painel mostra que não deu para medir.
     static func tamanho(_ url: URL) -> Double? {
-        guard (try? FileManager.default.contentsOfDirectory(atPath: url.path)) != nil else { return nil }
+        guard let nomes = try? FileManager.default.contentsOfDirectory(atPath: url.path) else { return nil }
         let chaves: [URLResourceKey] = [.totalFileAllocatedSizeKey, .isRegularFileKey]
-        guard let e = FileManager.default.enumerator(at: url, includingPropertiesForKeys: chaves, options: [],
-                                                     errorHandler: { _, _ in true }) else { return nil }
         var total: Double = 0
-        for case let arquivo as URL in e {
-            if let v = try? arquivo.resourceValues(forKeys: Set(chaves)), v.isRegularFile == true {
+        for nome in nomes where !protegida(nome) {
+            let filho = url.appendingPathComponent(nome)
+            if let v = try? filho.resourceValues(forKeys: Set(chaves)), v.isRegularFile == true {
                 total += Double(v.totalFileAllocatedSize ?? 0)
+                continue
+            }
+            guard let e = FileManager.default.enumerator(at: filho, includingPropertiesForKeys: chaves, options: [],
+                                                         errorHandler: { _, _ in true }) else { continue }
+            for case let arquivo as URL in e {
+                if let v = try? arquivo.resourceValues(forKeys: Set(chaves)), v.isRegularFile == true {
+                    total += Double(v.totalFileAllocatedSize ?? 0)
+                }
             }
         }
         return total
     }
+
+    /// As pastas da Apple dentro dos caches e dos registros (`com.apple.Music`, `com.apple.iTunes`, as do Fotos,
+    /// do Mail…) são guardadas pelo macOS: só de entrar nelas o sistema pergunta se o Barometer pode ver o Apple
+    /// Music e afins, e a pergunta volta a cada versão nova (18/10). Ficam fora da medida e da limpeza.
+    static func protegida(_ nome: String) -> Bool { nome.hasPrefix("com.apple.") }
 
     /// Apaga o que está dentro da pasta (a pasta fica). O que estiver em uso e não sair fica para trás, sem erro.
     /// Devolve quanto foi liberado.
@@ -67,7 +79,7 @@ enum Limpeza {
             return 0
         }
         let fm = FileManager.default
-        for nome in (try? fm.contentsOfDirectory(atPath: item.pasta.path)) ?? [] {
+        for nome in (try? fm.contentsOfDirectory(atPath: item.pasta.path)) ?? [] where !protegida(nome) {
             try? fm.removeItem(at: item.pasta.appendingPathComponent(nome))
         }
         return max(0, (antes ?? 0) - (tamanho(item.pasta) ?? 0))
